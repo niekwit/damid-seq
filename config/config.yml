@@ -1,0 +1,18 @@
+genome: "hg38" # human or mouse
+ensembl_genome_build: "110"
+resources: # computing resources
+  account: XXX 
+  partition: cclake
+  max_jobs: 300
+  trim:
+    cpu: 8
+    time: 60
+  fastqc:
+    cpu: 4
+    time: 60
+  damid:
+    cpu: 8
+    time: 120
+  plotting:
+    cpu: 2
+    time: 20
