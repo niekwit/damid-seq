@@ -1,42 +1,71 @@
-rule get_genome_fasta:
+rule get_fasta:
     output:
-        ensure(resources.fasta, sha256=resources.gencode_fa_sha256)
+        resources.fasta,
     retries: 3
     params:
-        url=resources.gencode_fa_url,
+        url=resources.fasta_url,
     log:
-        "logs/resources/get_gencode_fasta.log"
+        "logs/resources/get_fasta.log"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources: 
+        runtime=config["resources"]["plotting"]["time"]
     conda:
-        "../envs/mapping.yml"
-    shell:
-        "wget -q {params.url} -O {output}.gz && gunzip -f {output}.gz 2> {log}"
+        "../envs/damid.yaml"
+    script:
+        "../scripts/get_resource.sh"
 
 
-rule get_transcriptome_fasta:
+rule index_fasta:
+    input:
+        resources.fasta,
     output:
-        ensure(resources.gencode_trx_fasta, sha256=resources.gencode_trx_fa_sha256)
-    retries: 3
-    params:
-        url=gencode_trx_fa_url,
+        f"{resources.fasta}.fai",
     log:
-        "logs/resources/get_transcriptome_fasta.log"
+        "logs/resources/index_fasta.log"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources: 
+        runtime=config["resources"]["plotting"]["time"]
     conda:
-        "../envs/mapping.yml"
-    shell:
-        "wget -q {params.url} -O {output}.gz && gunzip -f {output}.gz 2> {log}"
+        "../envs/damid.yaml"
+    wrapper:
+        "v3.3.3/bio/samtools/faidx"
 
 
-rule get_gencode_gtf:
+rule chrom_sizes:
+    input:
+        resources.fasta,
     output:
-        ensure(resources.gencode_gtf, sha256=resources.gencode_gtf_sha256)
-    retries: 3
-    params:
-        url=resources.gencode_gtf_url,
+        f"resources/{resources.genome}_chrom.sizes",
     log:
-        "logs/resources/get_gencode_gtf.log"
-    conda:
-        "../envs/mapping.yml"
+        "logs/resources/chrom_sizes.log"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources: 
+        runtime=config["resources"]["plotting"]["time"]
     shell:
-        "wget -q {params.url} -O {output}.gz && gunzip -f {output}.gz 2> {log}"
+        "awk '{{print $1,$2}}' | "
+        r"sed 's/ /\t/' {input} > {output}"
 
 
+use rule get_fasta as get_gtf with:
+        output:
+            resources.gtf,
+        params:
+            url=resources.gtf_url,
+        log:
+            "logs/resources/get_gtf.log"
+
+
+rule install_find_peaks_software:
+    output:
+        directory("resources/find_peaks")
+    log:
+        "logs/resources/install_find_peaks_software.log"
+    threads: 1
+    resources: 
+        runtime=5
+    conda:
+        "../envs/damid.yaml"
+    shell:
+        "git clone "
+        "https://github.com/owenjm/find_peaks.git "
+        "resources/find_peaks > {log} 2>&1"
