@@ -1,34 +1,39 @@
 import os
+import glob
+import pandas as pd
 from scripts.resources import Resources
-from scripts import general_functions as gf
+include: "scripts/general_functions.smk"
 from snakemake.utils import min_version
 
 # set minimum snakemake version
-min_version("6.4.1")
+min_version("7.25.0")
 
 # load config file
 configfile: "config/config.yaml"
 
+# Load sample information
+csv = pd.read_csv("config/samples.csv")
+
 # load genome resources to be used in rules
 resources = Resources(config["genome"], config["ensembl_genome_build"])
 
-# get sample names
-SAMPLES = gf.import_samples()
+# get sample directories
+DIRS = dirs()
+SAMPLES = samples()
 
 # import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
 include: "rules/resources.smk"
+include: "rules/setup.smk"
 include: "rules/damid.smk"
 include: "rules/bedgraph_processing.smk"
-include: "rules/plotting.smk"
+#include: "rules/plotting.smk"
 
 # target rule
 rule all:
     input: 
-        "results/plots/mapping_rates.pdf",
-        "results/plots/pca.pdf",
-        "results/plots/sample_distance.pdf",
+        targets()
 
 
 # save snakemake terminal output to log file
