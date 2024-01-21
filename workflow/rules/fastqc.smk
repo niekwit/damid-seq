@@ -10,7 +10,7 @@ rule fastqc:
         "logs/fastqc/{sample}{end}.log"
     threads: config["resources"]["fastqc"]["cpu"]
     wrapper:
-        "v2.0.0/bio/fastqc"
+        "v3.3.4/bio/fastqc"
 
 
 rule multiqc:
@@ -25,4 +25,4 @@ rule multiqc:
     log:
         "logs/multiqc/multiqc.log"
     wrapper:
-        "v2.6.0/bio/multiqc"
+        "v3.3.4/bio/multiqc"
