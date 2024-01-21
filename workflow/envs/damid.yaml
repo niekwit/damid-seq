@@ -1,0 +1,9 @@
+name: damid
+channels: 
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - damidseq_pipeline=1.5.3
+  - trim-galore=0.6.10
+  - perl-inline-c=0.81

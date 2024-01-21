@@ -1,0 +1,19 @@
+genome: "hg38" # human or mouse
+ensembl_genome_build: "110"
+paired_end: True # paired-end or single-end
+resources: # computing resources
+  trim:
+    cpu: 8
+    time: 60
+  fastqc:
+    cpu: 4
+    time: 60
+  damid:
+    cpu: 8
+    time: 120
+  index:
+    cpu: 36
+    time: 60
+  plotting:
+    cpu: 2
+    time: 20
