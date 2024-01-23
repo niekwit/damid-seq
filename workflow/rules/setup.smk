@@ -3,16 +3,16 @@ rule make_gatc_tracks:
         sw="resources/damidseq_pipeline",
         fa=resources.fasta,
     output:
-        gatc=f"resources/{resources.genome}.GATC.gff",
+        gatc=f"resources/genome.GATC.gff",
     params:
-        genome=f"resources/{resources.genome}",
+        genome=f"resources/genome",
     threads: config["resources"]["fastqc"]["cpu"],
     resources:
         time=config["resources"]["fastqc"]["time"],
     conda:
         "../envs/damid.yaml",
     log:
-        f"logs/make_gatc_tracks/{resources.genome}.log",
+        f"logs/make_gatc_tracks/tracks.log",
     shell:
         "perl resources/damidseq_pipeline/gatc.track.maker.pl "
         "--name={params.genome} "
@@ -24,7 +24,7 @@ rule bowtie2_build_index:
         ref=resources.fasta,
     output:
         multiext(
-            f"resources/bowtie2_index/{resources.genome}/index",
+            f"resources/bowtie2_index/index",
             ".1.bt2",
             ".2.bt2",
             ".3.bt2",

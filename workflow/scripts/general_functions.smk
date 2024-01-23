@@ -38,7 +38,7 @@ def samples(bedgraph=False):
                     not_found.append(r1)
     if len(not_found) != 0:
         not_found = "\n".join(not_found)
-        raise ValueError(f"ERROR: following files not found:\n{not_found}")
+        raise ValueError(f"following files not found:\n{not_found}")
     
     # Only return non-Dam samples if bedgraph is True
     if bedgraph:

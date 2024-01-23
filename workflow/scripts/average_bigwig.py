@@ -1,3 +1,5 @@
+#DELETE THIS SCRIPT LATER
+
 from snakemake.shell import shell
 
 # Load Snakemake variables
@@ -5,7 +7,7 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 threads = snakemake.threads
 
 all_bw = snakemake.input
-sample = snakemake.wildcards["sample"]
+sample = snakemake.wildcards["bg_sample"]
 out = snakemake.output["bw"]
 
 # Get all samples in condition

@@ -40,6 +40,8 @@ rule chrom_sizes:
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
+    conda:
+        "../envs/damid.yaml"
     shell:
         "awk '{{print $1,$2}}' {input.fai} | "
         r"sed 's/ /\t/'  > {output}"
