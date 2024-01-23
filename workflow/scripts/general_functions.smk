@@ -68,7 +68,8 @@ def paired_end():
     """Checks if paired-end reads are used
     """
     # Get one fastq file
-    reads = glob.glob("reads/*/*")
+    reads = glob.glob("reads/*/*.gz")
+    assert len(reads) != 0, "No fastq files found..."
     fastq = reads[0]
 
     # Check file extension to see if paired-end reads are used
