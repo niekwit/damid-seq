@@ -25,7 +25,7 @@ def samples(bedgraph=False):
     not_found = []
     for sample in SAMPLES:
         for dir in DIRS:
-            if config["paired_end"]:
+            if paired_end():
                 r1= f"reads/{dir}/{sample}_R1_001.fastq.gz"
                 r2= f"reads/{dir}/{sample}_R2_001.fastq.gz"
                 if not os.path.isfile(r1):
