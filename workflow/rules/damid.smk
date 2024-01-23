@@ -14,7 +14,7 @@ rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces
         ),
     params:
         idxdir=f"resources/bowtie2_index/{resources.genome}/index",
-        paired=config["paired_end"],
+        paired=paired_end(),
         extra=config["extra"],
     output:
         bg=directory(expand("results/bedgraph/{dir}", dir=DIRS)),
