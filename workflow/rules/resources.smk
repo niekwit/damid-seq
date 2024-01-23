@@ -25,15 +25,14 @@ rule index_fasta:
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
-    conda:
-        "../envs/damid.yaml"
     wrapper:
         "v3.3.3/bio/samtools/faidx"
 
 
 rule chrom_sizes:
     input:
-        resources.fasta,
+        fa=resources.fasta,
+        fai=f"{resources.fasta}.fai",
     output:
         f"resources/{resources.genome}_chrom.sizes",
     log:
@@ -42,8 +41,8 @@ rule chrom_sizes:
     resources: 
         runtime=config["resources"]["plotting"]["time"]
     shell:
-        "awk '{{print $1,$2}}' | "
-        r"sed 's/ /\t/' {input} > {output}"
+        "awk '{{print $1,$2}}' {input.fai} | "
+        r"sed 's/ /\t/'  > {output}"
 
 
 use rule get_fasta as get_gtf with:
@@ -57,7 +56,9 @@ use rule get_fasta as get_gtf with:
 
 rule install_find_peaks_software:
     output:
-        directory("resources/find_peaks")
+        directory("resources/find_peaks"),
+    params:
+        url="https://github.com/owenjm/find_peaks.git",
     log:
         "logs/resources/install_find_peaks_software.log"
     threads: 1
@@ -67,5 +68,15 @@ rule install_find_peaks_software:
         "../envs/damid.yaml"
     shell:
         "git clone "
-        "https://github.com/owenjm/find_peaks.git "
-        "resources/find_peaks > {log} 2>&1"
+        "{params.url} "
+        "{output} > {log} 2>&1"
+
+
+use rule install_find_peaks_software as install_damidseq_pipeline_software with:
+    output:
+        directory("resources/damidseq_pipeline"),
+    params:
+        url="https://github.com/owenjm/damidseq_pipeline.git",
+    log:
+        "logs/resources/install_damidseq_pipeline_software.log"
+    
