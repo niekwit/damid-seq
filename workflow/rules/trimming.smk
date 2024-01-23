@@ -1,4 +1,4 @@
-if paired_end():
+if paired_end:
     rule trim_galore_pe:
         input:
             r1="reads/{dir}/{sample}_R1_001.fastq.gz", 

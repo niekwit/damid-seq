@@ -3,16 +3,16 @@ rule make_gatc_tracks:
         sw="resources/damidseq_pipeline",
         fa=resources.fasta,
     output:
-        gatc=f"resources/genome.GATC.gff",
+        gatc="resources/genome.GATC.gff",
     params:
-        genome=f"resources/genome",
+        genome="resources/genome",
     threads: config["resources"]["fastqc"]["cpu"],
     resources:
         time=config["resources"]["fastqc"]["time"],
     conda:
         "../envs/damid.yaml",
     log:
-        f"logs/make_gatc_tracks/tracks.log",
+        "logs/make_gatc_tracks/tracks.log",
     shell:
         "perl resources/damidseq_pipeline/gatc.track.maker.pl "
         "--name={params.genome} "

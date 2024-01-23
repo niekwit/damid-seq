@@ -18,6 +18,9 @@ csv = pd.read_csv("config/samples.csv")
 # Load genome resources to be used in rules
 resources = Resources(config["genome"], config["ensembl_genome_build"])
 
+# Get paired-end status
+paired_end = paired_end()
+
 # Get sample directories
 DIRS = dirs()
 SAMPLES = samples()

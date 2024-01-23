@@ -25,7 +25,7 @@ def samples(bedgraph=False):
     not_found = []
     for sample in SAMPLES:
         for dir in DIRS:
-            if paired_end():
+            if paired_end:
                 r1= f"reads/{dir}/{sample}_R1_001.fastq.gz"
                 r2= f"reads/{dir}/{sample}_R2_001.fastq.gz"
                 if not os.path.isfile(r1):
@@ -73,14 +73,11 @@ def paired_end():
     fastq = reads[0]
 
     # Check file extension to see if paired-end reads are used
-    if fastq.endswith(".fastq.gz"):
-        return False
-    elif fastq.endswith("_R1_001.fastq.gz"):
+    if fastq.endswith("_R1_001.fastq.gz"):
         return True
     elif fastq.endswith("_R2_001.fastq.gz"):
         return True
     else:
-        raise ValueError("ERROR: Could not determine if paired-end reads are used\n"
-                         "Please check if fastq files end with either .fastq.gz (SE) or _R1_001.fastq.gz/_R2_001.fastq.gz (PE)")
+        return False
     
     

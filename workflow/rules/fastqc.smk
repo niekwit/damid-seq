@@ -1,4 +1,4 @@
-if paired_end():
+if paired_end:
     rule fastqc:
         input:
             "reads/{dir}/{sample}{end}.fastq.gz",
