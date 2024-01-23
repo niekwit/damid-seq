@@ -1,9 +1,10 @@
-rule bowtie2_build:
+rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces)
     input:
-        ref=resources.fasta,
-    output:
-        multiext(
-            f"resources/bowtie2_index/{resources.genome}",
+        git="resources/damidseq_pipeline",
+        flag=expand("results/trimmed/{dir}/{sample}.flag", dir=DIRS, sample=SAMPLES),
+        gatc=f"resources/{resources.genome}.GATC.gff",
+        idx=multiext(
+            f"resources/bowtie2_index/{resources.genome}/index",
             ".1.bt2",
             ".2.bt2",
             ".3.bt2",
@@ -11,47 +12,23 @@ rule bowtie2_build:
             ".rev.1.bt2",
             ".rev.2.bt2",
         ),
-    log:
-        "logs/bowtie2_build/build.log",
     params:
-        extra="",  # optional parameters
-    threads: config["damid"]["threads"]
-    wrapper:
-        "v2.6.0/bio/bowtie2/build"
-
-
-rule create_gatc_fragments:
-    input:
-        resources.fasta
+        idxdir=f"resources/bowtie2_index/{resources.genome}/index",
+        paired=config["paired_end"],
+        extra=config["extra"],
     output:
-        f"resources/gatc_fragment_file_{resources.genome}.gff.gz"
+        bg=directory(expand("results/bedgraph/{dir}", dir=DIRS)),
+        bam=directory(expand("results/bam/{dir}", dir=DIRS)),
+        bf=expand("results/bedgraph/{dir}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES),
+        #bg=expand("results/bedgraph/{dir}/{sample,^((?!Dam).)*$}-vs-Dam.gatc.bedgraph", dir=DIRS, sample=SAMPLES), # exclude Dam sample from sample wildcard 
+    #wildcard_constraints:
+    #    sample="^((?!Dam).)*$" # exclude Dam sample from sample wildcard 
     conda:
-        "envs/damid.yml"
-    threads: config["damid"]["threads"]
+        "../envs/damid.yaml"
+    threads: config["resources"]["damid"]["cpu"]
+    resources:
+        runtime=config["resources"]["damid"]["time"]
     log:
-        "logs/create_gatc_fragment_file/gatc.log"
-    shell:
-        "perl gatc.track.maker.pl "
-        f"--name={resources.genome} "
-        f"{resources.fasta} 2> {log}"
-
-
-rule damidseq_pipeline:
-    input:
-        gatc=f"resources/gatc_fragment_file_{resources.genome}.gff.gz",
-        b2dir=f"resources/bowtie2_index/{resources.genome}",
-    output:
-        directory("results/bedgraph"),
-    conda:
-        "envs/damid.yml"
-    threads: config["damid"]["threads"]
-    log:
-        "logs/damidseq_pipeline/damidseq_pipeline.log"
-    shell:
-        "cd reads/ && "
-        "damidseq_pipeline "
-        "--paired "
-        "--gatc_frag_file={input.gatc "
-        "--bowtie2_genome_dir={input.b2dir} 2> {log} && "
-        "cd .."
-
+        expand("logs/damidseq_pipeline/{dir}/damidseq_pipeline.log", dir=DIRS)
+    script:
+        "../scripts/damidseq_pipeline.py"
