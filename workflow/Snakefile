@@ -1,11 +1,12 @@
 import os
 import glob
 import pandas as pd
+import datetime
 from scripts.resources import Resources
 include: "scripts/general_functions.smk"
 from snakemake.utils import min_version
 
-# set minimum snakemake version
+# Set minimum snakemake version
 min_version("7.25.0")
 
 # load config file
@@ -14,12 +15,13 @@ configfile: "config/config.yaml"
 # Load sample information
 csv = pd.read_csv("config/samples.csv")
 
-# load genome resources to be used in rules
+# Load genome resources to be used in rules
 resources = Resources(config["genome"], config["ensembl_genome_build"])
 
-# get sample directories
+# Get sample directories
 DIRS = dirs()
 SAMPLES = samples()
+BG_SAMPLES= samples(bedgraph=True) # SAMPLES minus Dam control
 
 # import rules
 include: "rules/fastqc.smk"
@@ -28,25 +30,26 @@ include: "rules/resources.smk"
 include: "rules/setup.smk"
 include: "rules/damid.smk"
 include: "rules/bedgraph_processing.smk"
-#include: "rules/plotting.smk"
+include: "rules/deeptools.smk"
+include: "rules/plotting.smk"
+#include: "rules/peak_calling.smk"
 
-# target rule
+# Target rule
 rule all:
     input: 
         targets()
 
-
-# save snakemake terminal output to log file
-snake_log = "logs/snakemake/snakemake.log"
+# Save snakemake terminal output to log file
+time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+snake_log = f"logs/snakemake/{time}_snakemake.log"
 os.makedirs("logs/snakemake", exist_ok=True)
 
 onsuccess: 
     shell("cp -v {log} {snake_log}")
-    shell(f"pigz {resources.fasta}") # compress genome files
     print("Analysis finished successfully!")
 
 onerror:
     shell("cp -v {log} {snake_log}")
-    print(f"Analysis (partly) failed...\nCheck {snake_log} for details")
+    print(f"Analysis failed...\nCheck {snake_log} for details")
 
 
