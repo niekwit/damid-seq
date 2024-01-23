@@ -1,5 +1,6 @@
 rule make_gatc_tracks:
     input:
+        sw="resources/damidseq_pipeline",
         fa=resources.fasta,
     output:
         gatc=f"resources/{resources.genome}.GATC.gff",
@@ -11,9 +12,9 @@ rule make_gatc_tracks:
     conda:
         "../envs/damid.yaml",
     log:
-        "logs/make_gatc_tracks/{params.genome}.log",
+        f"logs/make_gatc_tracks/{resources.genome}.log",
     shell:
-        "gatc.track.maker.pl "
+        "perl resources/damidseq_pipeline/gatc.track.maker.pl "
         "--name={params.genome} "
         "{input.fa} > {log} 2>&1 "
 
