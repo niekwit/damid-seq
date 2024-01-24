@@ -13,6 +13,7 @@ extra = snakemake.params["extra"]
 
 if snakemake.params["paired"]:
     INPUT = f"{snakemake.input['r1']} {snakemake.input['r2']}"
+    extra = f"{extra} --paired"
 else:
     INPUT = snakemake.input["r1"]
 
