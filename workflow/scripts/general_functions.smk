@@ -1,3 +1,19 @@
+def targets():
+    """Returns file targets for rule all
+    """
+    TARGETS = [
+        "results/qc/multiqc/multiqc.html",
+        #expand("results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
+        "results/deeptools/PCA.pdf",
+        "results/deeptools/scree.pdf",
+        "results/deeptools/correlation.pdf",
+        "results/plots/heatmap.pdf",
+        expand("results/peaks/overlapping_peaks/{bg_sample}.bed", bg_sample=BG_SAMPLES),
+        ]
+
+    return TARGETS
+
+
 def dirs():
     """Each dir contains one replicate sets of fastq files
     """
@@ -47,23 +63,6 @@ def samples(bedgraph=False):
     return SAMPLES
 
 
-def targets():
-    """Returns file targets for rule all
-    """
-    TARGETS = [
-        #expand("results/bedgraph/{dir}/{sample, ^((?!Dam).)*$}-vs-Dam.gatc.bedgraph", dir=DIRS, sample=SAMPLES),
-        "results/qc/multiqc/multiqc.html",
-        #expand("results/bedgraph/{dir}", dir=DIRS),
-        #expand("results/bigwig/{dir}/{bg_sample}.bw", dir=DIRS, bg_sample=BG_SAMPLES),
-        expand("results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
-        "results/deeptools/PCA.pdf",
-        "results/deeptools/scree.pdf",
-
-    ]
-
-    return TARGETS
-
-
 def paired_end():
     """Checks if paired-end reads are used
     """
@@ -80,4 +79,39 @@ def paired_end():
     else:
         return False
     
+
+def computematrix_args():
+    """Returns computeMatrix arguments as string based on config file
+    """
+    # Add mode argument
+    mode = config["deeptools"]["matrix"]["mode"]
+    if mode == "scale-regions".lower():
+        rbl = config["deeptools"]["matrix"]["regionBodyLength"]
+        args = f"scale-regions --regionBodyLength {rbl} "
+    elif mode == "reference-point".lower():
+        rp = config["deeptools"]["matrix"]["referencePoint"]
+        args = f"reference-point --referencePoint {rp} "
+    else:
+        raise ValueError(f"ERROR: deeptools matrix mode {mode} not supported")
     
+    
+    # Add common arguments
+    b = config["deeptools"]["matrix"]["upstream"]
+    a = config["deeptools"]["matrix"]["downstream"]
+    bs = config["deeptools"]["matrix"]["binSize"]
+    atb = config["deeptools"]["matrix"]["averageTypeBins"]
+        
+    args = f"{args} --upstream {b} --downstream {a} --binSize {bs} --averageTypeBins {atb} "
+
+    # Add region argument
+    r = config["deeptools"]["matrix"]["regionsFileName"]
+    no_whole_genome = config["deeptools"]["matrix"]["no_whole_genome"]
+
+    if no_whole_genome and r:
+        args = f"{args} --regionsFileName {r} "
+    elif not no_whole_genome and r:
+        args = f"{args} --regionsFileName {resources.gtf} {r} "
+    else: 
+        args = f"{args} --regionsFileName {resources.gtf} "
+    
+    return args
