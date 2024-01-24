@@ -19,6 +19,14 @@ deeptools:
     colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
     alpha: 1.0
     extra: "" 
+peak_calling:
+  seed: 1234
+  iterations: 100 # N argument
+  fdr: 0.01
+  extra: ""
+  overlapping_peaks:
+    min_overlap: 0.25
+    extra: ""
 resources: # computing resources
   trim:
     cpu: 8
