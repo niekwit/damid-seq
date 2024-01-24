@@ -76,9 +76,9 @@ rule install_find_peaks_software:
 
 use rule install_find_peaks_software as install_damidseq_pipeline_software with:
     output:
-        directory("resources/damidseq_pipeline"),
+        directory("resources/find_peaks_py"),
     params:
-        url="https://github.com/owenjm/damidseq_pipeline.git",
+        url="https://github.com/niekwit/find_peaks_py.git",
     log:
-        "logs/resources/install_damidseq_pipeline_software.log"
+        "logs/resources/install_find_peaks_py_software.log"
     
