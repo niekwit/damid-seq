@@ -44,3 +44,33 @@ rule plotCorrelation:
         "--skipZeros "
         "> {log} 2>&1"
 
+
+rule plot_heatmap:
+    input:
+        mat="results/deeptools/average_bw_matrix.gz",
+    output:
+        pdf="results/plots/heatmap.pdf",
+        mat="results/deeptools/heatmap_matrix.gz",
+    params:
+        im = config["deeptools"]["plotHeatmap"]["interpolationMethod"],
+        pt = config["deeptools"]["plotHeatmap"]["plotType"],
+        cm = config["deeptools"]["plotHeatmap"]["colorMap"],
+        a = config["deeptools"]["plotHeatmap"]["alpha"],
+        extra="",
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/deeptools/plotHeatmap.log"
+    conda:
+        "../envs/deeptools.yaml"
+    shell:
+        "plotHeatmap "
+        "--matrixFile {input.mat} "
+        "--outFileNameMatrix {output.mat} "
+        "--outFileName {output.pdf} "
+        "--perGroup "
+        "--colorMap {params.cm} "
+        "--alpha {params.a} "
+        "{params.extra} "
+        "> {log} 2>&1"
