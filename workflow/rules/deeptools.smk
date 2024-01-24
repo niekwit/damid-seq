@@ -43,3 +43,28 @@ rule PCA:
         "--transpose "
         "{params.extra} "
         "> {log} 2>&1"
+
+
+rule computeMatrix:
+    input:
+        bw=expand("results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
+        gtf=resources.gtf,
+    output:
+        mat="results/deeptools/average_bw_matrix.gz",
+    params:
+        args=computematrix_args(),
+    threads: config["resources"]["deeptools"]["cpu"] * 4 # Otherwise it will take very long
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/deeptools/computeMatrix.log"
+    conda:
+        "../envs/deeptools.yaml"
+    shell:
+        "computeMatrix "
+        "{params.args} "
+        "--numberOfProcessors {threads} "
+        "--smartLabels "
+        "--scoreFileName {input.bw} "
+        "--outFileName {output.mat} "
+        "> {log} 2>&1"
