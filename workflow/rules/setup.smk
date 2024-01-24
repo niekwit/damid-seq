@@ -3,9 +3,9 @@ rule make_gatc_tracks:
         sw="resources/damidseq_pipeline",
         fa=resources.fasta,
     output:
-        gatc="resources/genome.GATC.gff",
+        "resources/genome.GATC.gff",
     params:
-        genome="resources/genome",
+        genome=lambda wildcards, output: output[0][:-9]
     threads: config["resources"]["fastqc"]["cpu"],
     resources:
         time=config["resources"]["fastqc"]["time"],
@@ -24,7 +24,7 @@ rule bowtie2_build_index:
         ref=resources.fasta,
     output:
         multiext(
-            f"resources/bowtie2_index/index",
+            "resources/bowtie2_index/index",
             ".1.bt2",
             ".2.bt2",
             ".3.bt2",
