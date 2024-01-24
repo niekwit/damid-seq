@@ -26,7 +26,7 @@ DIRS = dirs()
 SAMPLES = samples()
 BG_SAMPLES= samples(bedgraph=True) # SAMPLES minus Dam control
 
-# import rules
+# Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
 include: "rules/resources.smk"
@@ -35,7 +35,7 @@ include: "rules/damid.smk"
 include: "rules/bedgraph_processing.smk"
 include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
-#include: "rules/peak_calling.smk"
+include: "rules/peak_calling.smk"
 
 # Target rule
 rule all:
