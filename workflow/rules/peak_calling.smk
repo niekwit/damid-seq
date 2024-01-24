@@ -1,14 +1,28 @@
 rule peak_calling:
     input:
-        fp="resources/find_peaks",
-        bg=expand("results/bedgraph/{dir}/{sample, ^((?!Dam).)*$}-vs-Dam.gatc.bedgraph", dir=DIRS, sample=SAMPLES), # exclude Dam sample from sample wildcard
+        fp="resources/find_peaks_py",
+        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph",
     output:
-        ""
-
-rules peaks2genes:
-    input:
-        fp="resources/find_peaks",
-        gtf=resources.gtf,
-        peaks="",
-    output:
-        "",
+        gff="results/peaks/{dir}/{bg_sample}.gff",
+        dir=directory("results/peaks/{dir}"),
+    params:
+        seed=config["peak_calling"]["seed"],
+        it=config["peak_calling"]["iterations"],
+        fdr=config["peak_calling"]["fdr"],
+        extra=config["peak_calling"]["extra"],
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    conda:
+        "../envs/damid.yaml"
+    log:
+        "logs/find_peaks_py/{dir}/{bg_sample}.log"
+    shell:
+        "python {input.fp}/find_peaks.py "
+        " {params.extra} "
+        "--n {params.it} "
+        "--fdr {params.fdr} "
+        "--seed {params.seed} "
+        "--outdir {output.dir} "
+        "{input.bg} "
+        "> {log} 2>&1 "
