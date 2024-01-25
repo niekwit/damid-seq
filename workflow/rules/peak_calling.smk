@@ -5,7 +5,7 @@ rule peak_calling:
     output:
         gff="results/peaks/{dir}/{bg_sample}.gff",
     params:
-        dir=directory("results/peaks/{dir}/"),
+        dir=lambda w, input: os.path.dirname(input),
         seed=config["peak_calling"]["seed"],
         it=config["peak_calling"]["iterations"],
         fdr=config["peak_calling"]["fdr"],
