@@ -56,11 +56,11 @@ use rule get_fasta as get_gtf with:
             "logs/resources/get_gtf.log"
 
 
-rule install_find_peaks_software:
+rule install_damidseq_pipeline_software:
     output:
-        directory("resources/find_peaks"),
+        directory("resources/damidseq_pipeline"),
     params:
-        url="https://github.com/owenjm/find_peaks.git",
+        url="https://github.com/owenjm/damidseq_pipeline.git",
     log:
         "logs/resources/install_find_peaks_software.log"
     threads: 1
@@ -74,7 +74,7 @@ rule install_find_peaks_software:
         "{output} > {log} 2>&1"
 
 
-use rule install_find_peaks_software as install_damidseq_pipeline_software with:
+use rule install_damidseq_pipeline_software as install_find_peak_py_software with:
     output:
         directory("resources/find_peaks_py"),
     params:
