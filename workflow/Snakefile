@@ -36,6 +36,8 @@ include: "rules/bedgraph_processing.smk"
 include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
 include: "rules/peak_calling.smk"
+include: "rules/bed.smk"
+#include: "rules/motif_discovery.smk"
 
 # Target rule
 rule all:
