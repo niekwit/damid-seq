@@ -89,11 +89,11 @@ for condition, dam_control in dam_controls.items():
     # Define Dam only control file(s)
     if paired:
         arg = "--paired"
-        dam = sorted([x for x in all_fastq if dam_control in x])
+        dam = sorted([x for x in all_fastq if f"{dam_control}_1.fastq.gz" or f"{dam_control}_2.fastq.gz" in x])
         dam = " ".join(dam)
     else:
         arg = ""
-        dam = [x for x in all_fastq if dam_control in x][0]
+        dam = [x for x in all_fastq if f"{dam_control}.fastq.gz" in x][0]
         
     # Get all non-Dam only files that match condition
     INPUT = csv_no_dam[csv_no_dam["condition"].str.contains(condition)]["sample"].tolist()
@@ -114,7 +114,9 @@ for condition, dam_control in dam_controls.items():
         )
 
     print("Moving output files from temporary directory to appropriate locations")
-
+    shell("pwd")
+    shell("ls -lh")
+    
     # Move log file to logs directory
     target = os.path.join(cwd, f"logs/damidseq_pipeline/{directory}")
     shell(
