@@ -4,6 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - pigz=2.8
   - samtools=1.19
   - bowtie2=2.5.3
   - perl=5.32.1
