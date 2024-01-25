@@ -4,8 +4,8 @@ rule peak_calling:
         bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph",
     output:
         gff="results/peaks/{dir}/{bg_sample}.gff",
-        dir=directory("results/peaks/{dir}"),
     params:
+        dir=directory("results/peaks/{dir}/"),
         seed=config["peak_calling"]["seed"],
         it=config["peak_calling"]["iterations"],
         fdr=config["peak_calling"]["fdr"],
@@ -19,10 +19,10 @@ rule peak_calling:
         "logs/find_peaks_py/{dir}/{bg_sample}.log"
     shell:
         "python {input.fp}/find_peaks.py "
-        " {params.extra} "
+        "{params.extra} "
         "--n {params.it} "
         "--fdr {params.fdr} "
         "--seed {params.seed} "
-        "--outdir {output.dir} "
+        "--outdir {params.dir} "
         "{input.bg} "
         "> {log} 2>&1 "
