@@ -25,8 +25,9 @@ peak_calling:
   fdr: 0.01
   extra: ""
   overlapping_peaks:
-    min_overlap: 0.25
-    extra: ""
+    max_size: 10 # Minimum size of peaks to be extended
+    extend_by: 20 # Number of bp to extend peaks on either side
+    keep: 2 # Minimum number peaks that must overlap to keep
 resources: # computing resources
   trim:
     cpu: 8
