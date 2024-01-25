@@ -57,6 +57,10 @@ damidseq_pipeline = os.path.join(cwd,"resources/damidseq_pipeline/damidseq_pipel
 # Load sample table
 csv = pd.read_csv("config/samples.csv")
 
+# Check if treatment column contains any NaN values, if so replace with "none"
+if csv["treatment"].isnull().values.any():
+    csv.fillna({"treatment": "none"}, inplace=True)
+
 # Combine genotypes and treatments into one condition column
 csv["condition"] = csv["genotype"] + "_" + csv["treatment"]
 
