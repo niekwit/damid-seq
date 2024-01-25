@@ -3,12 +3,12 @@ def targets():
     """
     TARGETS = [
         "results/qc/multiqc/multiqc.html",
-        #expand("results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
         "results/deeptools/PCA.pdf",
         "results/deeptools/scree.pdf",
         "results/deeptools/correlation.pdf",
         "results/plots/heatmap.pdf",
-        expand("results/peaks/overlapping_peaks/{bg_sample}.bed", bg_sample=BG_SAMPLES),
+        #expand("results/peaks/{bg_sample}.overlap.bed", bg_sample=BG_SAMPLES),
+        expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
         ]
 
     return TARGETS
@@ -19,6 +19,9 @@ def dirs():
     """
     DIRS = glob.glob("reads/*")
     DIRS = [os.path.basename(d) for d in DIRS]
+
+    if len(DIRS) == 0:
+        raise ValueError("No replicate directories found in reads directory...")
         
     return DIRS
     
