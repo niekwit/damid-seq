@@ -2,8 +2,8 @@ rule plotPCA:
     input:
         "results/deeptools/PCA.tab",
     output:
-        pca="results/deeptools/PCA.pdf",
-        scree="results/deeptools/scree.pdf",
+        pca="results/plots/PCA.pdf",
+        scree="results/plots/scree.pdf",
     params:
         extra=""
     threads: config["resources"]["plotting"]["cpu"]
@@ -22,7 +22,7 @@ rule plotCorrelation:
         "results/deeptools/scores_per_bin.npz"
     output:
         tab="results/deeptools/correlation.tab",
-        pdf="results/deeptools/correlation.pdf"
+        pdf="results/plots/sample_correlation.pdf"
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
@@ -31,7 +31,7 @@ rule plotCorrelation:
     log:
         "logs/plotting/plotCorrelation.log"
     conda:
-        "../envs/R.yaml"
+        "../envs/deeptools.yaml"
     shell:
         "plotCorrelation "
         "--corData {input} "
@@ -74,3 +74,51 @@ rule plot_heatmap:
         "--alpha {params.a} "
         "{params.extra} "
         "> {log} 2>&1"
+
+
+rule plot_profile:
+    input:
+        mat="results/deeptools/average_bw_matrix.gz",
+    output:
+        pdf="results/plots/profile_plot.pdf",
+    params:
+        extra="",
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/deeptools/plotProfile.log"
+    conda:
+        "../envs/deeptools.yaml"
+    shell:
+        "plotProfile "
+        "--matrixFile {input.mat} "
+        "--outFileName {output.pdf} "
+        "--perGroup "
+        "--plotType=fill "
+        "--legendLocation=upper-right "
+        "{params.extra} "
+        "> {log} 2>&1"
+
+
+rule peak_annotation_plots:
+    input:
+        txdb="resources/txdb.RData",
+        expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
+    output:
+        fd="results/plots/peaks/feature_distributions.pdf",
+        dt="results/plots/peaks/distance_to_tss.pdf",
+        pa="results/plots/peaks/pathway_enrichment.pdf",
+        v="results/plots/peaks/venn_overlap_conditions.pdf",
+    params:
+        extra="",
+    threads: config["resources"]["plotting"]["cpu"]
+    resources:
+        runtime=config["resources"]["plotting"]["time"]
+    log:
+        "logs/plotting/peak_annotation_plots.log"
+    conda:
+        "../envs/R.yaml"
+    script:
+        "../scripts/peak_annotation_plots.R"
+
