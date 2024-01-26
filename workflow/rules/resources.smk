@@ -56,6 +56,24 @@ use rule get_fasta as get_gtf with:
             "logs/resources/get_gtf.log"
 
 
+rule create_txdb:
+    input:
+        gtf=resources.gtf,
+    output:
+        "resources/txdb.RData",
+    params:
+        extra=""
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/create_txdb.log"
+    conda:
+        "../envs/R.yaml"
+    script:
+        "../scripts/create_txdb.R"
+
+
 rule install_damidseq_pipeline_software:
     output:
         directory("resources/damidseq_pipeline"),
