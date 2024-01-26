@@ -3,12 +3,13 @@ def targets():
     """
     TARGETS = [
         "results/qc/multiqc/multiqc.html",
-        "results/deeptools/PCA.pdf",
-        "results/deeptools/scree.pdf",
-        "results/deeptools/correlation.pdf",
+        "results/plots/PCA.pdf",
+        "results/plots/scree.pdf",
+        "results/plots/sample_correlation.pdf",
         "results/plots/heatmap.pdf",
-        #expand("results/peaks/{bg_sample}.overlap.bed", bg_sample=BG_SAMPLES),
-        expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
+        "results/plots/profile_plot.pdf",
+        "results/plots/peak_distribution.pdf",
+        #expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
         ]
 
     return TARGETS
