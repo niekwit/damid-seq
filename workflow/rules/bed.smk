@@ -1,6 +1,6 @@
 rule gff2bed:
     input:
-        "results/peaks/{dir}/{bg_sample}.gff"
+        "results/peaks/{dir}/{bg_sample}.peaks.gff"
     output:
         "results/peaks/{dir}/{bg_sample}.bed"
     params:
@@ -39,7 +39,7 @@ rule overlapping_peaks: # escape bg_sample wildcard to get all replicate bg_samp
     input:
         beds=expand("results/peaks/{dir}/{{bg_sample}}.sorted.bed", dir=DIRS)
     output:
-        "results/peaks/{bg_sample}.overlap.bed"
+        "results/peaks/overlapping_peaks/{bg_sample}.overlap.bed"
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
@@ -55,7 +55,7 @@ rule overlapping_peaks: # escape bg_sample wildcard to get all replicate bg_samp
 
 rule extend_peak_regions:
     input:
-        bed="results/peaks/{bg_sample}.overlap.bed",
+        bed="results/peaks/overlapping_peaks/{bg_sample}.overlap.bed",
         cs=f"resources/{resources.genome}_chrom.sizes",
     output:
         "results/peaks/overlapping_peaks/{bg_sample}.extended.bed",
@@ -71,8 +71,6 @@ rule extend_peak_regions:
         "logs/extend_bed_regions/{bg_sample}.log"
     conda:
         "../envs/peak_calling.yaml"
-    #shell: this will extend all regions, but only want to extend regions that are not long enough
-    #    "bedtools slop -i {input} -g {input.cs} -b {params.b} > {output}"
     script:
         "../scripts/extend_peak_regions.py"
 
@@ -80,5 +78,18 @@ rule extend_peak_regions:
 rule annotate_peaks:
     input:
         bed="results/peaks/overlapping_peaks/{bg_sample}.extended.bed",
+        txdb="resources/txdb.RData",
     output:
-        "results/peaks/overlapping_peaks/{bg_sample}.annotated.bed",
+        txt=expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
+    params:
+        extra=""
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/annotate_peaks/.log"
+    conda:
+        "../envs/R.yaml"
+    script:
+        "../scripts/annotate_peaks.R"
+
