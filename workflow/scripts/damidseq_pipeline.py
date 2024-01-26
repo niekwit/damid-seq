@@ -114,9 +114,6 @@ for condition, dam_control in dam_controls.items():
         )
 
     print("Moving output files from temporary directory to appropriate locations")
-    shell("pwd")
-    shell("ls -lh")
-    
     # Move log file to logs directory
     target = os.path.join(cwd, f"logs/damidseq_pipeline/{directory}")
     shell(
