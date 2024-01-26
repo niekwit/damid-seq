@@ -28,6 +28,7 @@ peak_calling:
     max_size: 10 # Minimum size of peaks to be extended
     extend_by: 20 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
+  enrichment_db: "" # Pathway enrichment database
 resources: # computing resources
   trim:
     cpu: 8
