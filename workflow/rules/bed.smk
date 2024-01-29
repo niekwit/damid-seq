@@ -34,10 +34,30 @@ rule sort_peak_bed:
         "sort -k1,1 -k2,2n {input} > {output}"
 
 
+rule remove_plasmid_loci:
+    input:
+        bed="results/peaks/{dir}/{bg_sample}.sorted.bed",
+        bl="resources/blacklist.bed",
+        txt="resources/genes.txt",
+    output:
+        bed="results/peaks/{dir}/{bg_sample}.no_plasmid.bed"
+    params:
+        extra=""
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/remove_plasmid_loci/{dir}_{bg_sample}.log"
+    conda:
+        "../envs/peak_calling.yaml"
+    shell:
+        "bedtools intersect -v -a {input.bed} -b {input.bl} > {output.bed}"
+
+
 # create bed file of overlapping peaks between replicate conditions
 rule overlapping_peaks: # escape bg_sample wildcard to get all replicate bg_samples
     input:
-        beds=expand("results/peaks/{dir}/{{bg_sample}}.sorted.bed", dir=DIRS)
+        beds=expand("results/peaks/{dir}/{{bg_sample}}.no_plasmid.bed", dir=DIRS)
     output:
         "results/peaks/overlapping_peaks/{bg_sample}.overlap.bed"
     params:
@@ -80,16 +100,17 @@ rule annotate_peaks:
         bed="results/peaks/overlapping_peaks/{bg_sample}.extended.bed",
         txdb="resources/txdb.RData",
     output:
-        txt=expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
+        txt="results/peaks/overlapping_peaks/{bg_sample}.annotated.txt",
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/annotate_peaks/.log"
+        "logs/annotate_peaks/{bg_sample}.log"
     conda:
         "../envs/R.yaml"
     script:
         "../scripts/annotate_peaks.R"
+
 
