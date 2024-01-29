@@ -24,7 +24,7 @@ with open(txt, "a") as f:
 # Filter for protein_coding, otherwise potential AS, pseudogenes, etc. will be included
 shell(
     """
-    awk '{{if ($3 == "gene") print $0}}' {gtf} | grep protein_coding | grep -wf genes.txt | gff2bed > {bed}
+    awk '{{if ($3 == "gene") print $0}}' {gtf} | grep protein_coding | grep -wf {txt} | gff2bed > {bed}
     """
 )
 
