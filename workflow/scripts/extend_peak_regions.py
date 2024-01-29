@@ -1,6 +1,3 @@
-import pandas as pd
-
-
 # Load Snakemake variables
 bed = snakemake.input["bed"]
 cs = snakemake.input["cs"]
@@ -18,6 +15,7 @@ with open(cs) as f:
        chrom_sizes[key] = int(value)
 
 extended_peaks = 0
+skipped_peaks = 0
 count = 1
 
 with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
@@ -39,6 +37,7 @@ with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
         # Check how many regions are overlapping
         # Keep only regions that come from at least k regions
         if int(num) < k:
+            skipped_peaks += 1
             continue # Skip to next line
         
         # Check if region is short enough to extend 
@@ -64,10 +63,13 @@ with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
         # Generate name for extended region
         name = f"peak_{count}"
         count += 1
-            
+        
         # Write extended region to output file
         bed_out.write(f"{chrom}\t{start}\t{end}\t{name}\t0\t{num}\n")
         
         
-print(f"Done...\nExtended {extended_peaks} peaks in {bed}")
+print("Done...")
+print(f"Peak total ({bed}): {count}")
+print(f"Extended {extended_peaks} peaks in {bed}")
+print(f"Skipped {skipped_peaks} peaks in {bed}")
 
