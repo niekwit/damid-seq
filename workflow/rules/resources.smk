@@ -60,14 +60,14 @@ rule create_txdb:
     input:
         gtf=resources.gtf,
     output:
-        "resources/txdb.RData",
+        txdb="resources/txdb.RData",
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/create_txdb.log"
+        "logs/resources/create_txdb.log"
     conda:
         "../envs/R.yaml"
     script:
@@ -92,11 +92,30 @@ rule install_damidseq_pipeline_software:
         "{output} > {log} 2>&1"
 
 
-use rule install_damidseq_pipeline_software as install_find_peak_py_software with:
+use rule install_damidseq_pipeline_software as install_find_peak_software with:
     output:
-        directory("resources/find_peaks_py"),
+        directory("resources/find_peaks"),
     params:
-        url="https://github.com/niekwit/find_peaks_py.git",
+        url="https://github.com/owenjm/find_peaks.git",
     log:
-        "logs/resources/install_find_peaks_py_software.log"
+        "logs/resources/install_find_peaks_software.log"
+
+
+rule create_blacklist:
+    input:
+        gtf=resources.gtf,
+    output:
+        bed="resources/blacklist.bed",
+        txt="resources/genes.txt",
+    params:
+        genes=config["fusion_genes"],
+    log:
+        "logs/resources/create_blacklist.log"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources: 
+        runtime=config["resources"]["deeptools"]["time"]
+    conda:
+        "../envs/peak_calling.yaml"
+    script:
+        "../scripts/create_blacklist.py"
     
