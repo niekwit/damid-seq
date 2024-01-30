@@ -3,13 +3,16 @@ def targets():
     """
     TARGETS = [
         "results/qc/multiqc/multiqc.html",
-        "results/plots/PCA.pdf",
-        "results/plots/scree.pdf",
+        #"results/plots/PCA.pdf",
+        #"results/plots/scree.pdf",
         "results/plots/sample_correlation.pdf",
         "results/plots/heatmap.pdf",
         "results/plots/profile_plot.pdf",
-        "results/plots/peak_distribution.pdf",
-        #expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
+        "results/plots/peaks/feature_distributions.pdf",
+        "results/plots/peaks/distance_to_tss.pdf",
+        "results/plots/peaks/pathway_enrichment.pdf",
+        "results/plots/peaks/venn_overlap_conditions.pdf",
+        expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
         ]
 
     return TARGETS
@@ -39,7 +42,7 @@ def samples(bedgraph=False):
             illegal.append(sample)
     if len(illegal) != 0:
         illegal = "\n".join(illegal)
-        raise ValueError(f"ERROR: following samples contain illegal characters:\n{illegal}")
+        raise ValueError(f"Following samples contain illegal characters:\n{illegal}")
 
     # Check if sample names match file names
     not_found = []
@@ -58,7 +61,7 @@ def samples(bedgraph=False):
                     not_found.append(r1)
     if len(not_found) != 0:
         not_found = "\n".join(not_found)
-        raise ValueError(f"following files not found:\n{not_found}")
+        raise ValueError(f"Following files not found:\n{not_found}")
     
     # Only return non-Dam samples if bedgraph is True
     if bedgraph:
@@ -84,8 +87,8 @@ def paired_end():
         return False
     
 
-def computematrix_args():
-    """Returns computeMatrix arguments as string based on config file
+def computematrix_args(region_labels=False):
+    """Returns computeMatrix arguments as string based on config file.
     """
     # Add mode argument
     mode = config["deeptools"]["matrix"]["mode"]
@@ -96,7 +99,7 @@ def computematrix_args():
         rp = config["deeptools"]["matrix"]["referencePoint"]
         args = f"reference-point --referencePoint {rp} "
     else:
-        raise ValueError(f"ERROR: deeptools matrix mode {mode} not supported")
+        raise ValueError(f"Deeptools matrix mode {mode} not supported")
     
     
     # Add common arguments
@@ -111,11 +114,24 @@ def computematrix_args():
     r = config["deeptools"]["matrix"]["regionsFileName"]
     no_whole_genome = config["deeptools"]["matrix"]["no_whole_genome"]
 
+    if region_labels: # for plotProfile/Heatmap
+        # Multiple files may be parsed in config file
+            labels = r.split(",")
+            labels = [os.path.basename(l).split(".")[0] for l in labels]
+
     if no_whole_genome and r:
+        if region_labels: 
+            return " ".join(labels)
         args = f"{args} --regionsFileName {r} "
     elif not no_whole_genome and r:
+        if region_labels: # for plotProfile/Heatmap
+            # Multiple files may be parsed in config file
+            labels.insert(0, f'"Genome-wide ({resources.genome})"')
+            return " ".join(labels)
         args = f"{args} --regionsFileName {resources.gtf} {r} "
     else: 
         args = f"{args} --regionsFileName {resources.gtf} "
-    
+        if region_labels: # for plotProfile/Heatmap
+            return f'"Genome-wide ({resources.genome})"'
     return args
+
