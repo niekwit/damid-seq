@@ -1,6 +1,7 @@
 genome: "dm6"
 ensembl_genome_build: "110"
 extra: "" # extra argument for damidseq_pipeline
+fusion_genes: "HIF1A,SET1B" # Genes from these proteins will be removed from the analysis
 deeptools:
   matrix: # Settings for computeMatrix
     mode: scale-regions # scale-regions or reference-point
@@ -23,12 +24,20 @@ peak_calling:
   seed: 1234
   iterations: 100 # N argument
   fdr: 0.01
+  fraction: 0 # Fraction of random fragments to consider per iteration
+  min_count: 2 # Minimum number of reads to consider a peak
+  min_quantile: 0.95 # Minimum quantile for considering peaks
+  step: 0.01 # Stepping for quantiles
+  unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
   extra: ""
   overlapping_peaks:
     max_size: 10 # Minimum size of peaks to be extended
     extend_by: 20 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
   enrichment_db: "" # Pathway enrichment database
+enrichment_analysis:
+  libraries: "GO_Biological_Process_2023,GO_Molecular_Function_2023,Reactome_2022" # Pathway enrichment libraries
+motif_discovery
 resources: # computing resources
   trim:
     cpu: 8
