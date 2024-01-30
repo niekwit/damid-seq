@@ -6,7 +6,7 @@ rule peak_calling:
         gff="results/peaks/{dir}/{bg_sample}.peaks.gff",
         data="results/peaks/{dir}/{bg_sample}.data",
     params:
-        out=lambda w, output: os.path.dirname(output["gff"]),
+        outdir=lambda w, output: os.path.dirname(output["gff"]),
         #seed=config["peak_calling"]["seed"],
         n=config["peak_calling"]["iterations"],
         fdr=config["peak_calling"]["fdr"],
@@ -26,19 +26,3 @@ rule peak_calling:
     script:
         "../scripts/run_find_peaks.py"
         
-'''
-    shell:
-        "python {input.fp}/find_peaks.py "
-        "{params.extra} "
-        "--n {params.it} "
-        "--fdr {params.fdr} "
-        "--frac {params.frac} "
-        "--min_count {params.mc} "
-        "--min_quant {params.mq} "
-        "--step {params.step} "
-        "--unified_peaks {params.up} "
-        "--seed {params.seed} "
-        "--outdir {params.out} "
-        "{input.bg} "
-        "> {log} 2>&1 "
-'''
