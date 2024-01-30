@@ -98,7 +98,7 @@ rule extend_peak_regions:
 rule annotate_peaks:
     input:
         bed="results/peaks/overlapping_peaks/{bg_sample}.extended.bed",
-        txdb="resources/txdb.RData",
+        gtf=resources.gtf,
     output:
         txt="results/peaks/overlapping_peaks/{bg_sample}.annotated.txt",
     params:
