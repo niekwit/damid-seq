@@ -13,18 +13,25 @@ gtf = snakemake.input["gtf"]
 txt = snakemake.output["txt"]
 bed = snakemake.output["bed"]
 
-print(f"Creating blacklist file (.bed) for loci of {','.join(genes)}")
+print(f"Creating blacklist file (.bed) for loci {','.join(genes)}")
 
 # Create file with genes names to search for (input for grep)
-with open(txt, "a") as f:
-  for gene in genes:
-    print(gene, file=f)
+genes_ = "\n".join(genes) # Convert list to string with newline as separator
+shell(
+    "echo -e '{genes_}' > {txt}"
+)
 
 # Create bed file with gene locations
 # Filter for protein_coding, otherwise potential AS, pseudogenes, etc. will be included
 shell(
     """
+    set +e
     awk '{{if ($3 == "gene") print $0}}' {gtf} | grep protein_coding | grep -wf {txt} | gff2bed > {bed}
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -ne 0 ]; then
+        echo "Error: no genes in bed file. Check if genes are present in {gtf}."
+        exit 1
+    fi
     """
 )
 

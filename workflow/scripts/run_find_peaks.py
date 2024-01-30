@@ -1,14 +1,29 @@
+"""
+find_peaks perl script will call peak on DamID bedgraph files.
+Problems:
+1. find_peaks will create a folder with date/time in name
+2. find_peaks will create this folder in the current working directory
+   (out dir cannot be specified)
+
+Solution:
+1. Run find_peaks from output dir
+2. Use glob to find files
+3. Move files to parent dir
+
+--> Use absolute paths for input and output files 
+"""
 import glob
 import os
 from snakemake.shell import shell
 
-log = snakemake.log_fmt_shell(stdout=True, stderr=True)
+# Get current working dir
+cwd = os.getcwd()
 
 # Get arguments from snakemake
-find_peaks = f"{snakemake.input['fp']}/find_peaks"
-bedgraph = snakemake.input["bg"]
-gff = snakemake.output["gff"]
-data = snakemake.output["data"]
+find_peaks = f"{cwd}/{snakemake.input['fp']}/find_peaks"
+bedgraph = f'{cwd}/{snakemake.input["bg"]}'
+gff = f'{cwd}/{snakemake.output["gff"]}'
+data = f'{cwd}/{snakemake.output["data"]}'
 fdr = snakemake.params["fdr"]
 frac = snakemake.params["frac"]
 min_count = snakemake.params["mc"]
@@ -16,7 +31,12 @@ min_quant = snakemake.params["mq"]
 n = snakemake.params["n"]
 step = snakemake.params["step"]
 up = snakemake.params["up"]
-outdir = snakemake.params["out"]
+outdir = f'{cwd}/{snakemake.params["outdir"]}'
+log = f'{cwd}/{snakemake.log[0]}'
+
+# Make and move to output dir
+os.makedirs(outdir, exist_ok=True)
+os.chdir(outdir)
 
 # Run find_peaks
 shell(
@@ -29,21 +49,29 @@ shell(
     "--step={step} "
     "--unified_peaks={up} "
     "{bedgraph} "
-    "{log}"
+    "> {log} 2>&1 "
     )
 
-# Files are created in bedgraph directory, so move to peak directory
-# Problem: folder containing files contains date/time
-# Solution: use glob to find files
-bg_dir = os.path.dirname(bedgraph)
-gff_temp = glob.glob(f"{bg_dir}/*.gff")[0] # peak file
-data_temp = glob.glob(f"{bg_dir}/*-data")[0] # data file
+# Locate GFF and data files and move to output dir (parent dir)
+gff_temp = glob.glob(f"{outdir}/*/*.gff") # peak file
+assert len(gff_temp) == 1, "No or more than one gff file found"
+data_temp = glob.glob(f"{outdir}/*/*-data") # data file
+assert len(data_temp) == 1, "No or more than one data file found"
 
 # Rename and move files
 os.makedirs(outdir, exist_ok=True)
-os.replace(gff_temp, gff)
-os.replace(data_temp, data)
+shell(
+    f"mv {gff_temp[0]} {gff} && "
+    f"mv {data_temp[0]} {data}"
+    )
 
-# Remove empty directory
-os.rmdir(bg_dir)
+#os.replace(gff_temp[0], gff)
+#os.replace(data_temp[0], data)
+
+# Remove empty dir
+temp_dir = os.path.dirname(gff_temp[0])
+os.rmdir(temp_dir)
+
+# Go back to original working dir
+os.chdir(cwd) # Is this needed?
 
