@@ -9,16 +9,16 @@ library(ChIPseeker)
 
 # Load Snakemake parameters
 bed <- snakemake@input[["bed"]]
-txdb <- snakemake@input[["txdb"]]
+gtf <- snakemake@input[["gtf"]]
 txt <- snakemake@output[["txt"]]
 
 # Load annotation database
-load(txdb)
+txdb <- makeTxDbFromGFF(gtf)
 
 # Annotate bed file
 peakAnno <- annotatePeak(bed,
-                        tssRegion = c(-3000, 3000),
-                        TxDb = txdb)
+                         tssRegion = c(-3000, 3000),
+                         TxDb = txdb)
 
 # Tidy up annotation data
 df <- as.data.frame(peakAnno@anno@elementMetadata@listData)
