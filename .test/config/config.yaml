@@ -37,7 +37,6 @@ peak_calling:
   enrichment_db: "" # Pathway enrichment database
 enrichment_analysis:
   libraries: "GO_Biological_Process_2023,GO_Molecular_Function_2023,Reactome_2022" # Pathway enrichment libraries
-motif_discovery
 resources: # computing resources
   trim:
     cpu: 8
