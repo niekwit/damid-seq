@@ -1,6 +1,11 @@
 import os
 import glob
-import pandas as pd
+import sys
+try:
+    import pandas as pd
+except ImportError as e: # Pandas might not be installed when using Snakedeploy
+    print("ERROR: Python pandas package not found.\nPlease install pandas to run this pipeline:\nmamba install pandas")
+    sys.exit(1)
 import datetime
 from scripts.resources import Resources
 include: "scripts/general_functions.smk"
