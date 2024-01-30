@@ -22,7 +22,7 @@ rule plotCorrelation:
         "results/deeptools/scores_per_bin.npz"
     output:
         tab="results/deeptools/correlation.tab",
-        pdf="results/plots/sample_correlation.pdf"
+        pdf="results/plots/sample_correlation.pdf",
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
@@ -52,10 +52,10 @@ rule plot_heatmap:
         pdf="results/plots/heatmap.pdf",
         mat="results/deeptools/heatmap_matrix.gz",
     params:
-        im = config["deeptools"]["plotHeatmap"]["interpolationMethod"],
-        pt = config["deeptools"]["plotHeatmap"]["plotType"],
-        cm = config["deeptools"]["plotHeatmap"]["colorMap"],
-        a = config["deeptools"]["plotHeatmap"]["alpha"],
+        im=config["deeptools"]["plotHeatmap"]["interpolationMethod"],
+        pt=config["deeptools"]["plotHeatmap"]["plotType"],
+        cm=config["deeptools"]["plotHeatmap"]["colorMap"],
+        a=config["deeptools"]["plotHeatmap"]["alpha"],
         extra="",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
@@ -82,6 +82,7 @@ rule plot_profile:
     output:
         pdf="results/plots/profile_plot.pdf",
     params:
+        rl = computematrix_args(region_labels=True),
         extra="",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
@@ -103,8 +104,8 @@ rule plot_profile:
 
 rule peak_annotation_plots:
     input:
-        txdb="resources/txdb.RData",
-        expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
+        gtf=resources.gtf,
+        bed=expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
     output:
         fd="results/plots/peaks/feature_distributions.pdf",
         dt="results/plots/peaks/distance_to_tss.pdf",
