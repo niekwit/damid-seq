@@ -4,7 +4,15 @@ rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces
         git="resources/damidseq_pipeline",
         flag=expand("results/trimmed/{{dir}}/{sample}.flag", sample=SAMPLES),
         gatc="resources/genome.GATC.gff",
-        idx="resources/bowtie2_index/index.1.bt2",
+        idx=multiext(
+            f"resources/bowtie2_index/{resources.genome}_{resources.build}/index",
+            ".1.bt2",
+            ".2.bt2",
+            ".3.bt2",
+            ".4.bt2",
+            ".rev.1.bt2",
+            ".rev.2.bt2",
+        ),
     output:
         #bg=directory("results/bedgraph/{{dir}}"),
         #bam=directory("results/bam/{{dir}}"),
