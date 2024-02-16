@@ -4,6 +4,7 @@ rule multiBigwigSummary:
     output:
         "results/deeptools/scores_per_bin.npz",
     params:
+        labels=lambda wildcards, input: [x.replace("results/bigwig/", "").replace(".bw","") for x in input],
         extra=""
     threads: config["resources"]["deeptools"]["cpu"] * 4
     resources:
@@ -15,7 +16,7 @@ rule multiBigwigSummary:
     shell:
         "multiBigwigSummary bins "
         "--bwfiles {input} "
-        "--smartLabels "
+        "--labels {params.labels} "
         "--outFileName {output} "
         "--numberOfProcessors {threads} "
         "{params.extra} "
