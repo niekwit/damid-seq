@@ -105,7 +105,7 @@ rule plot_profile:
 rule peak_annotation_plots:
     input:
         gtf=resources.gtf,
-        bed=expand("results/peaks/overlapping_peaks/{bg_sample}.extended.bed", bg_sample=BG_SAMPLES),
+        bed=expand("results/peaks/overlapping_peaks/{bg_sample}.filtered.bed", bg_sample=BG_SAMPLES),
     output:
         fd="results/plots/peaks/feature_distributions.pdf",
         dt="results/plots/peaks/distance_to_tss.pdf",
@@ -123,3 +123,21 @@ rule peak_annotation_plots:
     script:
         "../scripts/peak_annotation_plots.R"
 
+
+rule plot_mapping_rates:
+    input:
+        log=expand("logs/damidseq_pipeline/{dir}/damidseq_pipeline.log", dir=DIRS),
+    output:
+        pdf="results/plots/mapping_rates.pdf",
+    params:
+        extra="",
+    threads: config["resources"]["plotting"]["cpu"]
+    resources:
+        runtime=config["resources"]["plotting"]["time"]
+    log:
+        "logs/plotting/plot_mapping_rates_{dir}.log"
+    conda:
+        "../envs/R.yaml"
+    script:
+        "../scripts/plot_mapping_rates.R"
+    
