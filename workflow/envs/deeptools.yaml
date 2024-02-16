@@ -7,3 +7,5 @@ dependencies:
   - deeptools=3.5.4
   - python=3.10
   - ucsc-bedgraphtobigwig=445
+  - wiggletools=1.2.11
+  - ucsc-wigtobigwig=447
