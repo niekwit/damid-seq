@@ -73,12 +73,12 @@ rule overlapping_peaks: # escape bg_sample wildcard to get all replicate bg_samp
         "bedtools multiinter {params.extra} -i {input.beds} > {output}"
 
 
-rule extend_peak_regions:
+rule filter_overlapping_peaks:
     input:
         bed="results/peaks/overlapping_peaks/{bg_sample}.overlap.bed",
         cs=f"resources/{resources.genome}_chrom.sizes",
     output:
-        "results/peaks/overlapping_peaks/{bg_sample}.extended.bed",
+        "results/peaks/overlapping_peaks/{bg_sample}.filtered.bed",
     params:
         m=config["peak_calling"]["overlapping_peaks"]["max_size"],
         e=config["peak_calling"]["overlapping_peaks"]["extend_by"],
@@ -92,12 +92,13 @@ rule extend_peak_regions:
     conda:
         "../envs/peak_calling.yaml"
     script:
-        "../scripts/extend_peak_regions.py"
+        "../scripts/filter_overlapping_peaks.py"
 
 
 rule annotate_peaks:
     input:
-        bed="results/peaks/overlapping_peaks/{bg_sample}.extended.bed",
+        bed="results/peaks/overlapping_peaks/{bg_sample}.filtered.bed",
+        adb=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
         gtf=resources.gtf,
     output:
         txt="results/peaks/overlapping_peaks/{bg_sample}.annotated.txt",
