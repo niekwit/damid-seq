@@ -7,7 +7,7 @@ rule bedgraph2bigwig:
     params:
         extra=""
     #wildcard_constraints:
-    #    dataset="^((?!Dam).)*$"
+    #    sample="^((?!Dam).)*$"
     threads: config["resources"]["fastqc"]["cpu"]
     resources: 
         runtime=config["resources"]["fastqc"]["time"],
@@ -23,23 +23,40 @@ rule bedgraph2bigwig:
         "{output.bw} > {log} 2>&1"
 
 
-rule average_bigwigs:
+rule average_wig:
     input:
-        expand("results/bigwig/{dir}/{{bg_sample}}.bw", dir=DIRS),
+        expand("results/bigwig/{dir}/{bg_sample}.bw", dir=DIRS, bg_sample=BG_SAMPLES),
     output:
-        bw="results/bigwig/average_bw/{bg_sample}.bw",
+        wig=temp("results/bigwig/average_bw/{bg_sample}.wig"),
     params:
         extra="",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/deeptools/bw_average_{bg_sample}.log"
+        "logs/wiggletools/wig_average_{bg_sample}.log"
+    conda:
+        "../envs/deeptools.yaml"
+    script:
+        "../scripts/average_wig.py"
+
+
+rule wig2bigwig:
+    input:
+        wig="results/bigwig/average_bw/{bg_sample}.wig",
+        cs=f"resources/{resources.genome}_chrom.sizes",
+    output:
+        "results/bigwig/average_bw/{bg_sample}.bw",
+    params:
+        extra="",
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/wigToBigWig/{bg_sample}.log"
     conda:
         "../envs/deeptools.yaml"
     shell:
-        "bigwigAverage "
-        "--bigwigs {input} "
-        "--outFileName {output.bw} "
-        "--numberOfProcessors {threads} > {log} 2>&1"
+        "wigToBigWig {input.wig} {input.cs} {output}"
+
         
