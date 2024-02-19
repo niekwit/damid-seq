@@ -16,7 +16,7 @@ with open(cs) as f:
 
 extended_peaks = 0
 skipped_peaks = 0
-count = 1
+count = 1 # Number of peaks included in the output file
 
 with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
     while True:
@@ -54,7 +54,8 @@ with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
         if extend_by != 0:
             extended_peaks += 1
         
-        # Make sure that the extended regions do not extend past the begin/end of the chromosome
+        # Make sure that the extended regions do not 
+        # extend past the begin/end of the chromosome
         if start < 0:
             start = 0
         if end > chrom_sizes[chrom]:
@@ -67,9 +68,9 @@ with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
         # Write extended region to output file
         bed_out.write(f"{chrom}\t{start}\t{end}\t{name}\t0\t{num}\n")
         
-        
-print("Done...")
-print(f"Peak total ({bed}): {count}")
-print(f"Extended {extended_peaks} peaks in {bed}")
-print(f"Skipped {skipped_peaks} peaks in {bed}")
-
+with open(snakemake.log[0], "w") as log:
+    log.write(f"Total number of peaks analysed: {count + skipped_peaks}\n")
+    log.write(f"Skipped peaks: {skipped_peaks}\n")
+    log.write(f"Overlapping peaks: {count}\n")
+    log.write(f"Extended peaks: {extended_peaks}\n")
+    
