@@ -21,7 +21,7 @@ rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces
     #wildcard_constraints:
     #    sample="^((?!Dam).)*$" # exclude Dam sample from sample wildcard 
     params:
-        idxdir=lambda wildcards, input: input["idx"][:-6],
+        idxdir=lambda wildcards, input: input["idx"][0][:-6],
         paired=paired_end,
         extra=config["extra"],
     conda:
