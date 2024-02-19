@@ -1,11 +1,7 @@
 import os
 import glob
 import sys
-try:
-    import pandas as pd
-except ImportError as e: # Pandas might not be installed when using Snakedeploy
-    print("ERROR: Python pandas package not found.\nPlease install pandas to run this pipeline:\nmamba install pandas")
-    sys.exit(1)
+import pandas as pd
 import datetime
 from scripts.resources import Resources
 include: "scripts/general_functions.smk"
@@ -29,20 +25,19 @@ paired_end = paired_end()
 # Get sample directories
 DIRS = dirs()
 SAMPLES = samples()
-BG_SAMPLES= samples(bedgraph=True) # SAMPLES minus Dam control
+BG_SAMPLES = samples(bedgraph=True) # SAMPLES minus Dam control
 
 # Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
 include: "rules/resources.smk"
-include: "rules/setup.smk"
 include: "rules/damid.smk"
 include: "rules/bedgraph_processing.smk"
 include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
 include: "rules/peak_calling.smk"
 include: "rules/bed.smk"
-#include: "rules/motif_discovery.smk"
+include: "rules/motifs.smk"
 
 # Target rule
 rule all:
