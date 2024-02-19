@@ -10,13 +10,13 @@ deeptools:
     upstream: 3000
     downstream: 3000
     binSize: 10
-    averageTypeBins: std
+    averageTypeBins: mean
     regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
     no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
     extra: "" # Any additional parameters for computeMatrix
   plotHeatmap:
     interpolationMethod: auto
-    plotType: std # lines, fill, se, std
+    plotType: lines # lines, fill, se, std
     colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
     alpha: 1.0
     extra: "" 
@@ -26,9 +26,16 @@ peak_calling:
   fdr: 0.01
   extra: ""
   overlapping_peaks:
-    max_size: 10 # Minimum size of peaks to be extended
-    extend_by: 20 # Number of bp to extend peaks on either side
+    max_size: 10 # Maximum size of peaks to be extended
+    extend_by: 40 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
+motif_analysis: # With findMotifsGenome.pl from Homer
+  run_analysis: True
+  len: 8,10,12 # Motif length
+  mask: "-mask" # Mask repeat sequences (leave empty for no masking)
+  extra: "" # Extra arguments for findMotifsGenome.pl
+enrichment_analysis:
+  libraries: "GO_Biological_Process_2023,GO_Molecular_Function_2023,Reactome_2022"
 resources: # computing resources
   trim:
     cpu: 8

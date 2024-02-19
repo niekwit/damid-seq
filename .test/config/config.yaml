@@ -31,10 +31,14 @@ peak_calling:
   unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
   extra: ""
   overlapping_peaks:
-    max_size: 10 # Minimum size of peaks to be extended
-    extend_by: 20 # Number of bp to extend peaks on either side
+    max_size: 10 # Maximum size of peaks to be extended
+    extend_by: 40 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
-  enrichment_db: "" # Pathway enrichment database
+motif_analysis: # With findMotifsGenome.pl from Homer
+  run_analysis: True
+  len: 8,10,12 # Motif length
+  mask: "-mask" # Mask repeat sequences (leave empty for no masking)
+  extra: "" # Extra arguments for findMotifsGenome.pl
 enrichment_analysis:
   libraries: "GO_Biological_Process_2023,GO_Molecular_Function_2023,Reactome_2022" # Pathway enrichment libraries
 resources: # computing resources
