@@ -27,11 +27,11 @@ peakAnnoList <- lapply(bed.files,
                         )
 
 # Plot binding relative to TSS
-pdf(snakemake@output[["tss"]])
+pdf(snakemake@output[["dt"]])
 plotDistToTSS(peakAnnoList,
               title =  "Distribution of peaks\nrelative to TSS") +
-  theme(axis.line.y = element_line(size = 0),
-        axis.line.x = element_line(size = 0.5),
+  theme(axis.line.y = element_line(linewidth = 0),
+        axis.line.x = element_line(linewidth = 0.5),
         panel.border = element_blank(),
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(),
@@ -39,10 +39,10 @@ plotDistToTSS(peakAnnoList,
 dev.off()
 
 # Plot annotation bar
-pdf(snakemake@output[["bar"]])
+pdf(snakemake@output[["fd"]])
 plotAnnoBar(peakAnnoList) +
-  theme(axis.line.y = element_line(size = 0),
-        axis.line.x = element_line(size = 0.5),
+  theme(axis.line.y = element_line(linewidth = 0),
+        axis.line.x = element_line(linewidth = 0.5),
         panel.border = element_blank(),
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(),
