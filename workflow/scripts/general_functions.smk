@@ -10,8 +10,8 @@ def targets():
         "results/plots/profile_plot.pdf",
         "results/plots/peaks/feature_distributions.pdf",
         "results/plots/peaks/distance_to_tss.pdf",
-        "results/plots/peaks/pathway_enrichment.pdf",
-        "results/plots/peaks/venn_overlap_conditions.pdf",
+        "results/plots/mapping_rates.pdf",
+        expand("results/motifs/{bg_sample}/", bg_sample=BG_SAMPLES),
         expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
         ]
 
@@ -113,6 +113,13 @@ def computematrix_args(region_labels=False):
     # Add region argument
     r = config["deeptools"]["matrix"]["regionsFileName"]
     no_whole_genome = config["deeptools"]["matrix"]["no_whole_genome"]
+
+    # Check if files in r exist
+    if r != "":
+        _r = r.split(",")
+        for region in _r:
+            if not os.path.isfile(region):
+                raise ValueError(f"File {region} not found...")
 
     if region_labels: # for plotProfile/Heatmap
         # Multiple files may be parsed in config file
