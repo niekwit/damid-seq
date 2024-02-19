@@ -40,7 +40,11 @@ def random_seq(length):
         chr_length = chr_seq[chr]
         
         # Randomly select end and start position
-        end = random.randint(1, chr_length)
+        while True: # Make sure that no negative start positions are generated
+            end = random.randint(1, chr_length)
+            if end - length > 0:
+                break
+        
         start = end - length
         
         # Extract sequence
