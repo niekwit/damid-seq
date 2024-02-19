@@ -69,7 +69,6 @@ rule plot_heatmap:
         "--matrixFile {input.mat} "
         "--outFileNameMatrix {output.mat} "
         "--outFileName {output.pdf} "
-        "--perGroup "
         "--colorMap {params.cm} "
         "--alpha {params.a} "
         "{params.extra} "
@@ -96,7 +95,7 @@ rule plot_profile:
         "--matrixFile {input.mat} "
         "--outFileName {output.pdf} "
         "--perGroup "
-        "--plotType=fill "
+        "--plotType=line "
         "--legendLocation=upper-right "
         "{params.extra} "
         "> {log} 2>&1"
@@ -109,8 +108,6 @@ rule peak_annotation_plots:
     output:
         fd="results/plots/peaks/feature_distributions.pdf",
         dt="results/plots/peaks/distance_to_tss.pdf",
-        pa="results/plots/peaks/pathway_enrichment.pdf",
-        v="results/plots/peaks/venn_overlap_conditions.pdf",
     params:
         extra="",
     threads: config["resources"]["plotting"]["cpu"]
@@ -135,7 +132,7 @@ rule plot_mapping_rates:
     resources:
         runtime=config["resources"]["plotting"]["time"]
     log:
-        "logs/plotting/plot_mapping_rates_{dir}.log"
+        "logs/plotting/plot_mapping_rates.log"
     conda:
         "../envs/R.yaml"
     script:
