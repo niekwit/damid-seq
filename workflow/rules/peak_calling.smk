@@ -7,7 +7,6 @@ rule peak_calling:
         data="results/peaks/{dir}/{bg_sample}.data",
     params:
         outdir=lambda w, output: os.path.dirname(output["gff"]),
-        #seed=config["peak_calling"]["seed"],
         n=config["peak_calling"]["iterations"],
         fdr=config["peak_calling"]["fdr"],
         frac=config["peak_calling"]["fraction"],
@@ -15,7 +14,6 @@ rule peak_calling:
         mq=config["peak_calling"]["min_quantile"],
         step=config["peak_calling"]["step"],
         up=config["peak_calling"]["unified_peaks"],
-        #extra=config["peak_calling"]["extra"],
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
