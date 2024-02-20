@@ -162,3 +162,17 @@ rule bowtie2_build_index:
         runtime=config["resources"]["index"]["time"],
     wrapper:
         "v3.3.6/bio/bowtie2/build"
+
+
+if config["motif_analysis"]["run_analysis"]:
+    rule install_homer_genome:
+        output:
+            touch("resources/homer_genome_installed"),
+        params:
+            genome=resources.genome,
+        log:
+            "logs/resources/homer_install_genome.log"
+        conda:
+            "../envs/peak_calling.yaml"
+        script:
+            "../scripts/install_homer_genome.py"
