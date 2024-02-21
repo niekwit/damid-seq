@@ -38,10 +38,13 @@ for (i in seq_along(log.files)) {
 
   # Get line numbers where overall mapping rate is printed
   rate.lines <- grep("% overall alignment rate", log.section)
+  
+  # Extract mapping rates
+  rates <- as.numeric(str_extract(log.section[rate.lines], "\\d+\\.\\d+"))
 
   # Extract mapping rates
   mapping.rates <- data.frame(sample = sample.names,
-                                overall_mapping_rate = as.numeric(str_extract(log.section[rate.lines], "\\d+\\.\\d+")))
+                              overall_mapping_rate = rates)
 
   # Add to data frame with all data
   mapping.rates.all <- rbind(mapping.rates.all, mapping.rates)
@@ -56,7 +59,7 @@ p <- ggplot(mapping.rates.all, aes(x = sample, y = overall_mapping_rate)) +
   theme_cowplot(18) +
   theme(plot.margin = margin(t = 0.5, r = 1.5, b = 0.5, l = 0.5, unit = "cm")) +
   labs(x = NULL,
-       y = "Overall mapping rates (%)") +
+       y = "Overall alignment rates (%)") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.1)),
                      limits = c(0, 100)) +
   scale_x_discrete(guide = guide_axis(angle = 45))
