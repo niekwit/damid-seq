@@ -60,7 +60,7 @@ def main(bed, chr_seq):
     write_dict2fasta(peak_seq, snakemake.output["out"])
            
 if __name__ == "__main__":
-    bed = load_bed(snakemake.input["bed"], snakemake.output["out"])
+    bed = load_bed(snakemake.input["bed"])
     chr_seq = load_fasta(snakemake.input["fasta"])
     
     main(bed, chr_seq)
