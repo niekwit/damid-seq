@@ -38,6 +38,8 @@ log = f'{cwd}/{snakemake.log[0]}'
 os.makedirs(outdir, exist_ok=True)
 os.chdir(outdir)
 
+sample = os.path.basename(bedgraph).replace("-vs-Dam.kde-norm.gatc.bedgraph","")
+
 # Run find_peaks
 shell(
     "perl {find_peaks} "
@@ -53,24 +55,20 @@ shell(
     )
 
 # Locate GFF and data files and move to output dir (parent dir)
-gff_temp = glob.glob(f"{outdir}/*/*.gff") # peak file
+gff_temp = glob.glob(f"{outdir}/peak_analysis.{sample}*/{sample}*.peaks.gff") # peak file
 assert len(gff_temp) == 1, "No or more than one gff file found"
-data_temp = glob.glob(f"{outdir}/*/*-data") # data file
+data_temp = glob.glob(f"{outdir}/peak_analysis.{sample}*/{sample}*-data") # data file
 assert len(data_temp) == 1, "No or more than one data file found"
 
 # Rename and move files
-os.makedirs(outdir, exist_ok=True)
 shell(
     f"mv {gff_temp[0]} {gff} && "
     f"mv {data_temp[0]} {data}"
     )
 
-#os.replace(gff_temp[0], gff)
-#os.replace(data_temp[0], data)
-
 # Remove empty dir
-temp_dir = os.path.dirname(gff_temp[0])
-os.rmdir(temp_dir)
+empty_dir = os.path.dirname(gff_temp[0])
+os.rmdir(empty_dir)
 
 # Go back to original working dir
 os.chdir(cwd) # Is this needed?
