@@ -10,19 +10,18 @@ deeptools:
     upstream: 3000
     downstream: 3000
     binSize: 10
-    averageTypeBins: std
+    averageTypeBins: lines
     regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
     no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
     extra: "" # Any additional parameters for computeMatrix
   plotHeatmap:
     interpolationMethod: auto
-    plotType: std # lines, fill, se, std
+    plotType: lines # lines, fill, se, std
     colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
     alpha: 1.0
     extra: "" 
 peak_calling:
-  seed: 1234
-  iterations: 100 # N argument
+  iterations: 5 # N argument
   fdr: 0.01
   fraction: 0 # Fraction of random fragments to consider per iteration
   min_count: 2 # Minimum number of reads to consider a peak

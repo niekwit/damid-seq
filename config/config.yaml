@@ -21,8 +21,7 @@ deeptools:
     alpha: 1.0
     extra: "" 
 peak_calling:
-  seed: 1234
-  iterations: 100 # N argument
+  iterations: 25 # N argument
   fdr: 0.01
   extra: ""
   overlapping_peaks:

@@ -25,9 +25,6 @@ else:
             r1="reads/{dir}/{sample}.fastq.gz",
         output:
             r1="results/trimmed/{dir}/{sample}.fastq.gz",
-            #report_fwd="results/trimmed/{dir}/{sample}_trimming_report.txt",
-            #temp_dir=temp(directory("temp/{dir}/{sample}")),
-            #dest_dir=directory("results/trimmed/{dir}/{sample}"),
             flag=touch("results/trimmed/{dir}/{sample}.flag"),
         threads: config["resources"]["trim"]["cpu"],
         resources:

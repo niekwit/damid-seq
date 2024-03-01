@@ -66,6 +66,7 @@ rule computeMatrix:
         "{params.args} "
         "--numberOfProcessors {threads} "
         "--smartLabels "
+        "--missingDataAsZero "
         "--scoreFileName {input.bw} "
         "--outFileName {output.mat} "
         "> {log} 2>&1"

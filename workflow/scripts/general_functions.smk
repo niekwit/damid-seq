@@ -11,7 +11,6 @@ def targets():
         "results/plots/peaks/feature_distributions.pdf",
         "results/plots/peaks/distance_to_tss.pdf",
         "results/plots/mapping_rates.pdf",
-        expand("results/motifs/{bg_sample}/", bg_sample=BG_SAMPLES),
         expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
         ]
 

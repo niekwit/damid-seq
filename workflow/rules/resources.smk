@@ -26,7 +26,7 @@ rule index_fasta:
     resources: 
         runtime=config["resources"]["plotting"]["time"]
     wrapper:
-        "v3.3.6/bio/samtools/faidx"
+        "v3.4.0/bio/samtools/faidx"
 
 
 rule chrom_sizes:
@@ -123,9 +123,10 @@ rule make_gatc_tracks:
         sw="resources/damidseq_pipeline",
         fa=resources.fasta,
     output:
-        "resources/genome.GATC.gff",
+        f"resources/{resources.genome}_{resources.build}.GATC.gff",
     params:
         genome=lambda wildcards, output: output[0][:-9]
+    cache: True
     threads: config["resources"]["fastqc"]["cpu"],
     resources:
         time=config["resources"]["fastqc"]["time"],
@@ -161,7 +162,7 @@ rule bowtie2_build_index:
     resources:
         runtime=config["resources"]["index"]["time"],
     wrapper:
-        "v3.3.6/bio/bowtie2/build"
+        "v3.4.0/bio/bowtie2/build"
 
 
 if config["motif_analysis"]["run_analysis"]:

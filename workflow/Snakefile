@@ -7,6 +7,8 @@ from scripts.resources import Resources
 include: "scripts/general_functions.smk"
 from snakemake.utils import min_version
 
+report: "report/workflow.rst"
+
 # Set minimum snakemake version
 min_version("7.25.0")
 
@@ -37,7 +39,7 @@ include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
 include: "rules/peak_calling.smk"
 include: "rules/bed.smk"
-include: "rules/motifs.smk"
+#include: "rules/motifs.smk"
 
 # Target rule
 rule all:

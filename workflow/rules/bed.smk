@@ -88,7 +88,7 @@ rule filter_overlapping_peaks:
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/extend_bed_regions/{bg_sample}.log"
+        "logs/filter_bed_file/{bg_sample}.log"
     conda:
         "../envs/peak_calling.yaml"
     script:
@@ -101,7 +101,7 @@ rule annotate_peaks:
         adb=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
         gtf=resources.gtf,
     output:
-        txt="results/peaks/overlapping_peaks/{bg_sample}.annotated.txt",
+        txt=report("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt",  caption="../report/annotated_peaks.rst", category="Annotated peaks"),
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
@@ -113,5 +113,3 @@ rule annotate_peaks:
         "../envs/R.yaml"
     script:
         "../scripts/annotate_peaks.R"
-
-

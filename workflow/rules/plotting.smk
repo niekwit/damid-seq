@@ -2,8 +2,8 @@ rule plotPCA:
     input:
         "results/deeptools/PCA.tab",
     output:
-        pca="results/plots/PCA.pdf",
-        scree="results/plots/scree.pdf",
+        pca=report("results/plots/PCA.pdf", caption="../report/pca.rst", category="PCA"),
+        scree=report("results/plots/scree.pdf", caption="../report/scree.rst", category="PCA"),
     params:
         extra=""
     threads: config["resources"]["plotting"]["cpu"]
@@ -17,12 +17,12 @@ rule plotPCA:
         "../scripts/plot_PCA.R"
 
 
-rule plotCorrelation:
+rule plot_correlation:
     input:
         "results/deeptools/scores_per_bin.npz"
     output:
         tab="results/deeptools/correlation.tab",
-        pdf="results/plots/sample_correlation.pdf",
+        pdf=report("results/plots/sample_correlation.pdf", caption="../report/correlation.rst", category="Sample correlation"),
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
@@ -49,7 +49,7 @@ rule plot_heatmap:
     input:
         mat="results/deeptools/average_bw_matrix.gz",
     output:
-        pdf="results/plots/heatmap.pdf",
+        pdf=report("results/plots/heatmap.pdf", caption="../report/heatmap.rst", category="Heatmap"),
         mat="results/deeptools/heatmap_matrix.gz",
     params:
         im=config["deeptools"]["plotHeatmap"]["interpolationMethod"],
@@ -79,7 +79,7 @@ rule plot_profile:
     input:
         mat="results/deeptools/average_bw_matrix.gz",
     output:
-        pdf="results/plots/profile_plot.pdf",
+        pdf=report("results/plots/profile_plot.pdf", caption="../report/profile_plot.rst", category="Profile plot"),
     params:
         rl = computematrix_args(region_labels=True),
         extra="",
@@ -95,7 +95,7 @@ rule plot_profile:
         "--matrixFile {input.mat} "
         "--outFileName {output.pdf} "
         "--perGroup "
-        "--plotType=line "
+        "--plotType=lines "
         "--legendLocation=upper-right "
         "{params.extra} "
         "> {log} 2>&1"
@@ -106,8 +106,8 @@ rule peak_annotation_plots:
         gtf=resources.gtf,
         bed=expand("results/peaks/overlapping_peaks/{bg_sample}.filtered.bed", bg_sample=BG_SAMPLES),
     output:
-        fd="results/plots/peaks/feature_distributions.pdf",
-        dt="results/plots/peaks/distance_to_tss.pdf",
+        fd=report("results/plots/peaks/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
+        dt=report("results/plots/peaks/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
     params:
         extra="",
     threads: config["resources"]["plotting"]["cpu"]
@@ -125,7 +125,7 @@ rule plot_mapping_rates:
     input:
         log=expand("logs/damidseq_pipeline/{dir}/damidseq_pipeline.log", dir=DIRS),
     output:
-        pdf="results/plots/mapping_rates.pdf",
+        pdf=report("results/plots/mapping_rates.pdf", caption="../report/mapping_rates.rst", category="Mapping rates"),
     params:
         extra="",
     threads: config["resources"]["plotting"]["cpu"]

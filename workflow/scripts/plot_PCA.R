@@ -11,7 +11,6 @@ library(ggrepel)
 library(reshape2)
 library(scales)
 
-
 #### PCA plot ####
 # Load PCA data
 data <- read.delim(snakemake@input[[1]],
@@ -25,9 +24,8 @@ sample_info <- read.csv("config/samples.csv", header = TRUE) %>%
     ~str_replace(., "-", ".")
   ))
 
-# Get unique genotypes, factors and treatments
+# Get unique genotypes and treatments
 genotypes <- unique(sample_info$genotype)
-factors <- unique(sample_info$factor)
 treatments <- unique(sample_info$treatment)
 
 # Set colours (genotypes)
@@ -39,9 +37,6 @@ if (length(genotypes) < 3) {
 
 # Set shapes (treatments)
 shapes <- c(21, 22, 24, 23, 25)[seq_along(treatments)]
-
-# Set sizes (factors)
-sizes <- c(8, 12, 16, 20, 24)[seq_along(factors)]
 
 # Keep only components 1 and 2, transform and add sample information
 df <- data[1:2, ] %>%
@@ -62,8 +57,7 @@ p <- ggplot(df,
             mapping = aes(x = PC1,
                           y = PC2,
                           fill = genotype,
-                          shape = treatment,
-                          size = factor)) +
+                          shape = treatment)) +
   geom_point() +
   geom_label_repel(data = df,
                    aes(label = sample,
@@ -73,13 +67,11 @@ p <- ggplot(df,
                    nudge_y = 0.5) +
   scale_fill_manual(values = colours) +
   scale_shape_manual(values = shapes) +
-  scale_size_manual(values = sizes) +
   theme_cowplot(16) +
   labs(x = paste0("PC1: ", PC1_var, "% variance"),
        y = paste0("PC2: ", PC2_var, "% variance"),
        Fill = "Genotype",
-       shape = "Treatment",
-       size = "Factor")
+       shape = "Treatment")
 
 # Save plot
 ggsave(snakemake@output[["pca"]], p)
