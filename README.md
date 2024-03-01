@@ -1,8 +1,8 @@
 # Snakemake workflow: `damid-seq`
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥7.25.0-brightgreen.svg)](https://snakemake.github.io)
-[![GitHub actions status](https://github.com/niekwit/crispr-screens/workflows/Tests/badge.svg?branch=main)](https://github.com/niekwit/damid-seq/actions?query=branch%3Amain+workflow%3ATests)
-
+[![Tests](https://github.com/niekwit/damid-seq/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/damid-seq/actions/workflows/main.yml)
+[![DOI](https://zenodo.org/badge/708194033.svg)](https://zenodo.org/doi/10.5281/zenodo.10737672)
 
 A Snakemake workflow for `DamID-seq analysis`, incorporating [damidseq_pipeline](https://owenjm.github.io/damidseq_pipeline/)
 
@@ -87,7 +87,6 @@ deeptools:
     alpha: 1.0
     extra: "" 
 peak_calling:
-  seed: 1234
   iterations: 100 # N argument
   fdr: 0.01
   extra: ""
@@ -95,13 +94,6 @@ peak_calling:
     max_size: 10 # Maximum size of peaks to be extended
     extend_by: 40 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
-motif_analysis: # With findMotifsGenome.pl from Homer
-  run_analysis: True
-  len: 8,10,12 # Motif length
-  mask: "-mask" # Mask repeat sequences (leave empty for no masking)
-  extra: "" # Extra arguments for findMotifsGenome.pl
-enrichment_analysis:
-  libraries: "GO_Biological_Process_2023,GO_Molecular_Function_2023,Reactome_2022"
 resources: # computing resources
   trim:
     cpu: 8
