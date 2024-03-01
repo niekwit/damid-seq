@@ -10,7 +10,7 @@ deeptools:
     upstream: 3000
     downstream: 3000
     binSize: 10
-    averageTypeBins: lines
+    averageTypeBins: mean
     regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
     no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
     extra: "" # Any additional parameters for computeMatrix
