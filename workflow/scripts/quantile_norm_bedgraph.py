@@ -1,15 +1,11 @@
-import sys
 import pandas as pd
 
 def quantile_normalize(df):
     rank_mean = df.stack().groupby(df.rank(method="first").stack().astype(int)).mean()
     return df.rank(method="min").stack().astype(int).map(rank_mean).unstack()
 
-if len(sys.argv) < 2:
-    print("Please provide one or more .bedgraph files as command-line arguments.")
-    sys.exit(1)
-
-bedgraphs = sys.argv[1:]
+bedgraphs = snakemake.input["bg"]
+assert len(bedgraphs) > 0, "No bedgraphs found"
 bgs= "\n".join(bedgraphs)
 print(f"Applying quantile normalisation to:\n{bgs}")
 

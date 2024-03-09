@@ -10,19 +10,18 @@ rule quantile_normalisation:
         "logs/quantile_normalisation/qn.log"
     conda:
         "../envs/damid.yaml"
-    shell:
-        "python workflow/scripts/quantile_norm_bedgraph.py {input.bg} > {log} 2>&1"
+    script:
+        "../scripts/quantile_norm_bedgraph.py"
+
 
 rule bedgraph2bigwig:
     input:
         cs=f"resources/{resources.genome}_chrom.sizes",
-        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph" # exclude Dam sample from sample wildcard here!!!!
+        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph"
     output:
         bw="results/bigwig/{dir}/{bg_sample}.bw",
     params:
         extra=""
-    #wildcard_constraints:
-    #    sample="^((?!Dam).)*$"
     threads: config["resources"]["fastqc"]["cpu"]
     resources: 
         runtime=config["resources"]["fastqc"]["time"],
