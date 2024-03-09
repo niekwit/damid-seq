@@ -74,9 +74,11 @@ properties:
           extra:
             type: string
   
-  peak_calling:
+  peak_calling_perl:
     type: object
     properties:
+      run:
+        type: boolean
       iterations:
         type: integer
         minimum: 1
@@ -115,5 +117,21 @@ properties:
           keep:
             type: integer
             minimum: 1
-  
+
+  peak_calling_macs2:
+    type: object
+    properties:
+      run:
+        type: boolean
+      mode:
+        type: string
+        enum: ["narrow", "broad"]
+      qvalue:
+        type: number
+        minimum: 0
+        maximum: 1
+      broad-cutoff:
+        type: number
+        minimum: 0
+        maximum: 1
   
