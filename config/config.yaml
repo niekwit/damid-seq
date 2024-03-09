@@ -1,5 +1,5 @@
 genome: "dm6"
-ensembl_genome_build: "110"
+ensembl_genome_build: 110
 extra: "" # extra argument for damidseq_pipeline
 fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
 deeptools:
@@ -20,7 +20,8 @@ deeptools:
     colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
     alpha: 1.0
     extra: "" 
-peak_calling:
+peak_calling_perl:
+  run: True
   iterations: 25 # N argument
   fdr: 0.01
   extra: ""
@@ -28,13 +29,12 @@ peak_calling:
     max_size: 10 # Maximum size of peaks to be extended
     extend_by: 40 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
-motif_analysis: # With findMotifsGenome.pl from Homer
-  run_analysis: True
-  len: 8,10,12 # Motif length
-  mask: "-mask" # Mask repeat sequences (leave empty for no masking)
-  extra: "" # Extra arguments for findMotifsGenome.pl
-enrichment_analysis:
-  libraries: "GO_Biological_Process_2023,GO_Molecular_Function_2023,Reactome_2022"
+peak_calling_macs2:
+  run: False
+  mode: narrow
+  qvalue: 0.05
+  broad-cutoff: 0.1
+  extra: ""
 resources: # computing resources
   trim:
     cpu: 8
@@ -43,8 +43,8 @@ resources: # computing resources
     cpu: 4
     time: 60
   damid:
-    cpu: 8
-    time: 120
+    cpu: 24
+    time: 720
   index:
     cpu: 36
     time: 60
