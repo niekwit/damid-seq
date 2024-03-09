@@ -17,16 +17,34 @@ log.dirs <- unlist(lapply(log.files, dirname))
 log.files <- list.files(log.dirs,
                         pattern = "pipeline-.*.log",
                         full.names = TRUE)
-#THIS WILL FAIL WITH MULTIPLE LOG FILES PER RUN
-#OCCUR WHEN PIPELINE IS INITIALIZED MULTIPLE TIMES
-#CHANGE TO USE THE LASTEST LOG FILE
+
+# Get base dir for each log file
+log.dirs <- dirname(log.files)
+
+if (length(log.dirs) == length(log.files)) {
+  proper.log.files <- log.files
+} else {
+  # Check for each basedir if there is just one log file
+  proper.log.files <- list()
+  for (i in seq_along(log.dirs)) {
+    # Get log files in basedir
+    tmp <- list.files(log.dirs[[i]],
+                            pattern = "pipeline-.*.log",
+                            full.names = TRUE)
+    
+    # If there is more than one log file, select newest
+    if (length(tmp) > 1) {
+      proper.log.files[[i]] <- tmp[which.max(file.info(tmp)$mtime)]
+    }
+  }
+}
 
 # Data frame to store mapping rates of all experiments
 mapping.rates.all <- data.frame(sample = character(),
                                 overall_mapping_rate = numeric())
 
 # Extract mappings rates from each log file (one log file per experiment)
-for (i in seq_along(log.files)) {
+for (i in seq_along(proper.log.files)) {
   # Get dir name (dir = experiment)
   dir <- basename(log.dirs[[i]])
 
@@ -54,13 +72,19 @@ for (i in seq_along(log.files)) {
 }
 
 # Plot data and save
-p <- ggplot(mapping.rates.all, aes(x = sample, y = overall_mapping_rate)) +
+p <- ggplot(mapping.rates.all, 
+            aes(x = sample, 
+                y = overall_mapping_rate)) +
   geom_bar(stat = "identity",
            position = "dodge",
            colour = "black",
            fill = "aquamarine4") +
   theme_cowplot(18) +
-  theme(plot.margin = margin(t = 0.5, r = 1.5, b = 0.5, l = 0.5, unit = "cm")) +
+  theme(plot.margin = margin(t = 0.5,
+                             r = 1.5,
+                             b = 0.5,
+                             l = 0.5,
+                             unit = "cm")) +
   labs(x = NULL,
        y = "Overall alignment rates (%)") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.1)),
