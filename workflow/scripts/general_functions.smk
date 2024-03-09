@@ -5,6 +5,7 @@ def targets():
     """
     Returns file targets for rule all
     """
+    # Base target files
     TARGETS = [
         "results/qc/multiqc/multiqc.html",
         #"results/plots/PCA.pdf",
@@ -12,12 +13,35 @@ def targets():
         "results/plots/sample_correlation.pdf",
         "results/plots/heatmap.pdf",
         "results/plots/profile_plot.pdf",
-        "results/plots/peaks/feature_distributions.pdf",
-        "results/plots/peaks/distance_to_tss.pdf",
         "results/plots/mapping_rates.pdf",
-        expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
         expand("results/bigwig_rev_log2/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
         ]
+    
+    if config["peak_calling_perl"]["run"]:
+        TARGETS.extend([
+            "results/plots/peaks/feature_distributions.pdf",
+            "results/plots/peaks/distance_to_tss.pdf",
+            expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
+            ])
+    
+    if config["peak_calling_macs2"]["run"]:
+        if config["peak_calling_macs2"]["mode"] == "narrow":
+            TARGETS.extend([
+                "results/plots/macs2_narrow/feature_distributions.pdf",
+                "results/plots/macs2_narrow/distance_to_tss.pdf",
+                expand("results/macs2_narrow/{bg_sample}_peaks.xls", bg_sample=BG_SAMPLES),
+                expand("results/macs2_narrow/{bg_sample}_peaks.narrowPeak", bg_sample=BG_SAMPLES),
+                expand("results/macs2_narrow/{bg_sample}_summits.bed", bg_sample=BG_SAMPLES),
+                ])
+        elif config["peak_calling_macs2"]["mode"] == "broad":
+            TARGETS.extend([
+                "results/plots/macs2_broad/broad/feature_distributions.pdf",
+                "results/plots/macs2_broad/broad/distance_to_tss.pdf",
+                expand("results/macs2_broad/{bg_sample}_peaks.xls", bg_sample=BG_SAMPLES),
+                expand("results/macs2_broad/{bg_sample}_peaks.broadPeak", bg_sample=BG_SAMPLES),
+                expand("results/macs2_broad/{bg_sample}_peaks.gappedPeak", bg_sample=BG_SAMPLES),
+                ])
+    
     return TARGETS
 
 
@@ -68,7 +92,7 @@ def dirs():
     return DIRS
     
 
-def paired_samples(bedgraph=False):
+def paired_samples(bedgraph=False, dam=False):
     """
     Checks sample names/files and returns sample wildcard values for Snakemake
     """
@@ -103,8 +127,10 @@ def paired_samples(bedgraph=False):
         raise ValueError(f"Following files not found:\n{not_found}")
     
     # Only return non-Dam samples if bedgraph is True
-    if bedgraph:
+    if bedgraph and not dam:
         SAMPLES = [s for s in SAMPLES if not "Dam" in s]
+    elif bedgraph and dam:
+        SAMPLES = [s for s in SAMPLES if "Dam" in s]
 
     return SAMPLES
 
@@ -120,11 +146,11 @@ def paired_end():
 
     # Check file extension to see if paired-end reads are used
     if fastq.endswith("_R1_001.fastq.gz"):
-        return True
+        return True, ""
     elif fastq.endswith("_R2_001.fastq.gz"):
-        return True
+        return True, ""
     else:
-        return False
+        return False, "-ext300"
     
 
 def computematrix_args(region_labels=False):
@@ -208,10 +234,35 @@ def masked_genes():
             if "dm" in resources.genome:
                 prefix="FBgn"
                 count="7"
-            if not re.match(prefix + "[0-9]" + "{" + count + "}", gene):
+            if not re.match("".join([prefix,"[0-9]","{",count,"}"]), gene):
                 raise ValueError(f"Gene {gene} is not an Ensemble ID")
 
         # Replace comma with underscore
         genes = genes.replace(",", "_")
         
         return genes
+
+
+def macs2_params():
+    if paired_end:
+        format_ = "BAMPE"
+    else:
+        format_ = "BAM"
+    
+    if "hg" in resources.genome:
+        genome = "hs"
+    elif "mm" in resources.genome:
+        genome = "mm"
+    elif "dm" in resources.genome:
+        genome = "dm"
+    
+    if config["peak_calling_macs2"]["mode"] == "broad":
+        cutoff = config["peak_calling_macs2"]["broad_cutoff"]
+        broad = "--broad --broad-cutoff {cutoff} "
+    else:
+        broad = ""
+    
+    qvalue = config["peak_calling_macs2"]["qvalue"]
+    extra = config["peak_calling_macs2"]["extra"]
+
+    return f"-f {format_} -g {genome} -q {qvalue} {broad} {extra}"
