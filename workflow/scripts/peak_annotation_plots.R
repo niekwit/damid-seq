@@ -16,8 +16,15 @@ gtf <- snakemake@input[["gtf"]]
 txdb <- makeTxDbFromGFF(gtf)
 
 # Add sample names to bed files
-samples <- sub(".*\\/([^\\/]+)\\.filtered.bed", "\\1", bed.files)
+# Check which bed files are provided
+if (any(grepl("\\.bed$", bed.files)) == TRUE) {
+  samples <- sub(".*\\/([^\\/]+)\\.filtered.bed", "\\1", bed.files)
 names(bed.files) <- samples
+} else if (any(grepl("\\.narrowPeak$", bed.files)) == TRUE) {
+  samples <- sub(".*\\/([^\\/]+)\\_peaks.narrowPeak", "\\1", bed.files)
+} else if (any(grepl("\\.broadPeak$", bed.files)) == TRUE) {
+  samples <- sub(".*\\/([^\\/]+)\\_peaks.broadPeak", "\\1", bed.files)
+} 
 
 # Annotate bed files
 peakAnnoList <- lapply(bed.files,
