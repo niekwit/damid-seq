@@ -41,7 +41,6 @@ if paired_end:
             "{params.extra} "
             "{input} "
             "> {log} 2>&1"
-
 else:
     rule fastqc:
         input:
@@ -85,4 +84,3 @@ else:
             "{params.extra} "
             "{input} "
             "> {log} 2>&1"
-            

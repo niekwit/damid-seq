@@ -61,6 +61,9 @@ rule install_damidseq_pipeline_software:
         directory("resources/damidseq_pipeline"),
     params:
         url="https://github.com/owenjm/damidseq_pipeline.git",
+        version="-b v1.5.3",
+    retries: 3
+    cache: True
     log:
         "logs/resources/install_find_peaks_software.log"
     threads: 1
@@ -71,6 +74,7 @@ rule install_damidseq_pipeline_software:
     shell:
         "git clone "
         "{params.url} "
+        "{params.version} "
         "{output} > {log} 2>&1"
 
 
@@ -79,10 +83,11 @@ use rule install_damidseq_pipeline_software as install_find_peak_software with:
         directory("resources/find_peaks"),
     params:
         url="https://github.com/owenjm/find_peaks.git",
+        version=""
     log:
         "logs/resources/install_find_peaks_software.log"
 
-
+'''
 rule create_blacklist:
     input:
         gtf=resources.gtf,
@@ -100,7 +105,7 @@ rule create_blacklist:
         "../envs/peak_calling.yaml"
     script:
         "../scripts/create_blacklist.py"
-    
+''' 
 
 rule create_annotation_file:
     input:
@@ -118,12 +123,31 @@ rule create_annotation_file:
         "../scripts/create_annotation_file.R"
 
 
+rule masked_fasta:
+    input:
+        fa=resources.fasta,
+        gtf=resources.gtf,
+    output:
+        out=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
+    params:
+        g2m=maskedgenes,
+    log:
+        "logs/resources/masked_fasta.log"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources: 
+        runtime=config["resources"]["plotting"]["time"]
+    conda:
+        "../envs/peak_calling.yaml"
+    script:
+        "../scripts/mask_fasta.py"
+
+
 rule make_gatc_tracks:
     input:
         sw="resources/damidseq_pipeline",
-        fa=resources.fasta,
+        fa=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
     output:
-        f"resources/{resources.genome}_{resources.build}.GATC.gff",
+        f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
     params:
         genome=lambda wildcards, output: output[0][:-9]
     cache: True
@@ -142,10 +166,10 @@ rule make_gatc_tracks:
 
 rule bowtie2_build_index:
     input:
-        ref=resources.fasta,
+        ref=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
     output:
         multiext(
-            f"resources/bowtie2_index/{resources.genome}_{resources.build}/index",
+            f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
             ".1.bt2",
             ".2.bt2",
             ".3.bt2",
@@ -164,7 +188,7 @@ rule bowtie2_build_index:
     wrapper:
         "v3.4.0/bio/bowtie2/build"
 
-
+"""
 if config["motif_analysis"]["run_analysis"]:
     rule install_homer_genome:
         output:
@@ -177,3 +201,4 @@ if config["motif_analysis"]["run_analysis"]:
             "../envs/peak_calling.yaml"
         script:
             "../scripts/install_homer_genome.py"
+"""

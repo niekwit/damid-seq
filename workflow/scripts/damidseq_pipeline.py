@@ -45,6 +45,7 @@ bowtie2_idx = os.path.join(cwd, snakemake.params["idxdir"])
 paired = snakemake.params["paired"]
 threads = snakemake.threads
 extra = snakemake.params["extra"]
+log= snakemake.log[0]
 
 # Get sample directory
 directory = list(set([os.path.basename(os.path.dirname(x)) for x in flags]))
@@ -115,9 +116,10 @@ for condition, dam_control in dam_controls.items():
 
     print("Moving output files from temporary directory to appropriate locations")
     # Move log file to logs directory
-    target = os.path.join(cwd, f"logs/damidseq_pipeline/{directory}")
+    #target = os.path.join(cwd, f"logs/damidseq_pipeline/{directory}")
+    os.makedirs(os.path.dirname(log), exist_ok=True)
     shell(
-        "mv pipeline-*.log {target}"
+        "mv pipeline-*.log {log}"
         )
 
     # Move bedgraph files to output directory

@@ -1,0 +1,119 @@
+$schema: "http://json-schema.org/draft-06/schema#"
+
+description: Snakemake configuration file
+
+type: object
+
+properties:
+  genome:
+    type: string
+    enum: ["hg38", "hg19", "mm10", "mm9", "dm3", "dm6"]
+    description: Ensembl genome
+  
+  ensembl_genome_build:
+    type: integer
+    minimum: 1
+    description: Ensembl genome build
+  
+  extra:
+    type: string
+    description: Extra argument for damidseq_pipeline
+  
+  fusion_genes:
+    type: string
+    description: Genes from these proteins will be removed from the analysis
+  
+  deeptools:
+    type: object
+    properties:
+      matrix:
+        type: object
+        properties:
+          mode:
+            type: string
+            enum: ["scale-regions", "reference-point"]
+          referencePoint:
+            type: string
+            enum: ["TSS", "TES", "center"]
+          regionBodyLength:
+            type: integer
+            minimum: 1
+          upstream:
+            type: integer
+            minimum: 1
+          downstream:
+            type: integer
+            minimum: 1
+          binSize:
+            type: integer
+            minimum: 1
+          averageTypeBins:
+            type: string
+            enum: ["mean", "median", "min", "max", "std", "sum"]
+          regionsFileName:
+            type: string
+          no_whole_genome:
+            type: boolean
+          extra:
+            type: string
+      plotHeatmap:
+        type: object
+        properties:
+          interpolationMethod:
+            type: string
+            enum: ["auto", "nearest", "bilinear", "bicubic", "gaussian"]
+          plotType:
+            type: string
+            enum: ["lines", "fill", "se", "std"]
+          colorMap:
+            type: string
+          alpha:
+            type: number
+            minimum: 0
+            maximum: 1
+          extra:
+            type: string
+  
+  peak_calling:
+    type: object
+    properties:
+      iterations:
+        type: integer
+        minimum: 1
+      fdr:
+        type: number
+        minimum: 0
+        maximum: 1
+      fraction:
+        type: number
+        minimum: 0
+        maximum: 1
+      min_count:
+        type: integer
+        minimum: 1
+      min_quantile:
+        type: number
+        minimum: 0
+        maximum: 1
+      step:
+        type: number
+        minimum: 0
+      unified_peaks:
+        type: string
+        enum: ["min", "max"]
+      extra:
+        type: string
+      overlapping_peaks:
+        type: object
+        properties:
+          max_size:
+            type: integer
+            minimum: 1
+          extend_by:
+            type: integer
+            minimum: 1
+          keep:
+            type: integer
+            minimum: 1
+  
+  

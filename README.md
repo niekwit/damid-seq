@@ -4,11 +4,24 @@
 [![Tests](https://github.com/niekwit/damid-seq/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/damid-seq/actions/workflows/main.yml)
 [![DOI](https://zenodo.org/badge/708194033.svg)](https://zenodo.org/doi/10.5281/zenodo.10737672)
 
-A Snakemake workflow for `DamID-seq analysis`, incorporating [damidseq_pipeline](https://owenjm.github.io/damidseq_pipeline/)
-
 If you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this (original) repository and its DOI (see above).
 
 The usage of this workflow is briefly described in the [Snakemake Workflow Catalog](https://snakemake.github.io/snakemake-workflow-catalog/?usage=niekwit%2Fdamid-seq). For a more detailed description see below.
+
+# Aim
+
+Snakemake pipeline for reproducible analysis or single/paired-end DamID-seq short read Illumina data.
+
+The output of this pipeline is as follows:
+
+1. Quality control of the raw sequencing data using FastQC/MultiQC.
+
+2. Bigwig files for visualisation of binding in genome browsers, such IGV.
+
+3. Identified and annotated peaks using MACS2
+
+4. Profile plot/heatmap to visualise binding around genomic features, such as transcription start sites, usingh deeptools
+
 
 # Rule graph
 

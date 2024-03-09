@@ -34,6 +34,7 @@ rule sort_peak_bed:
         "sort -k1,1 -k2,2n {input} > {output}"
 
 
+'''
 rule remove_plasmid_loci:
     input:
         bed="results/peaks/{dir}/{bg_sample}.sorted.bed",
@@ -52,12 +53,13 @@ rule remove_plasmid_loci:
         "../envs/peak_calling.yaml"
     shell:
         "bedtools intersect -v -a {input.bed} -b {input.bl} > {output.bed}"
+'''
 
 
 # create bed file of overlapping peaks between replicate conditions
 rule overlapping_peaks: # escape bg_sample wildcard to get all replicate bg_samples
     input:
-        beds=expand("results/peaks/{dir}/{{bg_sample}}.no_plasmid.bed", dir=DIRS)
+        beds=expand("results/peaks/{dir}/{{bg_sample}}.sorted.bed", dir=DIRS)
     output:
         "results/peaks/overlapping_peaks/{bg_sample}.overlap.bed"
     params:

@@ -17,6 +17,9 @@ log.dirs <- unlist(lapply(log.files, dirname))
 log.files <- list.files(log.dirs,
                         pattern = "pipeline-.*.log",
                         full.names = TRUE)
+#THIS WILL FAIL WITH MULTIPLE LOG FILES PER RUN
+#OCCUR WHEN PIPELINE IS INITIALIZED MULTIPLE TIMES
+#CHANGE TO USE THE LASTEST LOG FILE
 
 # Data frame to store mapping rates of all experiments
 mapping.rates.all <- data.frame(sample = character(),

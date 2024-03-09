@@ -33,13 +33,6 @@ peak_calling:
     max_size: 10 # Maximum size of peaks to be extended
     extend_by: 40 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
-motif_analysis: # With findMotifsGenome.pl from Homer
-  run_analysis: True
-  len: 8,10,12 # Motif length
-  mask: "-mask" # Mask repeat sequences (leave empty for no masking)
-  extra: "" # Extra arguments for findMotifsGenome.pl
-enrichment_analysis:
-  libraries: "GO_Biological_Process_2023,GO_Molecular_Function_2023,Reactome_2022" # Pathway enrichment libraries
 resources: # computing resources
   trim:
     cpu: 8

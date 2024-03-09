@@ -24,10 +24,16 @@ resources = Resources(config["genome"], config["ensembl_genome_build"])
 # Get paired-end status
 paired_end = paired_end()
 
+# Get fusion protein (to be masked in fasta file)
+maskedgenes = masked_genes()
+
 # Get sample directories
-DIRS = dirs()
-SAMPLES = samples()
-BG_SAMPLES = samples(bedgraph=True) # SAMPLES minus Dam control
+if sample_type() == "paired":
+    DIRS = dirs()
+    SAMPLES = paired_samples()
+    BG_SAMPLES = paired_samples(bedgraph=True) # SAMPLES minus Dam control
+elif sample_type() == "matrix":
+    pass
 
 # Import rules
 include: "rules/fastqc.smk"
@@ -58,5 +64,3 @@ onsuccess:
 onerror:
     shell("cp -v {log} {snake_log}")
     print(f"Analysis failed...\nCheck {snake_log} for details")
-
-

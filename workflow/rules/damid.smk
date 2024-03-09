@@ -3,9 +3,9 @@ rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces
     input:
         git="resources/damidseq_pipeline",
         flag=expand("results/trimmed/{{dir}}/{sample}.flag", sample=SAMPLES),
-        gatc=f"resources/{resources.genome}_{resources.build}.GATC.gff",
+        gatc=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
         idx=multiext(
-            f"resources/bowtie2_index/{resources.genome}_{resources.build}/index",
+            f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
             ".1.bt2",
             ".2.bt2",
             ".3.bt2",
@@ -15,6 +15,7 @@ rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces
         ),
     output:
         bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+        bam=expand("results/bam/{{dir}}/{sample}-ext300.bam", sample=SAMPLES),
     params:
         idxdir=lambda wildcards, input: input["idx"][0][:-6],
         paired=paired_end,

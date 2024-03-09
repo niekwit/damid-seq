@@ -1,5 +1,9 @@
+from itertools import product
+import re
+
 def targets():
-    """Returns file targets for rule all
+    """
+    Returns file targets for rule all
     """
     TARGETS = [
         "results/qc/multiqc/multiqc.html",
@@ -12,13 +16,48 @@ def targets():
         "results/plots/peaks/distance_to_tss.pdf",
         "results/plots/mapping_rates.pdf",
         expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
+        expand("results/bigwig_rev_log2/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
         ]
-
     return TARGETS
 
 
+def sample_type():
+    """
+    Detect whether Dam only or Dam-POI sample numbers match or not.
+    If they do not match, all samples will be in reads/ directory, wihtout any subdirectories. 
+    If they do match, each biological replicate will be in a separate subdirectory in reads/.
+    """
+    # Check if any subdirectories exist in reads/
+    subdirs = glob.glob("reads/*/*")
+    if len(subdirs) == 0:
+        return "matrix"
+    else:
+        return "paired"
+
+
+def matrix_samples():
+    """
+    Match each Dam only sample to all Dam-POI single replicate samples
+
+    Note: only works for paired-end reads at the moment.
+    """
+    # Get all R1 files in reads/
+    r1 = glob.glob("reads/*R1_001.fastq.gz")
+
+    # Get all R1 Dam only files in reads/
+    dam = glob.glob("reads/*Dam*R1_001.fastq.gz")
+
+    # Get all R1 Dam-POI files in reads/
+    fusion = glob.glob("reads/*POI*R1_001.fastq.gz")
+
+    # Combine all controls with all Dam-POI samples
+    for d in dam:
+        pass
+
+
 def dirs():
-    """Each dir contains one replicate sets of fastq files
+    """
+    Each dir contains one replicate sets of fastq files
     """
     DIRS = glob.glob("reads/*")
     DIRS = [os.path.basename(d) for d in DIRS]
@@ -29,10 +68,11 @@ def dirs():
     return DIRS
     
 
-def samples(bedgraph=False):
-    """Checks sample names/files and returns sample wildcard values for Snakemake
+def paired_samples(bedgraph=False):
     """
-    SAMPLES = csv["sample"]
+    Checks sample names/files and returns sample wildcard values for Snakemake
+    """
+    SAMPLES = csv["sample"].tolist()
     
     # Check if sample names contain any characters that are not alphanumeric or underscore
     illegal = []
@@ -70,7 +110,8 @@ def samples(bedgraph=False):
 
 
 def paired_end():
-    """Checks if paired-end reads are used
+    """
+    Checks if paired-end reads are used
     """
     # Get one fastq file
     reads = glob.glob("reads/*/*.gz")
@@ -87,7 +128,8 @@ def paired_end():
     
 
 def computematrix_args(region_labels=False):
-    """Returns computeMatrix arguments as string based on config file.
+    """
+    Returns computeMatrix arguments as string based on config file.
     """
     # Add mode argument
     mode = config["deeptools"]["matrix"]["mode"]
@@ -141,3 +183,35 @@ def computematrix_args(region_labels=False):
             return f'"Genome-wide ({resources.genome})"'
     return args
 
+
+def masked_genes():
+    """
+    Returns string with genes that were masked in fasta file
+    """
+    genes = config["fusion_genes"]
+
+    # If no genes are given, return no_genes
+    if genes == "":
+        genes = "no_genes"
+    else:
+        # Make sure there are no spaces
+        genes = genes.replace(" ", "")
+
+        # Check if gene names are Ensemble IDs
+        for gene in genes.split(","):
+            if "hg" in resources.genome:
+                prefix="ENSG"
+                count="11"
+            if "mm" in resources.genome:
+                prefix="ENSMUSG"
+                count="11"
+            if "dm" in resources.genome:
+                prefix="FBgn"
+                count="7"
+            if not re.match(prefix + "[0-9]" + "{" + count + "}", gene):
+                raise ValueError(f"Gene {gene} is not an Ensemble ID")
+
+        # Replace comma with underscore
+        genes = genes.replace(",", "_")
+        
+        return genes
