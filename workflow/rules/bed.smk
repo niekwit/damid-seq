@@ -34,28 +34,6 @@ rule sort_peak_bed:
         "sort -k1,1 -k2,2n {input} > {output}"
 
 
-'''
-rule remove_plasmid_loci:
-    input:
-        bed="results/peaks/{dir}/{bg_sample}.sorted.bed",
-        bl="resources/blacklist.bed",
-        txt="resources/genes.txt",
-    output:
-        bed="results/peaks/{dir}/{bg_sample}.no_plasmid.bed"
-    params:
-        extra=""
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"]
-    log:
-        "logs/remove_plasmid_loci/{dir}_{bg_sample}.log"
-    conda:
-        "../envs/peak_calling.yaml"
-    shell:
-        "bedtools intersect -v -a {input.bed} -b {input.bl} > {output.bed}"
-'''
-
-
 # create bed file of overlapping peaks between replicate conditions
 rule overlapping_peaks: # escape bg_sample wildcard to get all replicate bg_samples
     input:
@@ -82,9 +60,9 @@ rule filter_overlapping_peaks:
     output:
         "results/peaks/overlapping_peaks/{bg_sample}.filtered.bed",
     params:
-        m=config["peak_calling"]["overlapping_peaks"]["max_size"],
-        e=config["peak_calling"]["overlapping_peaks"]["extend_by"],
-        k=config["peak_calling"]["overlapping_peaks"]["keep"],
+        m=config["peak_calling_perl"]["overlapping_peaks"]["max_size"],
+        e=config["peak_calling_perl"]["overlapping_peaks"]["extend_by"],
+        k=config["peak_calling_perl"]["overlapping_peaks"]["keep"],
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
     resources:

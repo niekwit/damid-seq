@@ -15,7 +15,7 @@ rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces
         ),
     output:
         bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-        bam=expand("results/bam/{{dir}}/{sample}-ext300.bam", sample=SAMPLES),
+        bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
     params:
         idxdir=lambda wildcards, input: input["idx"][0][:-6],
         paired=paired_end,

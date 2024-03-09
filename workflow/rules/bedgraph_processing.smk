@@ -6,12 +6,12 @@ rule quantile_normalisation:
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
-    #log:
-    #    "logs/quantile_norm/{dir}/{bg_sample}.log"
+    log:
+        "logs/quantile_normalisation/qn.log"
     conda:
         "../envs/damid.yaml"
     shell:
-        "python workflow/scripts/quantile_norm_bedgraph.py {input.bg}"
+        "python workflow/scripts/quantile_norm_bedgraph.py {input.bg} > {log} 2>&1"
 
 rule bedgraph2bigwig:
     input:
