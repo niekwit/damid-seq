@@ -6,6 +6,7 @@ import datetime
 from scripts.resources import Resources
 include: "scripts/general_functions.smk"
 from snakemake.utils import min_version
+from snakemake.utils import validate
 
 report: "report/workflow.rst"
 
@@ -14,6 +15,7 @@ min_version("7.25.0")
 
 # load config file
 configfile: "config/config.yaml"
+validate(config, "schemas/config.schema.yaml")
 
 # Load sample information
 csv = pd.read_csv("config/samples.csv")
@@ -21,8 +23,8 @@ csv = pd.read_csv("config/samples.csv")
 # Load genome resources to be used in rules
 resources = Resources(config["genome"], config["ensembl_genome_build"])
 
-# Get paired-end status
-paired_end = paired_end()
+# Get paired-end status and bam extension
+paired_end, BAM_EXT = paired_end()
 
 # Get fusion protein (to be masked in fasta file)
 maskedgenes = masked_genes()
@@ -32,6 +34,7 @@ if sample_type() == "paired":
     DIRS = dirs()
     SAMPLES = paired_samples()
     BG_SAMPLES = paired_samples(bedgraph=True) # SAMPLES minus Dam control
+    DAM_SAMPLES = paired_samples(bedgraph=True, dam=True)
 elif sample_type() == "matrix":
     pass
 
