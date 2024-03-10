@@ -20,10 +20,15 @@ deeptools:
     colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
     alpha: 1.0
     extra: "" 
-peak_calling_perl: # https://github.com/owenjm/find_peaks
+peak_calling_perl:
   run: True
-  iterations: 25 # N argument
+  iterations: 5 # N argument
   fdr: 0.01
+  fraction: 0 # Fraction of random fragments to consider per iteration
+  min_count: 2 # Minimum number of reads to consider a peak
+  min_quantile: 0.95 # Minimum quantile for considering peaks
+  step: 0.01 # Stepping for quantiles
+  unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
   extra: ""
   overlapping_peaks:
     max_size: 10 # Maximum size of peaks to be extended
