@@ -29,14 +29,15 @@ paired_end, BAM_EXT = paired_end()
 # Get fusion protein (to be masked in fasta file)
 maskedgenes = masked_genes()
 
-# Get sample directories
-if sample_type() == "paired":
-    DIRS = dirs()
-    SAMPLES = paired_samples()
-    BG_SAMPLES = paired_samples(bedgraph=True) # SAMPLES minus Dam control
-    DAM_SAMPLES = paired_samples(bedgraph=True, dam=True)
-elif sample_type() == "matrix":
-    pass
+# Get data type
+if data_type() == "matrix":
+    matrix_samples()
+
+DIRS = dirs()
+SAMPLES = samples()
+BG_SAMPLES = samples(bedgraph=True) # SAMPLES minus Dam control
+DAM_SAMPLES = samples(bedgraph=True, dam=True)
+    
 
 # Import rules
 include: "rules/fastqc.smk"
