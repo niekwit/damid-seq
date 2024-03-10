@@ -1,4 +1,4 @@
-genome: "dm6"
+genome: dm6
 ensembl_genome_build: 110
 extra: "" # extra argument for damidseq_pipeline
 fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
@@ -20,7 +20,7 @@ deeptools:
     colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
     alpha: 1.0
     extra: "" 
-peak_calling_perl:
+peak_calling_perl: # https://github.com/owenjm/find_peaks
   run: True
   iterations: 25 # N argument
   fdr: 0.01

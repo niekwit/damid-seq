@@ -8,4 +8,4 @@ usage:
     conda: true # whether pipeline works with --use-conda
     singularity: false # whether pipeline works with --use-singularity
     singularity+conda: false # whether pipeline works with --use-singularity --use-conda
-  report: false # will be changed to true later after testing
+  report: true # will be changed to true later after testing
