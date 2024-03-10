@@ -251,10 +251,8 @@ cores: 32
 rerun-incomplete: True
 show-failed-logs: True
 ```
-> [!IMPORTANT]  
-> Always make sure to use the absolute path (i.e. /home/user/.config/...) rather than the relative path (~/.config/...) (see below).
 
-`snakemake` supports between workflow caching, so that certain resource files, such as the Bowtie2 index, can be re-used between different analysis.
+`snakemake` supports between workflow caching, so that certain resource files, such as the Bowtie2 index, can be re-used between different analyses.
 
 To enable this append this line to your `~/.bashrc`:
 ```shell
@@ -276,6 +274,9 @@ To run the analysis use the following command:
 ```shell
 $ snakemake --profile /home/user/.config/snakemake/profile
 ```
+
+> [!IMPORTANT]  
+> Always make sure to use the absolute path (i.e. /home/user/.config/...) rather than the relative path (~/.config/...) (see below).
 
 ## Report of the results
 
