@@ -1,5 +1,6 @@
-from itertools import product
+#from itertools import product
 import re
+import numpy as np
 
 def targets():
     """
@@ -45,7 +46,7 @@ def targets():
     return TARGETS
 
 
-def sample_type():
+def data_type():
     """
     Detect whether Dam only or Dam-POI sample numbers match or not.
     If they do not match, all samples will be in reads/ directory, wihtout any subdirectories. 
@@ -65,18 +66,77 @@ def matrix_samples():
 
     Note: only works for paired-end reads at the moment.
     """
+    print("Matrix samples detected...")
+    print("Preparing directory structure for all combinations of Dam controls vs Dam-fusion(s)...")
     # Get all R1 files in reads/
-    r1 = glob.glob("reads/*R1_001.fastq.gz")
+    r1 = glob.glob("reads/*_R1_001.fastq.gz")
 
     # Get all R1 Dam only files in reads/
-    dam = glob.glob("reads/*Dam*R1_001.fastq.gz")
+    dam = glob.glob("reads/*Dam*_R1_001.fastq.gz")
 
     # Get all R1 Dam-POI files in reads/
-    fusion = glob.glob("reads/*POI*R1_001.fastq.gz")
+    fusion = [f for f in r1 if f not in dam]
 
-    # Combine all controls with all Dam-POI samples
+    # Get base names of all fusion R1 files
+    fusion_base_names = list(set([os.path.basename(f).replace("_R1_001.fastq.gz","") for f in fusion]))
+
+    # For each base name match each replicate R1 file into nested list
+    base_replicates = []
+    for base in fusion_base_names:
+        tmp = [f for f in fusion if base in f].sorted()
+        base_replicates.append(tmp)
+
+    # Check if each nested list has the same length
+    if len(set([len(l) for l in base_replicates])) != 1:
+        raise ValueError("Number of Dam-POI replicates does not match...")
+    
+    # Create nested list with the first sample of each sample from base_replicates (transpose list)
+    all_base_replicates = np.array(base_replicates).T.tolist()
+
+    # For each Dam sample, match it to all Dam-POI samples (read 1)
+    matched_samples_r1 = []
     for d in dam:
-        pass
+        for f in all_base_replicates:
+            f.insert(0, d)
+            matched_samples_r1.append(f)
+    
+    # Get read 2 files
+    matched_samples_r2 = []
+    for l in matched_samples_r1:
+        tmp = [f.replace("_R1_001.fastq.gz", "_R2_001.fastq.gz") for f in l]
+        matched_samples_r2.append(tmp)
+    
+    # Create directory names for each matched sample list
+    # Symlink files to these directories
+    def symlink_files(list_):
+        """
+        Symlink each file in list to unique dir_
+        Remove _[0-9] before paired-end end extension
+        All replicates will have same file name but will be in different directories
+        """
+        log = []
+        for i, l in enumerate(list_):
+            dir_ = f"reads/repl_{i}"
+            os.makedirs(dir_, exist_ok=True)
+            
+            # Keep log of what goes where
+            tmp = [dir_]
+            tmp.extend(l)
+            log.append(tmp)
+            for f in l:
+                dest = re.sub(r"_\d{1,2}_R", "_R", f)  
+                os.symlink(f, f"{dir_}/{os.path.basename(dest)}")
+        return log
+
+    log_r1 = symlink_files(matched_samples_r1)
+    log_r2 = symlink_files(matched_samples_r2)
+                
+    # Add log data to data frame
+    dirs_ = [os.path.basename(d[0]) for d in log_r1]
+    df = pd.DataFrame([log_r1, log_r2], columns=dirs_)
+
+    # Save log data to csv
+    df.to_csv("reads/sample_matrix.csv", index=False)
 
 
 def dirs():
@@ -92,7 +152,7 @@ def dirs():
     return DIRS
     
 
-def paired_samples(bedgraph=False, dam=False):
+def samples(bedgraph=False, dam=False):
     """
     Checks sample names/files and returns sample wildcard values for Snakemake
     """
