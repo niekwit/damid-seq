@@ -1,7 +1,7 @@
 if paired_end:
     rule fastqc:
         input:
-            "reads/{dir}/{sample}{end}.fastq.gz",
+            "results/trimmed/{dir}/{sample}{end}.fastq.gz",
         output:
             html="results/qc/fastqc/{dir}/{sample}{end}.html",
             zip="results/qc/fastqc/{dir}/{sample}{end}_fastqc.zip"
@@ -19,7 +19,7 @@ if paired_end:
 
     rule multiqc:
         input:
-            expand("results/qc/fastqc/{dir}/{sample}{end}_fastqc.zip", dir=DIRS,sample=SAMPLES, end=["_R1_001","_R2_001"])
+            expand("results/qc/fastqc/{dir}/{sample}{end}_fastqc.zip", dir=DIRS, sample=SAMPLES, end=["_1","_2"])
         output:
             r="results/qc/multiqc/multiqc.html",
             d=directory("results/qc/multiqc/"),

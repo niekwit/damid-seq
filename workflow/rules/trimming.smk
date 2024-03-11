@@ -18,7 +18,7 @@ if paired_end:
         conda:
             "../envs/trim.yaml"
         script:
-            "../scripts/trim_galore.py"
+            workflow.source_path("../scripts/trim_galore.py")
 else:
     rule trim_galore_se:
         input:
@@ -37,6 +37,6 @@ else:
         conda:
             "../envs/trim.yaml"
         script:
-            "../scripts/trim_galore.py"
+            workflow.source_path("../scripts/trim_galore.py")
 
         

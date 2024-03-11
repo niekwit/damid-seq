@@ -23,7 +23,7 @@ if config["peak_calling_perl"]["run"]:
         log:
             "logs/find_peaks/{dir}/{bg_sample}.log"
         script:
-            "../scripts/run_find_peaks.py"
+            workflow.source_path("../scripts/run_find_peaks.py")
 
 
 if config["peak_calling_macs2"]["run"]:
@@ -72,7 +72,7 @@ if config["peak_calling_macs2"]["run"]:
             conda:
                 "../envs/R.yaml"
             script:
-                "../scripts/annotate_peaks.R"
+                workflow.source_path("../scripts/annotate_peaks.R")
 
     elif config["peak_calling_macs2"]["mode"] == "broad":
         rule peak_calling_MACS2_broad:
@@ -119,4 +119,4 @@ if config["peak_calling_macs2"]["run"]:
             conda:
                 "../envs/R.yaml"
             script:
-                "../scripts/annotate_peaks.R"
+                workflow.source_path("../scripts/annotate_peaks.R")

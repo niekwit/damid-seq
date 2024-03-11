@@ -28,4 +28,4 @@ rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces
     log:
         "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
     script:
-        "../scripts/damidseq_pipeline.py"
+        workflow.source_path("../scripts/damidseq_pipeline.py")

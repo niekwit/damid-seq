@@ -14,7 +14,7 @@ rule plotPCA:
     conda:
         "../envs/R.yaml"
     script:
-        "../scripts/plot_PCA.R"
+        workflow.source_path("../scripts/plot_PCA.R")
 
 
 rule plot_correlation:
@@ -118,7 +118,7 @@ rule peak_annotation_plots:
     conda:
         "../envs/R.yaml"
     script:
-        "../scripts/peak_annotation_plots.R"
+        workflow.source_path("../scripts/peak_annotation_plots.R")
 
 
 rule plot_mapping_rates:
@@ -136,5 +136,5 @@ rule plot_mapping_rates:
     conda:
         "../envs/R.yaml"
     script:
-        "../scripts/plot_mapping_rates.R"
+        workflow.source_path("../scripts/plot_mapping_rates.R")
     

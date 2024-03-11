@@ -72,7 +72,7 @@ rule filter_overlapping_peaks:
     conda:
         "../envs/peak_calling.yaml"
     script:
-        "../scripts/filter_overlapping_peaks.py"
+        workflow.source_path("../scripts/filter_overlapping_peaks.py")
 
 
 rule annotate_peaks:
@@ -92,4 +92,4 @@ rule annotate_peaks:
     conda:
         "../envs/R.yaml"
     script:
-        "../scripts/annotate_peaks.R"
+        workflow.source_path("../scripts/annotate_peaks.R")

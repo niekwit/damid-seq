@@ -12,7 +12,7 @@ rule get_fasta:
     conda:
         "../envs/damid.yaml"
     script:
-        "../scripts/get_resource.sh"
+        workflow.source_path("../scripts/get_resource.sh")
 
 
 rule index_fasta:
@@ -87,25 +87,6 @@ use rule install_damidseq_pipeline_software as install_find_peak_software with:
     log:
         "logs/resources/install_find_peaks_software.log"
 
-'''
-rule create_blacklist:
-    input:
-        gtf=resources.gtf,
-    output:
-        bed="resources/blacklist.bed",
-        txt="resources/genes.txt",
-    params:
-        genes=config["fusion_genes"],
-    log:
-        "logs/resources/create_blacklist.log"
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources: 
-        runtime=config["resources"]["deeptools"]["time"]
-    conda:
-        "../envs/peak_calling.yaml"
-    script:
-        "../scripts/create_blacklist.py"
-''' 
 
 rule create_annotation_file:
     input:
@@ -120,7 +101,7 @@ rule create_annotation_file:
     conda:
         "../envs/R.yaml"
     script:
-        "../scripts/create_annotation_file.R"
+        workflow.source_path("../scripts/create_annotation_file.R")
 
 
 rule masked_fasta:
@@ -139,7 +120,7 @@ rule masked_fasta:
     conda:
         "../envs/peak_calling.yaml"
     script:
-        "../scripts/mask_fasta.py"
+        workflow.source_path("../scripts/mask_fasta.py")
 
 
 rule make_gatc_tracks:
@@ -187,18 +168,3 @@ rule bowtie2_build_index:
         runtime=config["resources"]["index"]["time"],
     wrapper:
         "v3.4.0/bio/bowtie2/build"
-
-"""
-if config["motif_analysis"]["run_analysis"]:
-    rule install_homer_genome:
-        output:
-            touch("resources/homer_genome_installed"),
-        params:
-            genome=resources.genome,
-        log:
-            "logs/resources/homer_install_genome.log"
-        conda:
-            "../envs/peak_calling.yaml"
-        script:
-            "../scripts/install_homer_genome.py"
-"""
