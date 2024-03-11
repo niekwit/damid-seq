@@ -2,17 +2,40 @@
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥7.25.0-brightgreen.svg)](https://snakemake.github.io)
 [![Tests](https://github.com/niekwit/damid-seq/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/damid-seq/actions/workflows/main.yml)
+[![CodeFactor](https://www.codefactor.io/repository/github/niekwit/damid-seq/badge)](https://www.codefactor.io/repository/github/niekwit/damid-seq)
 [![DOI](https://zenodo.org/badge/708194033.svg)](https://zenodo.org/doi/10.5281/zenodo.10737672)
 
 If you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this (original) repository and its DOI (see above).
 
-# Aim
+# CONTENTS
 
-Snakemake pipeline for reproducible analysis or single/paired-end DamID-seq short read Illumina data.
+* [Aim](https://github.com/niekwit/damid-seq?tab=readme-ov-file#aim)
+* [DamID](https://github.com/niekwit/damid-seq?tab=readme-ov-file#damid)
+* [Experimental considerations](https://github.com/niekwit/damid-seq?tab=readme-ov-file#experimental-considerations)
+* [Requirements](https://github.com/niekwit/damid-seq?tab=readme-ov-file#requirements)
+* [Dependency graph of Snakemake rules](https://github.com/niekwit/damid-seq?tab=readme-ov-file#dependency-graph-of-snakemake-rules)
+* [Installation of Conda/Mamba](https://github.com/niekwit/damid-seq?tab=readme-ov-file#installation-of-condamamba)
+* [Installation of Snakemake](https://github.com/niekwit/damid-seq?tab=readme-ov-file#installation-of-snakemake)
+* [Cloning `damid-seq` GitHub repository](https://github.com/niekwit/damid-seq?tab=readme-ov-file#cloning-github-repository)
+* [Preparing your data](https://github.com/niekwit/damid-seq?tab=readme-ov-file#preparing-your-data)
+* [Sample meta data and analysis settings](https://github.com/niekwit/damid-seq?tab=readme-ov-file#sample-meta-data-and-analysis-settings)
+* [Configuration of Snakemake](https://github.com/niekwit/damid-seq?tab=readme-ov-file#configuration-of-snakemake)
+* [Dry-run of the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#dry-run-of-the-analysis)
+* [Running the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#running-the-analysis)
+* [Report of the results](https://github.com/niekwit/damid-seq?tab=readme-ov-file#report-of-the-results)
+* [References](https://github.com/niekwit/damid-seq?tab=readme-ov-file#references)
 
-The output of this pipeline is as follows:
+## Aim
 
-1. Quality control of the raw sequencing data using FastQC/MultiQC.
+`damid-seq` is a Snakemake pipeline for reproducible analysis of single/paired-end DamID-seq short read Illumina data.
+
+The core of the pipeline is the Perl script [damidseq_pipeline](https://github.com/owenjm/damidseq_pipeline), which is a great tool for the first steps of analysing DamID-seq data. However, it does process biological replicate data, and is not written with deployment to server, cluster, grid and cloud environments in mind.
+
+`damid-seq` implements the [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow management system, which overcomes the above issues. In addition, we have added many features to the DamID-seq analysis workflow.
+
+The output of `damid-seq` is as follows:
+
+1. Quality control of the adapter trimmed sequencing data using FastQC/MultiQC.
 
 2. Bigwig files for visualisation of binding in genome browsers, such IGV.
 
@@ -22,40 +45,35 @@ The output of this pipeline is as follows:
 
 6. Profile plot/heatmap to visualise binding around genomic features, such as transcription start sites, usingh deeptools
 
-# INDEX
+## DamID
 
-* [Requirements](https://github.com/niekwit/damid-seq?tab=readme-ov-file#requirements)
-* [Dependency graph of `snakemake` rules](https://github.com/niekwit/damid-seq?tab=readme-ov-file#dependency-graph-of-snakemake-rules)
-* [Installation of Conda/Mamba](https://github.com/niekwit/damid-seq?tab=readme-ov-file#installation-of-condamamba)
-* [Installation of `snakemake`](https://github.com/niekwit/damid-seq?tab=readme-ov-file#installation-of-snakemake)
-* [Cloning `damid-seq` GitHub repository](https://github.com/niekwit/damid-seq?tab=readme-ov-file#cloning-github-repository)
-* [Preparing your data](https://github.com/niekwit/damid-seq?tab=readme-ov-file#preparing-your-data)
-* [Sample meta data and analysis settings](https://github.com/niekwit/damid-seq?tab=readme-ov-file#sample-meta-data-and-analysis-settings)
-* [Configuration of `snakemake`](https://github.com/niekwit/damid-seq?tab=readme-ov-file#configuration-of-snakemake)
-* [Dry-run of the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#dry-run-of-the-analysis)
-* [Running the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#running-the-analysis)
-* [Report of the results](https://github.com/niekwit/damid-seq?tab=readme-ov-file#report-of-the-results)
+TO DO
 
+![DamID principle (Adapted from Van den Ameele et al. 2019 Current Opinion in Neurobiology)](/images/damid.png)
+
+## Experimental considerations
+
+TO DO
 
 ## Requirements
 
 `damid-seq` has been extensively tested on GNU/Linux-based operating systems, so we advice to run your analysis on for example Ubuntu or Fedora.
 
-Hardware requirements differ for the kind of data that needs to be analysed: for the analysis of mammalian data sets, > 32GB of RAM is adviced. Much less is needed for analysis for data from organisms with much smaller genomes, such as _Drosophila_.
+Hardware requirements differ for the kind of data that needs to be analysed: for the analysis of mammalian data sets, > 32GB of RAM is recommended. Much less RAM is needed for analysis for data from organisms with much smaller genomes, such as _Drosophila_.
 
-## Dependency graph of `snakemake` rules
+## Dependency graph of Snakemake rules
 
 ![Dependency graph of rules](/images/rule_graph.png)
 
 ## Installation of Conda/Mamba
 
-For reproducible analysis, `damid-seq` uses Conda environments in the `Snakemake` workflow.
+For reproducible analysis, `damid-seq` uses Conda environments in the Snakemake workflow.
 
 Please follow the instructions [here](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) for a detailed guide to install Conda/Mamba.
 
-## Installation of `snakemake`
+## Installation of Snakemake
 
-To install `snakemake` create the following environment with `mamba`:
+To install Snakemake create the following environment with `mamba`:
 
 ```shell
 $ mamba create -n snakemake snakemake pandas
@@ -238,9 +256,9 @@ resources: # computing resources
     time: 20
 ```
 
-## Configuration of `snakemake`
+## Configuration of Snakemake
 
-Running `snakemake` can entail quite a few command line flags. To make this easier these can be set in a global profile that is defined in a user-specific configuration directory in order to simplify this process.
+Running Snakemake can entail quite a few command line flags. To make this easier these can be set in a global profile that is defined in a user-specific configuration directory in order to simplify this process.
 
 For example, a profile `config.yaml` can be stored at /home/user/.config/snakemake/profile:
 ```yaml
@@ -252,31 +270,41 @@ rerun-incomplete: True
 show-failed-logs: True
 ```
 
-`snakemake` supports between workflow caching, so that certain resource files, such as the Bowtie2 index, can be re-used between different analyses.
+Snakemake supports between workflow caching, so that certain resource files, such as the Bowtie2 index, can be re-used between different analyses.
 
 To enable this append this line to your `~/.bashrc`:
 ```shell
 export SNAKEMAKE_OUTPUT_CACHE=/path/to/snakemake-cache/
 ```
 
+## Running the analysis with test data
+
+The .test directory in the cloned GitHub repository contains a small data set that allows for a test run of the workflow:
+
+```shell
+$ snakemake --profile /home/user/.config/snakemake/profile --directory .test/
+```
+
 ## Dry-run of the analysis
 
-Before running the actual analyis, a dry-run can be performed:
+Before running the actual analyis with your own data, a dry-run can be performed:
 
 ```shell
 $ cd path/to/analysis/directory
 $ snakemake -np
 ```
 
+Snakemake will create the DAG of jobs, but it will not execute anything.
+
 ## Running the analysis
 
 To run the analysis use the following command:
 ```shell
-$ snakemake --profile /home/user/.config/snakemake/profile
+$ snakemake --profile /home/user/.config/snakemake/profile --directory .test/
 ```
 
 > [!IMPORTANT]  
-> Always make sure to use the absolute path (i.e. /home/user/.config/...) rather than the relative path (~/.config/...) (see below).
+> Always make sure to use the absolute path (i.e. /home/user/.config/...) rather than the relative path (~/.config/...).
 
 ## Report of the results
 
@@ -286,4 +314,8 @@ When the analysis has finished succesfully, an HTML report can be created as fol
 $ snakemake --report report.html
 ```
 
-This report will contain run time information for the `snakemake` rules, as well as figures generated by the workflow, and the code used to create these.
+This report will contain run time information for the Snakemake rules, as well as figures generated by the workflow, and the code used to create these.
+
+## References
+
+TO DO
