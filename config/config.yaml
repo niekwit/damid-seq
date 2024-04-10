@@ -1,8 +1,15 @@
 genome: dm6
 ensembl_genome_build: 110
-extra: "" # extra argument for damidseq_pipeline
+plasmid_fasta: none
 fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
+damidseq_pipeline:
+  binsize: 300
+  extra: "" # extra argument for damidseq_pipeline
 deeptools:
+  bamCoverage: # bam to bigwig conversion for QC
+    binSize: 10
+    normalizeUsing: RPKM
+    extra: ""
   matrix: # Settings for computeMatrix
     mode: scale-regions # scale-regions or reference-point
     referencePoint: TSS # TSS, TES, center (only for reference-point mode)
@@ -38,7 +45,7 @@ peak_calling_macs2:
   run: False
   mode: narrow
   qvalue: 0.05
-  broad-cutoff: 0.1
+  broad_cutoff: 0.1
   extra: ""
 resources: # computing resources
   trim:
