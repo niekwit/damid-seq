@@ -6,13 +6,14 @@ rule get_fasta:
         url=resources.fasta_url,
     log:
         "logs/resources/get_fasta.log"
+    cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
     conda:
         "../envs/damid.yaml"
     script:
-        workflow.source_path("../scripts/get_resource.sh")
+        "../scripts/get_resource.sh"
 
 
 rule index_fasta:
@@ -22,11 +23,12 @@ rule index_fasta:
         f"{resources.fasta}.fai",
     log:
         "logs/resources/index_fasta.log"
+    cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
     wrapper:
-        "v3.4.0/bio/samtools/faidx"
+        f"{wrapper_version}/bio/samtools/faidx"
 
 
 rule chrom_sizes:
@@ -101,7 +103,7 @@ rule create_annotation_file:
     conda:
         "../envs/R.yaml"
     script:
-        workflow.source_path("../scripts/create_annotation_file.R")
+        "../scripts/create_annotation_file.R"
 
 
 rule masked_fasta:
@@ -114,13 +116,14 @@ rule masked_fasta:
         g2m=maskedgenes,
     log:
         "logs/resources/masked_fasta.log"
+    cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
     conda:
         "../envs/peak_calling.yaml"
     script:
-        workflow.source_path("../scripts/mask_fasta.py")
+        "../scripts/mask_fasta.py"
 
 
 rule make_gatc_tracks:
@@ -167,4 +170,36 @@ rule bowtie2_build_index:
     resources:
         runtime=config["resources"]["index"]["time"],
     wrapper:
-        "v3.4.0/bio/bowtie2/build"
+        f"{wrapper_version}/bio/bowtie2/build"
+
+
+if config["plasmid_fasta"] != "none":
+    # Check plasmid fasta
+    check_plasmid_fasta(config["plasmid_fasta"])
+    
+
+    rule bowtie2_build_index_plasmid:
+        input:
+            ref=config["plasmid_fasta"],
+        output:
+            multiext(
+                f"resources/bowtie2_index/{plasmid_name}/index",
+                ".1.bt2",
+                ".2.bt2",
+                ".3.bt2",
+                ".4.bt2",
+                ".rev.1.bt2",
+                ".rev.2.bt2",
+            ),
+        cache: True
+        log:
+            f"logs/bowtie2_build_index/{plasmid_name}.log",
+        params:
+            extra="",  # optional parameters
+        threads: config["resources"]["index"]["cpu"]
+        resources:
+            runtime=config["resources"]["index"]["time"],
+        wrapper:
+            f"{wrapper_version}/bio/bowtie2/build"
+
+    
