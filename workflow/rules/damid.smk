@@ -1,31 +1,225 @@
-# dir wildcard is escaped so that multiple dirs can be run in parallel
-rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces)
+if config["plasmid_fasta"] == "none":
+    # dir wildcard is escaped so that multiple dirs can be run in parallel
+    rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces)
+        input:
+            git="resources/damidseq_pipeline",
+            flag=expand("results/trimmed/{{dir}}/{sample}.flag", sample=SAMPLES),
+            gatc=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
+            idx=multiext(
+                f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
+                ".1.bt2",
+                ".2.bt2",
+                ".3.bt2",
+                ".4.bt2",
+                ".rev.1.bt2",
+                ".rev.2.bt2",
+            ),
+        output:
+            bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+            bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
+        params:
+            idxdir=lambda wildcards, input: input["idx"][0][:-6],
+            paired=paired_end,
+            binsize=config["damidseq_pipeline"]["binsize"],
+            trim_dir="trimmed",
+            extra=config["damidseq_pipeline"]["extra"],
+        conda:
+            "../envs/damid.yaml"
+        threads: config["resources"]["damid"]["cpu"]
+        resources:
+            runtime=config["resources"]["damid"]["time"]
+        log:
+            "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
+        script:
+            "../scripts/damidseq_pipeline.py"
+else:
+    if paired_end:
+        rule bowtie2_remove_plasmid_reads:
+            input:
+                flag="results/trimmed/{dir}/{sample}.flag",
+                idx=multiext(
+                    f"resources/bowtie2_index/{plasmid_name}/index",
+                    ".1.bt2",
+                    ".2.bt2",
+                    ".3.bt2",
+                    ".4.bt2",
+                    ".rev.1.bt2",
+                    ".rev.2.bt2",
+                ),
+            output:
+                r1_fastq="results/trimmed_no_plasmid/{dir}/{sample}_1.fastq.gz",
+                r2_fastq="results/trimmed_no_plasmid/{dir}/{sample}_2.fastq.gz",
+            params:
+                idxdir=lambda wildcards, input: input["idx"][0][:-6],
+                paired=paired_end,
+                trim_dir="trimmed",
+                out_base= lambda wildcards, output: output["r1_fastq"].replace("_1.fastq.gz", "_%.fastq.gz"),
+                extra=config["bowtie2"]["extra"],
+            conda:
+                "../envs/damid.yaml"
+            threads: config["resources"]["damid"]["cpu"]
+            resources:
+                runtime=config["resources"]["damid"]["time"]
+            log:
+                "logs/bowtie2_align_to_plasmid/{dir}/{sample}.log"
+            script:
+                "../scripts/bowtie2_align_to_plasmid.py"
+    
+    
+        rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces)
+            input:
+                git="resources/damidseq_pipeline",
+                r1_fastq=expand("results/trimmed_no_plasmid/{{dir}}/{sample}_1.fastq.gz", sample=SAMPLES),
+                r2_fastq=expand("results/trimmed_no_plasmid/{{dir}}/{sample}_2.fastq.gz", sample=SAMPLES),
+                flag=expand("results/trimmed/{{dir}}/{sample}.flag", sample=SAMPLES),
+                gatc=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
+                idx=multiext(
+                    f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
+                    ".1.bt2",
+                    ".2.bt2",
+                    ".3.bt2",
+                    ".4.bt2",
+                    ".rev.1.bt2",
+                    ".rev.2.bt2",
+                ),
+            output:
+                bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+                bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
+            params:
+                idxdir=lambda wildcards, input: input["idx"][0][:-6],
+                paired=paired_end,
+                binsize=config["damidseq_pipeline"]["binsize"],
+                extra=config["damidseq_pipeline"]["extra"],
+            conda:
+                "../envs/damid.yaml"
+            threads: config["resources"]["damid"]["cpu"]
+            resources:
+                runtime=config["resources"]["damid"]["time"]
+            log:
+                "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
+            script:
+                "../scripts/damidseq_pipeline.py"
+    else:
+        rule bowtie2_remove_plasmid_reads:
+            input:
+                flag="results/trimmed/{dir}/{sample}.flag",
+                idx=multiext(
+                    f"resources/bowtie2_index/{plasmid_name}/index",
+                    ".1.bt2",
+                    ".2.bt2",
+                    ".3.bt2",
+                    ".4.bt2",
+                    ".rev.1.bt2",
+                    ".rev.2.bt2",
+                ),
+            output:
+                fastq="results/trimmed_no_plasmid/{dir}/{sample}.fastq.gz",
+            params:
+                idxdir=lambda wildcards, input: input["idx"][0][:-6],
+                paired=paired_end,
+                out_base= lambda wildcards, output: output["r1_fastq"].replace(".fastq.gz", ""),
+                extra=config["bowtie2"]["extra"],
+            conda:
+                "../envs/damid.yaml"
+            threads: config["resources"]["damid"]["cpu"]
+            resources:
+                runtime=config["resources"]["damid"]["time"]
+            log:
+                "logs/bowtie2_align_to_plasmid/{dir}/{sample}.log"
+            script:
+                "../scripts/bowtie2_align_to_plasmid.py"
+
+
+        rule damidseq_pipeline: # Ignore dir wildcard in expand statement (double braces)
+            input:
+                git="resources/damidseq_pipeline",
+                fastq=expand("results/trimmed_no_plasmid/{{dir}}/{sample}.fastq.gz", sample=SAMPLES),
+                flag=expand("results/trimmed/{{dir}}/{sample}.flag", sample=SAMPLES),
+                gatc=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
+                idx=multiext(
+                    f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
+                    ".1.bt2",
+                    ".2.bt2",
+                    ".3.bt2",
+                    ".4.bt2",
+                    ".rev.1.bt2",
+                    ".rev.2.bt2",
+                ),
+            output:
+                bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+                bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
+            params:
+                idxdir=lambda wildcards, input: input["idx"][0][:-6],
+                paired=paired_end,
+                trim_dir="trimmed_no_plasmid",
+                binsize=config["damidseq_pipeline"]["binsize"],
+                extra=config["damidseq_pipeline"]["extra"],
+            conda:
+                "../envs/damid.yaml"
+            threads: config["resources"]["damid"]["cpu"]
+            resources:
+                runtime=config["resources"]["damid"]["time"]
+            log:
+                "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
+            script:
+                "../scripts/damidseq_pipeline.py"
+
+
+rule sort_bam:
     input:
-        git="resources/damidseq_pipeline",
-        flag=expand("results/trimmed/{{dir}}/{sample}.flag", sample=SAMPLES),
-        gatc=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
-        idx=multiext(
-            f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
-            ".1.bt2",
-            ".2.bt2",
-            ".3.bt2",
-            ".4.bt2",
-            ".rev.1.bt2",
-            ".rev.2.bt2",
-        ),
+        bam="results/bam/{dir}/{sample}{bamext}.bam",
     output:
-        bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-        bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
-    params:
-        idxdir=lambda wildcards, input: input["idx"][0][:-6],
-        paired=paired_end,
-        extra=config["extra"],
+        sorted_bam=temp("results/bam/sorted/{dir}/{sample}{bamext}.bam"),
     conda:
         "../envs/damid.yaml"
-    threads: config["resources"]["damid"]["cpu"]
+    threads: config["resources"]["deeptools"]["cpu"]
     resources:
-        runtime=config["resources"]["damid"]["time"]
+        runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
-    script:
-        workflow.source_path("../scripts/damidseq_pipeline.py")
+        "logs/sort_bam/{dir}/{sample}{bamext}.log"
+    shell:
+        "samtools sort -@ {threads} -o {output.sorted_bam} {input.bam} > {log} 2>&1"
+
+
+rule index_bam:
+    input:
+        bam="results/bam/sorted/{dir}/{sample}{bamext}.bam",
+    output:
+        bai="results/bam/sorted/{dir}/{sample}{bamext}.bam.bai",
+    conda:
+        "../envs/damid.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/index_bam/{dir}/{sample}{bamext}.log"
+    shell:
+        "samtools index {input.bam} > {log} 2>&1"
+
+
+rule bam2bigwig:
+    input:
+        bam="results/bam/sorted/{dir}/{sample}{bamext}.bam",
+        bai="results/bam/sorted/{dir}/{sample}{bamext}.bam.bai",
+    output:
+        "results/bigwig/bam2bigwig/{dir}/{sample}{bamext}.bw"
+    params:
+        bs=config["deeptools"]["bamCoverage"]["binSize"],
+        n=config["deeptools"]["bamCoverage"]["normalizeUsing"],
+        extra=config["deeptools"]["bamCoverage"]["extra"]
+    conda:
+        "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"]
+    log:
+        "logs/bam2bigwig/{dir}/{sample}{bamext}.log"
+    shell:
+        "bamCoverage "
+        "-b {input.bam} "
+        "-o {output} "
+        "--binSize {params.bs} "
+        "-p {threads} "
+        "--normalizeUsing {params.n} "
+        "{params.extra} "
+        "> {log} 2>&1 "
