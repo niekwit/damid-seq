@@ -1,6 +1,12 @@
-#from itertools import product
 import re
 import numpy as np
+import os
+import glob
+import sys
+import pandas as pd
+import datetime
+from pathlib import Path
+from snakemake.logging import logger
 
 def targets():
     """
@@ -9,9 +15,12 @@ def targets():
     # Base target files
     TARGETS = [
         "results/qc/multiqc/multiqc.html",
-        #"results/plots/PCA.pdf",
-        #"results/plots/scree.pdf",
+        "results/plots/PCA.pdf",
+        "results/plots/PCA_bam.pdf",
+        "results/plots/scree.pdf",
+        "results/plots/scree_bam.pdf",
         "results/plots/sample_correlation.pdf",
+        "results/plots/sample_correlation_bam.pdf",
         "results/plots/heatmap.pdf",
         "results/plots/profile_plot.pdf",
         "results/plots/mapping_rates.pdf",
@@ -20,27 +29,32 @@ def targets():
     
     if config["peak_calling_perl"]["run"]:
         TARGETS.extend([
-            "results/plots/peaks/feature_distributions.pdf",
-            "results/plots/peaks/distance_to_tss.pdf",
-            expand("results/peaks/overlapping_peaks/{bg_sample}.annotated.txt", bg_sample=BG_SAMPLES),
+            expand("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", fdr=peak_fdr("perl")),
+            expand("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", fdr=peak_fdr("perl")),
+            expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.annotated.txt", fdr=peak_fdr("perl"),  bg_sample=BG_SAMPLES),
+            expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.geneIDs.txt", fdr=peak_fdr("perl"),  bg_sample=BG_SAMPLES)
             ])
     
     if config["peak_calling_macs2"]["run"]:
         if config["peak_calling_macs2"]["mode"] == "narrow":
             TARGETS.extend([
-                "results/plots/macs2_narrow/feature_distributions.pdf",
-                "results/plots/macs2_narrow/distance_to_tss.pdf",
-                expand("results/macs2_narrow/{bg_sample}_peaks.xls", bg_sample=BG_SAMPLES),
-                expand("results/macs2_narrow/{bg_sample}_peaks.narrowPeak", bg_sample=BG_SAMPLES),
-                expand("results/macs2_narrow/{bg_sample}_summits.bed", bg_sample=BG_SAMPLES),
+                expand("results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf", fdr=peak_fdr("macs2_narrow")),
+                expand("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf", fdr=peak_fdr("macs2_narrow")),
+                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}_peaks.xls", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}_peaks.narrowPeak", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}_summits.bed", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.annotated.txt", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES)
                 ])
         elif config["peak_calling_macs2"]["mode"] == "broad":
             TARGETS.extend([
-                "results/plots/macs2_broad/broad/feature_distributions.pdf",
-                "results/plots/macs2_broad/broad/distance_to_tss.pdf",
-                expand("results/macs2_broad/{bg_sample}_peaks.xls", bg_sample=BG_SAMPLES),
-                expand("results/macs2_broad/{bg_sample}_peaks.broadPeak", bg_sample=BG_SAMPLES),
-                expand("results/macs2_broad/{bg_sample}_peaks.gappedPeak", bg_sample=BG_SAMPLES),
+                expand("results/plots/macs2_broad/cutoff{fdr}/feature_distributions.pdf", fdr=peak_fdr("macs2_broad_cutoff")),
+                expand("results/plots/macs2_broad/cutoff{fdr}/distance_to_tss.pdf", fdr=peak_fdr("macs2_broad_cutoff")),
+                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}_peaks.xls", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}_peaks.broadPeak", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}_peaks.gappedPeak", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}.annotated.txt", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
+                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}.geneIDs.txt", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES)
                 ])
     
     return TARGETS
@@ -66,77 +80,137 @@ def matrix_samples():
 
     Note: only works for paired-end reads at the moment.
     """
-    print("Matrix samples detected...")
-    print("Preparing directory structure for all combinations of Dam controls vs Dam-fusion(s)...")
-    # Get all R1 files in reads/
-    r1 = glob.glob("reads/*_R1_001.fastq.gz")
-
-    # Get all R1 Dam only files in reads/
-    dam = glob.glob("reads/*Dam*_R1_001.fastq.gz")
-
-    # Get all R1 Dam-POI files in reads/
-    fusion = [f for f in r1 if f not in dam]
-
-    # Get base names of all fusion R1 files
-    fusion_base_names = list(set([os.path.basename(f).replace("_R1_001.fastq.gz","") for f in fusion]))
-
-    # For each base name match each replicate R1 file into nested list
-    base_replicates = []
-    for base in fusion_base_names:
-        tmp = [f for f in fusion if base in f].sorted()
-        base_replicates.append(tmp)
-
-    # Check if each nested list has the same length
-    if len(set([len(l) for l in base_replicates])) != 1:
-        raise ValueError("Number of Dam-POI replicates does not match...")
-    
-    # Create nested list with the first sample of each sample from base_replicates (transpose list)
-    all_base_replicates = np.array(base_replicates).T.tolist()
-
-    # For each Dam sample, match it to all Dam-POI samples (read 1)
-    matched_samples_r1 = []
-    for d in dam:
-        for f in all_base_replicates:
-            f.insert(0, d)
-            matched_samples_r1.append(f)
-    
-    # Get read 2 files
-    matched_samples_r2 = []
-    for l in matched_samples_r1:
-        tmp = [f.replace("_R1_001.fastq.gz", "_R2_001.fastq.gz") for f in l]
-        matched_samples_r2.append(tmp)
-    
-    # Create directory names for each matched sample list
-    # Symlink files to these directories
     def symlink_files(list_):
-        """
-        Symlink each file in list to unique dir_
-        Remove _[0-9] before paired-end end extension
-        All replicates will have same file name but will be in different directories
-        """
-        log = []
-        for i, l in enumerate(list_):
-            dir_ = f"reads/repl_{i}"
-            os.makedirs(dir_, exist_ok=True)
-            
-            # Keep log of what goes where
-            tmp = [dir_]
-            tmp.extend(l)
-            log.append(tmp)
-            for f in l:
-                dest = re.sub(r"_\d{1,2}_R", "_R", f)  
-                os.symlink(f, f"{dir_}/{os.path.basename(dest)}")
-        return log
-
-    log_r1 = symlink_files(matched_samples_r1)
-    log_r2 = symlink_files(matched_samples_r2)
+            """
+            Symlink each file in list to unique dir_
+            Remove _[0-9] before paired-end end extension
+            All replicates will have same file name but will be in different directories
+            """
+            log = []
+            for i, l in enumerate(list_):
+                dir_ = f"reads/repl_{i + 1}"
+                os.makedirs(dir_, exist_ok=True)
                 
-    # Add log data to data frame
-    dirs_ = [os.path.basename(d[0]) for d in log_r1]
-    df = pd.DataFrame([log_r1, log_r2], columns=dirs_)
+                # Keep log of what goes where
+                tmp = [dir_]
+                tmp.extend(l)
+                log.append(tmp)
+                for f in l:
+                    dest = re.sub(r"_\d{1,2}_R", "_R", f)  
+                    os.symlink(f, f"{dir_}/{os.path.basename(dest)}")
+            return log
+    logger.info("Matrix samples detected...")
+    logger.info("Preparing directory structure for all combinations of Dam controls vs Dam-fusion(s)...")
+    
+    if paired_end:
+        # Get all R1 files in reads/
+        r1 = glob.glob("reads/*_R1_001.fastq.gz")
 
-    # Save log data to csv
-    df.to_csv("reads/sample_matrix.csv", index=False)
+        # Get all R1 Dam only files in reads/
+        dam = glob.glob("reads/*Dam*_R1_001.fastq.gz")
+
+        # Get all R1 Dam-POI files in reads/
+        fusion = [f for f in r1 if f not in dam]
+
+        # Get base names of all fusion R1 files
+        fusion_base_names = list(set([re.sub("_[0-9]{1,2}_R1_001.fastq.gz", "", os.path.basename(f)) for f in fusion]))
+
+        # For each base name match each replicate R1 file into nested list
+        base_replicates = []
+        for base in fusion_base_names:
+            tmp = [f for f in fusion if base in f]
+            tmp.sort()
+            base_replicates.append(tmp)
+
+        # Check if each nested list has the same length
+        if len(set([len(l) for l in base_replicates])) != 1:
+            raise ValueError("Number of Dam-POI replicates does not match...")
+        
+        # Create nested list with the first sample of each sample from base_replicates (transpose list)
+        all_base_replicates = np.array(base_replicates).T.tolist()
+
+        # For each Dam sample, match it to all Dam-POI samples (read 1)
+        matched_samples_r1 = []
+        for list_ in all_base_replicates:
+            for d in dam:
+                matched_samples_r1.append([d] + list_)
+        
+        # Get read 2 files
+        matched_samples_r2 = []
+        for l in matched_samples_r1:
+            tmp = [f.replace("_R1_001.fastq.gz", "_R2_001.fastq.gz") for f in l]
+            matched_samples_r2.append(tmp)
+        
+        # Create directory names for each matched sample list
+        # Symlink files to these directories
+        log_r1 = symlink_files(matched_samples_r1)
+        log_r2 = symlink_files(matched_samples_r2)
+                    
+        # Add log data to data frame
+        df = pd.DataFrame()
+        df["read1"] = log_r1
+        df["read2"] = log_r2
+
+        # Save log data to csv
+        df.to_csv("reads/sample_matrix.csv", index=False)
+    else:
+        reads = glob.glob(f"reads/*.fastq.gz")
+
+        # Get all R1 Dam only files in reads/
+        dam = [f for f in r1 if "Dam" in f]
+        
+        # Get all R1 Dam-POI files in reads/
+        fusion = [f for f in r1 if not "Dam" in f]
+
+        # Get base names of all fusion R1 files
+        fusion_base_names = list(set([re.sub("_[0-9]{1,2}.fastq.gz", "", os.path.basename(f)) for f in fusion]))
+
+        # For each base name match each replicate read file into nested list
+        base_replicates = []
+        for base in fusion_base_names:
+            tmp = [f for f in fusion if base in f]
+            tmp.sort()
+            base_replicates.append(tmp)
+        
+        # Check if each nested list has the same length
+        if len(set([len(l) for l in base_replicates])) != 1:
+            raise ValueError("Number of Dam-POI replicates does not match...")
+        
+        all_base_replicates = np.array(base_replicates).T.tolist()
+
+        matched_samples = []
+        for list_ in all_base_replicates:
+            for d in dam:
+                matched_samples.append([d] + list_)
+
+        def symlink_files(list_):
+                """
+                Symlink each file in list to unique dir_
+                Remove _[0-9] before single-end extension
+                All replicates will have same file name but will be in different directories
+                """
+                log = []
+                for i, l in enumerate(list_):
+                    dir_ = f"reads/repl_{i + 1}"
+                    os.makedirs(dir_, exist_ok=True)
+                    
+                    # Keep log of what goes where
+                    tmp = [dir_]
+                    tmp.extend(l)
+                    log.append(tmp)
+                    for f in l:
+                        dest = re.sub(r"_\d{1,2}", "", f)  
+                        os.symlink(f, f"{dir_}/{os.path.basename(dest)}")
+                return log
+
+        log_symlink = symlink_files(matched_samples)
+                    
+        # Add log data to data frame
+        df = pd.DataFrame()
+        df["dir"] = log_symlink
+        
+        # Save log data to csv
+        df.to_csv("reads/sample_matrix.csv", index=False)
 
 
 def dirs():
@@ -144,6 +218,11 @@ def dirs():
     Each dir contains one replicate sets of fastq files
     """
     DIRS = glob.glob("reads/*")
+
+    # Omit any files as directories
+    DIRS = [d for d in DIRS if Path(d).is_dir()]
+
+    # Get dir names without full path
     DIRS = [os.path.basename(d) for d in DIRS]
 
     if len(DIRS) == 0:
@@ -184,7 +263,7 @@ def samples(bedgraph=False, dam=False):
                     not_found.append(r1)
     if len(not_found) != 0:
         not_found = "\n".join(not_found)
-        raise ValueError(f"Following files not found:\n{not_found}")
+        raise ValueError(f"Following were files not found:\n{not_found}")
     
     # Only return non-Dam samples if bedgraph is True
     if bedgraph and not dam:
@@ -200,16 +279,22 @@ def paired_end():
     Checks if paired-end reads are used
     """
     # Get one fastq file
-    reads = glob.glob("reads/*/*.gz")
+    reads = glob.glob("reads/*/*fastq.gz")
+    if len(reads) == 0:
+        reads = glob.glob("reads/*fastq.gz")
     assert len(reads) != 0, "No fastq files found..."
+        
     fastq = reads[0]
 
     # Check file extension to see if paired-end reads are used
     if fastq.endswith("_R1_001.fastq.gz"):
+        logger.info("Paired-end reads detected...")
         return True, ""
     elif fastq.endswith("_R2_001.fastq.gz"):
+        logger.info("Paired-end reads detected...")
         return True, ""
     else:
+        logger.info("Single-end reads detected...")
         return False, "-ext300"
     
 
@@ -318,11 +403,48 @@ def macs2_params():
     
     if config["peak_calling_macs2"]["mode"] == "broad":
         cutoff = config["peak_calling_macs2"]["broad_cutoff"]
-        broad = "--broad --broad-cutoff {cutoff} "
+        broad = f"--broad --broad-cutoff {cutoff} "
+        qvalue= ""
     else:
         broad = ""
+        qvalue = config["peak_calling_macs2"]["qvalue"]
+        qvalue = f"-q {qvalue}"
     
-    qvalue = config["peak_calling_macs2"]["qvalue"]
     extra = config["peak_calling_macs2"]["extra"]
 
-    return f"-f {format_} -g {genome} -q {qvalue} {broad} {extra}"
+    return f"-f {format_} -g {genome} {qvalue} {broad} {extra}"
+
+
+def peak_fdr(type_):
+    if type_ == "perl":
+        return config["peak_calling_perl"]["fdr"]
+    elif type_ == "macs2_narrow":
+        return config["peak_calling_macs2"]["qvalue"]
+    elif type_ == "macs2_broad_cutoff":
+        return config["peak_calling_macs2"]["broad_cutoff"]
+    
+    
+def check_plasmid_fasta(fasta):
+    # Check if fasta file exists
+    if not os.path.isfile(fasta):
+        raise ValueError(f"File {fasta} not found...")
+    
+    # Check if fasta file has same number of lines starting with and without >
+    with open(fasta, "r") as f:
+        lines = f.readlines()
+        header = [l for l in lines if l.startswith(">")]
+        sequence = [l for l in lines if not l.startswith(">")]
+        if len(header) != len(sequence):
+            raise ValueError(f"Number of lines starting with > does not match number of lines without > in {fasta}...")
+
+
+def plasmid_fasta_name(fasta):
+    # Get fasta file name without extension
+    return os.path.basename(fasta).split(".")[0]
+
+
+def input_extension():
+    if paired_end:
+        return []
+    else:
+        return ".fastq.gz"
