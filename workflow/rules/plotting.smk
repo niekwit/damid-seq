@@ -1,4 +1,4 @@
-rule plotPCA:
+rule plotPCA_bedgraph:
     input:
         "results/deeptools/PCA.tab",
     output:
@@ -14,10 +14,20 @@ rule plotPCA:
     conda:
         "../envs/R.yaml"
     script:
-        workflow.source_path("../scripts/plot_PCA.R")
+        "../scripts/plot_PCA.R"
 
 
-rule plot_correlation:
+use rule plotPCA_bedgraph as plotPCA_bam with:
+    input:
+        "results/deeptools/PCA_bam.tab",
+    output:
+        pca=report("results/plots/PCA_bam.pdf", caption="../report/pca_bam.rst", category="PCA"),
+        scree=report("results/plots/scree_bam.pdf", caption="../report/scree_bam.rst", category="PCA"),
+    log:
+        "logs/plotting/plotPCA_bam.log"
+
+
+rule plot_correlation_bedgraph:
     input:
         "results/deeptools/scores_per_bin.npz"
     output:
@@ -44,6 +54,16 @@ rule plot_correlation:
         "--skipZeros "
         "> {log} 2>&1"
 
+
+use rule plot_correlation_bedgraph as plot_correlation_bam with:
+    input:
+        "results/deeptools/scores_per_bin_bam.npz",
+    output:
+        tab="results/deeptools/correlation_bam.tab",
+        pdf=report("results/plots/sample_correlation_bam.pdf", caption="../report/correlation_bam.rst", category="Sample correlation"),
+    log:
+        "logs/plotting/plotCorrelation_bam.log"
+    
 
 rule plot_heatmap:
     input:
@@ -104,21 +124,21 @@ rule plot_profile:
 rule peak_annotation_plots:
     input:
         gtf=resources.gtf,
-        bed=expand("results/peaks/overlapping_peaks/{bg_sample}.filtered.bed", bg_sample=BG_SAMPLES),
+        bed=expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.filtered.bed", fdr=peak_fdr("perl"), bg_sample=BG_SAMPLES),
     output:
-        fd=report("results/plots/peaks/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
-        dt=report("results/plots/peaks/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
+        fd=report("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
+        dt=report("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
     params:
         extra="",
     threads: config["resources"]["plotting"]["cpu"]
     resources:
         runtime=config["resources"]["plotting"]["time"]
     log:
-        "logs/plotting/peak_annotation_plots.log"
+        "logs/plotting/peak_annotation_plots_fdr{fdr}.log"
     conda:
         "../envs/R.yaml"
     script:
-        workflow.source_path("../scripts/peak_annotation_plots.R")
+        "../scripts/peak_annotation_plots.R"
 
 
 rule plot_mapping_rates:
@@ -136,5 +156,5 @@ rule plot_mapping_rates:
     conda:
         "../envs/R.yaml"
     script:
-        workflow.source_path("../scripts/plot_mapping_rates.R")
+        "../scripts/plot_mapping_rates.R"
     
