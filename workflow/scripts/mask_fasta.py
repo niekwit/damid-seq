@@ -29,7 +29,11 @@ else:
         
         # Get genomic coordinates of genes to mask from GTF file
         cmd = f"""sed '1,4d' {gtf} | awk '{{if ($3 == "gene") {{print $0}} }}' | grep {gene}"""
-        line = subprocess.check_output(cmd, shell=True).decode()
+        try:
+            line = subprocess.check_output(cmd, shell=True).decode()
+        except subprocess.CalledProcessError:
+            print(f"ERROR: gene {gene} not found in {gtf}...")
+            sys.exit(1)
         chr, db, t, start, end, *args = line.split("\t")
         
         # Load chromosome sequence where gene is located
