@@ -14,3 +14,4 @@ dependencies:
   - bioconductor-chipseeker=1.38.0
   - bioconductor-genomicfeatures=1.54.1
   - bioconductor-rtracklayer=1.62.0
+  - r-viridislite=0.4.2
