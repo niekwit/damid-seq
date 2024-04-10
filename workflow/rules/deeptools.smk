@@ -1,4 +1,4 @@
-rule multiBigwigSummary:
+rule multiBigwigSummary_bedgraph:
     input:
         expand("results/bigwig/{dir}/{bg_sample}.bw", dir=DIRS , bg_sample=BG_SAMPLES),
     output:
@@ -23,7 +23,19 @@ rule multiBigwigSummary:
         "> {log} 2>&1"
 
 
-rule PCA:
+use rule multiBigwigSummary_bedgraph as multiBigwigSummary_bam with:
+    input:
+        expand("results/bigwig/bam2bigwig/{dir}/{sample}{bamext}.bw", dir=DIRS , sample=SAMPLES, bamext=BAM_EXT),
+    output:
+        "results/deeptools/scores_per_bin_bam.npz",
+    params:
+        labels=lambda wildcards, input: [x.replace("results/bigwig/bam2bigwig/", "").replace(".bw","") for x in input],
+        extra=""
+    log:
+        "logs/deeptools/multiBigwigSummary_bam.log"
+
+
+rule PCA_bedgraph:
     input:
         "results/deeptools/scores_per_bin.npz",
     output:
@@ -46,6 +58,15 @@ rule PCA:
         "> {log} 2>&1"
 
 
+use rule PCA_bedgraph as PCA_bam with:
+    input:
+        "results/deeptools/scores_per_bin_bam.npz",
+    output:
+        "results/deeptools/PCA_bam.tab",
+    log:
+        "logs/deeptools/PCA_bam.log"
+
+
 rule computeMatrix:
     input:
         bw=expand("results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
@@ -54,7 +75,7 @@ rule computeMatrix:
         mat="results/deeptools/average_bw_matrix.gz",
     params:
         args=computematrix_args(),
-    threads: config["resources"]["deeptools"]["cpu"] * 4 # Otherwise it will take very long
+    threads: config["resources"]["deeptools"]["cpu"] * 5 # Otherwise it will take very long
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
