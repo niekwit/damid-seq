@@ -1,21 +1,20 @@
-import os
-import glob
-import sys
-import pandas as pd
-import datetime
-from scripts.resources import Resources
 include: "scripts/general_functions.smk"
-from snakemake.utils import min_version
-from snakemake.utils import validate
+from scripts.resources import Resources
+from snakemake.utils import min_version, validate
 
 report: "report/workflow.rst"
 
 # Set minimum snakemake version
 min_version("7.25.0")
 
-# load config file
+# Wrapper version
+wrapper_version = "v3.7.0"
+
+# Load and validate config file
 configfile: "config/config.yaml"
 validate(config, "schemas/config.schema.yaml")
+
+plasmid_name = plasmid_fasta_name(config["plasmid_fasta"])
 
 # Load sample information
 csv = pd.read_csv("config/samples.csv")
@@ -34,11 +33,10 @@ if data_type() == "matrix":
     matrix_samples()
 
 DIRS = dirs()
-SAMPLES = samples()
+SAMPLES = samples() # Includes Dam control
 BG_SAMPLES = samples(bedgraph=True) # SAMPLES minus Dam control
 DAM_SAMPLES = samples(bedgraph=True, dam=True)
-    
-
+ 
 # Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
@@ -49,7 +47,6 @@ include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
 include: "rules/peak_calling.smk"
 include: "rules/bed.smk"
-#include: "rules/motifs.smk"
 
 # Target rule
 rule all:
@@ -64,7 +61,6 @@ os.makedirs("logs/snakemake", exist_ok=True)
 onsuccess: 
     shell("cp -v {log} {snake_log}")
     print("Analysis finished successfully!")
-
 onerror:
     shell("cp -v {log} {snake_log}")
     print(f"Analysis failed...\nCheck {snake_log} for details")
