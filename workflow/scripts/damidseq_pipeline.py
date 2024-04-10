@@ -39,11 +39,13 @@ def allfastq(directory):
 cwd = os.getcwd()
 
 # Load Snakemake variables
+trim_dir = snakemake.params["trim_dir"]
 flags = snakemake.input["flag"]
 gatc = os.path.join(cwd, snakemake.input["gatc"])
 bowtie2_idx = os.path.join(cwd, snakemake.params["idxdir"])
 paired = snakemake.params["paired"]
 threads = snakemake.threads
+bins = snakemake.params["binsize"]
 extra = snakemake.params["extra"]
 
 # Get sample directory
@@ -75,7 +77,7 @@ for c in conditions:
     dam_controls[c] = csv[csv["sample"].str.contains("Dam") & csv["condition"].str.contains(c)]["sample"].tolist()[0]
 
 # Get all fastq files
-all_fastq = allfastq(f"results/trimmed/{directory}/")
+all_fastq = allfastq(f"results/{trim_dir}/{directory}/")
 
 # Run damidseq_pipeline for each condition
 for condition, dam_control in dam_controls.items():
@@ -107,6 +109,7 @@ for condition, dam_control in dam_controls.items():
         "{arg} "
         "--threads={threads} "
         "--dam={dam} "
+        "--bins={bins}"
         "{extra} "
         "--gatc_frag_file={gatc} "
         "--bowtie2_genome_dir={bowtie2_idx} "
