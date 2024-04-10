@@ -11,7 +11,7 @@ rule quantile_normalisation:
     conda:
         "../envs/damid.yaml"
     script:
-        workflow.source_path("../scripts/quantile_norm_bedgraph.py")
+        "../scripts/quantile_norm_bedgraph.py"
 
 
 rule bedgraph2bigwig:
@@ -52,7 +52,7 @@ rule average_wig:
     conda:
         "../envs/deeptools.yaml"
     script:
-        workflow.source_path("../scripts/average_wig.py")
+        "../scripts/average_wig.py"
 
 
 rule wig2bigwig:
@@ -87,7 +87,7 @@ rule reverse_log2:
     conda:
         "../envs/deeptools.yaml"
     script:
-        workflow.source_path("../scripts/reverse_log2.py")
+        "../scripts/reverse_log2.py"
 
 
 use rule bedgraph2bigwig as bedgraph2bigwig_rev_log2 with:
