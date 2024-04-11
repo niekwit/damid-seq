@@ -22,7 +22,7 @@ use rule plotPCA_bedgraph as plotPCA_bam with:
         "results/deeptools/PCA_bam.tab",
     output:
         pca=report("results/plots/PCA_bam.pdf", caption="../report/pca.rst", category="PCA"),
-        scree=report("results/plots/scree_bam.pdf", caption="../report/scree_bam.rst", category="PCA"),
+        scree=report("results/plots/scree_bam.pdf", caption="../report/scree.rst", category="PCA"),
     log:
         "logs/plotting/plotPCA_bam.log"
 
