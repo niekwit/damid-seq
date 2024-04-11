@@ -2,10 +2,13 @@ genome: dm6
 ensembl_genome_build: 110
 plasmid_fasta: none
 extra: "" # extra argument for damidseq_pipeline
-fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
+fusion_genes: FBgn0004872 # Genes from these proteins will be removed from the analysis
+damidseq_pipeline:
+  binsize: 300
+  extra: "" # extra argument for damidseq_pipeline
 deeptools:
   bamCoverage: # bam to bigwig conversion for QC
-    binSize: 10
+    binSize: 100
     normalizeUsing: RPKM
     extra: ""
   matrix: # Settings for computeMatrix
@@ -14,7 +17,7 @@ deeptools:
     regionBodyLength: 6000
     upstream: 3000
     downstream: 3000
-    binSize: 10
+    binSize: 1000
     averageTypeBins: mean
     regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
     no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
