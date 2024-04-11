@@ -21,7 +21,7 @@ use rule plotPCA_bedgraph as plotPCA_bam with:
     input:
         "results/deeptools/PCA_bam.tab",
     output:
-        pca=report("results/plots/PCA_bam.pdf", caption="../report/pca_bam.rst", category="PCA"),
+        pca=report("results/plots/PCA_bam.pdf", caption="../report/pca.rst", category="PCA"),
         scree=report("results/plots/scree_bam.pdf", caption="../report/scree_bam.rst", category="PCA"),
     log:
         "logs/plotting/plotPCA_bam.log"
@@ -60,7 +60,7 @@ use rule plot_correlation_bedgraph as plot_correlation_bam with:
         "results/deeptools/scores_per_bin_bam.npz",
     output:
         tab="results/deeptools/correlation_bam.tab",
-        pdf=report("results/plots/sample_correlation_bam.pdf", caption="../report/correlation_bam.rst", category="Sample correlation"),
+        pdf=report("results/plots/sample_correlation_bam.pdf", caption="../report/correlation.rst", category="Sample correlation"),
     log:
         "logs/plotting/plotCorrelation_bam.log"
     
