@@ -14,18 +14,35 @@ properties:
     type: integer
     minimum: 1
     description: Ensembl genome build
-  
-  extra:
-    type: string
-    description: Extra argument for damidseq_pipeline
-  
+ 
   fusion_genes:
     type: string
     description: Genes from these proteins will be removed from the analysis
   
+  damidseq_pipeline:
+    type: object
+    properties:
+      binsize:
+        type: integer
+        minimum: 1
+      extra:
+        type: string
+
   deeptools:
     type: object
     properties:
+      bamCoverage:
+        type: object
+        properties:
+          binSize:
+            type: integer
+            minimum: 1
+          normalizeUsing:
+            type: string
+            enum: ["RPKM", "CPM", "BPM", "RPGC", "None"]
+          extra:
+            type: string
+      
       matrix:
         type: object
         properties:
@@ -56,6 +73,7 @@ properties:
             type: boolean
           extra:
             type: string
+      
       plotHeatmap:
         type: object
         properties:
@@ -134,4 +152,13 @@ properties:
         type: number
         minimum: 0
         maximum: 1
-  
+
+required:
+  - genome
+  - ensembl_genome_build
+  - fusion_genes
+  - damidseq_pipeline
+  - deeptools
+  - peak_calling_perl
+  - peak_calling_macs2
+  - resources
