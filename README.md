@@ -20,6 +20,7 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 * [Preparing your data](https://github.com/niekwit/damid-seq?tab=readme-ov-file#preparing-your-data)
 * [Sample meta data and analysis settings](https://github.com/niekwit/damid-seq?tab=readme-ov-file#sample-meta-data-and-analysis-settings)
 * [Configuration of Snakemake](https://github.com/niekwit/damid-seq?tab=readme-ov-file#configuration-of-snakemake)
+* [Running the analysis with test data](https://github.com/niekwit/damid-seq?tab=readme-ov-file#running-the-analysis-with-test-data)
 * [Dry-run of the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#dry-run-of-the-analysis)
 * [Running the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#running-the-analysis)
 * [Report of the results](https://github.com/niekwit/damid-seq?tab=readme-ov-file#report-of-the-results)
@@ -50,6 +51,7 @@ The output of `damid-seq` is as follows:
 TO DO
 
 ![DamID principle (Adapted from Van den Ameele et al. 2019 Current Opinion in Neurobiology)](/images/damid.png)
+Figure adapted from Van den Ameele et al. 2019 Current Opinion in Neurobiology
 
 ## Experimental considerations
 
@@ -198,11 +200,18 @@ The `config` directory contains `samples.csv` with sample meta data as follows:
 `config.yaml` in the same directory contains the settings for the analysis:
 
 ```yaml
-genome: hg38
+genome: dm6
 ensembl_genome_build: 110
-extra: "" # extra argument for damidseq_pipeline
-fusion_genes: ENSG00000100644,ENSG00000116016 # Genes from these proteins will be removed from the analysis
+plasmid_fasta: none
+fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
+damidseq_pipeline:
+  binsize: 300
+  extra: "" # extra argument for damidseq_pipeline
 deeptools:
+  bamCoverage: # bam to bigwig conversion for QC
+    binSize: 10
+    normalizeUsing: RPKM
+    extra: ""
   matrix: # Settings for computeMatrix
     mode: scale-regions # scale-regions or reference-point
     referencePoint: TSS # TSS, TES, center (only for reference-point mode)
@@ -220,10 +229,15 @@ deeptools:
     colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
     alpha: 1.0
     extra: "" 
-peak_calling_perl: # https://github.com/owenjm/find_peaks
+peak_calling_perl:
   run: True
-  iterations: 25 # N argument
+  iterations: 5 # N argument
   fdr: 0.01
+  fraction: 0 # Fraction of random fragments to consider per iteration
+  min_count: 2 # Minimum number of reads to consider a peak
+  min_quantile: 0.95 # Minimum quantile for considering peaks
+  step: 0.01 # Stepping for quantiles
+  unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
   extra: ""
   overlapping_peaks:
     max_size: 10 # Maximum size of peaks to be extended
@@ -233,7 +247,7 @@ peak_calling_macs2:
   run: False
   mode: narrow
   qvalue: 0.05
-  broad-cutoff: 0.1
+  broad_cutoff: 0.1
   extra: ""
 resources: # computing resources
   trim:
@@ -298,13 +312,13 @@ Snakemake will create the DAG of jobs, but it will not execute anything.
 
 ## Running the analysis
 
-To run the analysis use the following command:
+Once you know that the test and/or dry run has worked, the actual analysis can be initiated as follows:
 ```shell
 $ snakemake --profile /home/user/.config/snakemake/profile --directory .test/
 ```
 
 > [!IMPORTANT]  
-> Always make sure to use the absolute path (i.e. /home/user/.config/...) rather than the relative path (~/.config/...).
+> Always make sure to use the absolute path (i.e. /home/user/.config/...) rather than the relative path (~/.config/...) when providing the path for the profile file.
 
 ## Report of the results
 
