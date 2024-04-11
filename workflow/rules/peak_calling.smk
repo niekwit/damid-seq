@@ -106,7 +106,7 @@ if config["peak_calling_macs2"]["run"]:
         
         rule peak_calling_MACS2_narrow_single:
             input: 
-                treatment=expand("results/bam/{dir}/{bg_sample}{bamext}.bam", bamext=BAM_EXT, dir=DIRS),
+                treatment=expand("results/bam/{dir}/{bg_sample}{bamext}.bam", bamext=BAM_EXT, dir=DIRS, bg_sample=BG_SAMPLES),
                 control=expand("results/bam/{dir}/{dam_sample}{bamext}.bam", dam_sample=DAM_SAMPLES, bamext=BAM_EXT, dir=DIRS),
             output:
                 multiext("results/macs2_narrow_single/fdr{fdr}/{bg_sample}",
