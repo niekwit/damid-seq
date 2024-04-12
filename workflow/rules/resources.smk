@@ -175,9 +175,8 @@ rule bowtie2_build_index:
 
 if config["plasmid_fasta"] != "none":
     # Check plasmid fasta
-    check_plasmid_fasta(config["plasmid_fasta"])
+    #check_plasmid_fasta(config["plasmid_fasta"])
     
-
     rule bowtie2_build_index_plasmid:
         input:
             ref=config["plasmid_fasta"],

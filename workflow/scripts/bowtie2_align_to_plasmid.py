@@ -17,8 +17,8 @@ if paired:
     fastq_in = f"-1 {r1} -2 {r2}"
     fastq_out = f"--un-conc-gz {out_base}"
 else:
-    fastq_in = f"-U {base + ".fastq.gz"}"
-    fastq_out = f"--un-gz {out_base + ".fastq.gz"}"
+    fastq_in = f"-U {base + '.fastq.gz'}"
+    fastq_out = f"--un-gz {out_base + '.fastq.gz'}"
     
 # Align to plasmid index and only keep non-aligned reads in new fastq file(s)
 shell(

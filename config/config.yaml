@@ -2,6 +2,8 @@ genome: dm6
 ensembl_genome_build: 110
 plasmid_fasta: none
 fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
+bowtie2:
+  extra: ""
 damidseq_pipeline:
   binsize: 300
   extra: "" # extra argument for damidseq_pipeline

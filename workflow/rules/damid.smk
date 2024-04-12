@@ -117,7 +117,7 @@ else:
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
-                out_base= lambda wildcards, output: output["r1_fastq"].replace(".fastq.gz", ""),
+                out_base= lambda wildcards, output: output["fastq"].replace(".fastq.gz", ""),
                 extra=config["bowtie2"]["extra"],
             conda:
                 "../envs/damid.yaml"
