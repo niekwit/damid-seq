@@ -1,4 +1,5 @@
 if config["peak_calling_perl"]["run"]:
+    fdr = config["peak_calling_perl"]["fdr"]
     rule peak_calling_perl:
         input:
             fp="resources/find_peaks",
