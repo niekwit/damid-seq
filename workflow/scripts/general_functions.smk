@@ -379,7 +379,7 @@ def masked_genes():
             if "dm" in resources.genome:
                 prefix="FBgn"
                 count="7"
-            if not re.match("".join([prefix,"[0-9]","{",count,"}"]), gene):
+            if not re.match(f"^{prefix}[0-9]{{{length}}}$", gene):
                 raise ValueError(f"Gene {gene} is not an Ensemble ID")
 
         # Replace comma with underscore
