@@ -1,5 +1,7 @@
-import convert_bed2fasta as utils
+import sys
 import subprocess
+import re
+from Bio import SeqIO
 
 """
 Replaces gene sequences set in config:fusion_genes 
@@ -12,19 +14,47 @@ genes can be methylated at very high levels
 # Load Snakemake variables
 gtf = snakemake.input["gtf"]
 genes2mask = snakemake.params["g2m"]
+genome = snakemake.params["genome"]
 fasta = snakemake.input["fa"]
 masked_fasta = snakemake.output["out"]
 
-# Load fasta file as dict
-chr_seq = utils.load_fasta(fasta)
+def write_dict2fasta(d, out):
+    """
+    Write dict to fasta file
+    """
+    with open(out, "w") as f:
+        for name, seq in d.items():
+            f.write(f">{name}\n{seq}\n")
 
+# Load fasta file as dict
+chr_seq = {}
+for chr_ in SeqIO.parse(fasta, "fasta"):
+    chr_seq[chr_.id] = chr_.seq
+
+# Mask gene sequences with Ns
 if genes2mask == "no_genes":
     print(f"No genes to mask from {fasta}...")
     
     # Write unmasked fasta as masked fasta file
-    utils.write_dict2fasta(chr_seq, masked_fasta)
+    write_dict2fasta(chr_seq, masked_fasta)
 else:
     for gene in genes2mask.split("_"):
+        # Check if gene is valid Ensemble gene ID
+        if "hg38" in genome:
+            prefix = "ENSG"
+            length = 11
+        elif "mm" in genome:
+            prefix = "ENSMUSG"
+            length = 11
+        elif "dm" in genome:
+            prefix = "FBgn"
+            length = 7
+        else:
+            raise ValueError(f"{genome} is not yet supported...")
+        
+        if not re.match(f"^{prefix}[0-9]{{{length}}}$", gene):
+            raise ValueError(f"{gene} is not a valid Ensemble gene ID...")
+            
         print(f"Masking {gene} sequence from {fasta}...")
         
         # Get genomic coordinates of genes to mask from GTF file
@@ -32,7 +62,7 @@ else:
         try:
             line = subprocess.check_output(cmd, shell=True).decode()
         except subprocess.CalledProcessError:
-            print(f"ERROR: gene {gene} not found in {gtf}...")
+            print(f"Gene {gene} not found in {gtf}...")
             sys.exit(1)
         chr, db, t, start, end, *args = line.split("\t")
         
@@ -51,4 +81,4 @@ else:
 
     # Write masked fasta to file
     print(f"Writing masked sequence(s) to {masked_fasta}...")
-    utils.write_dict2fasta(chr_seq, masked_fasta)
+    write_dict2fasta(chr_seq, masked_fasta)

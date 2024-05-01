@@ -114,6 +114,7 @@ rule masked_fasta:
         out=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
     params:
         g2m=maskedgenes,
+        genome=resources.genome,
     log:
         "logs/resources/masked_fasta.log"
     cache: True
