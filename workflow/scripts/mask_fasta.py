@@ -39,22 +39,6 @@ if genes2mask == "no_genes":
     write_dict2fasta(chr_seq, masked_fasta)
 else:
     for gene in genes2mask.split("_"):
-        # Check if gene is valid Ensemble gene ID
-        if "hg38" in genome:
-            prefix = "ENSG"
-            length = 11
-        elif "mm" in genome:
-            prefix = "ENSMUSG"
-            length = 11
-        elif "dm" in genome:
-            prefix = "FBgn"
-            length = 7
-        else:
-            raise ValueError(f"{genome} is not yet supported...")
-        
-        if not re.match(f"^{prefix}[0-9]{{{length}}}$", gene):
-            raise ValueError(f"{gene} is not a valid Ensemble gene ID...")
-            
         print(f"Masking {gene} sequence from {fasta}...")
         
         # Get genomic coordinates of genes to mask from GTF file
