@@ -62,7 +62,7 @@ p <- ggplot(df,
                    size = 5,
                    nudge_x = 0.5,
                    nudge_y = 0.5) +
-  theme_cowplot(18) +
+  theme_cowplot(16) +
   labs(x = paste0("PC1: ", PC1_var, "% variance"),
        y = paste0("PC2: ", PC2_var, "% variance")) +
   theme(legend.position = "none")
