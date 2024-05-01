@@ -1,6 +1,6 @@
 # Snakemake workflow: `damid-seq`
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥7.25.0-brightgreen.svg)](https://snakemake.github.io)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥8.10.6-brightgreen.svg)](https://snakemake.github.io)
 [![Tests](https://github.com/niekwit/damid-seq/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/damid-seq/actions/workflows/main.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/niekwit/damid-seq/badge)](https://www.codefactor.io/repository/github/niekwit/damid-seq)
 [![DOI](https://zenodo.org/badge/708194033.svg)](https://zenodo.org/doi/10.5281/zenodo.10737672)
@@ -30,7 +30,7 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 
 `damid-seq` is a Snakemake pipeline for reproducible analysis of single/paired-end DamID-seq short read Illumina data.
 
-The core of the pipeline is the Perl script [damidseq_pipeline](https://github.com/owenjm/damidseq_pipeline), which is a great tool for the first steps of analysing DamID-seq data. However, it does process biological replicate data, and is not written with deployment to server, cluster, grid and cloud environments in mind.
+The core of the pipeline is the Perl script [damidseq_pipeline](https://github.com/owenjm/damidseq_pipeline), which is a great tool for the first steps of analysing DamID-seq data. However, it does not process biological replicate data, and is not written with deployment to server, cluster, grid and cloud environments in mind.
 
 `damid-seq` implements the [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow management system, which overcomes the above issues. In addition, we have added many features to the DamID-seq analysis workflow.
 
@@ -47,8 +47,6 @@ The output of `damid-seq` is as follows:
 6. Profile plot/heatmap to visualise binding around genomic features, such as transcription start sites, usingh deeptools
 
 ## DamID
-
-TO DO
 
 ![DamID principle (Adapted from Van den Ameele et al. 2019 Current Opinion in Neurobiology)](/images/damid.png)
 Figure adapted from Van den Ameele et al. 2019 Current Opinion in Neurobiology
@@ -78,7 +76,13 @@ Please follow the instructions [here](https://snakemake.readthedocs.io/en/stable
 To install Snakemake create the following environment with `mamba`:
 
 ```shell
-$ mamba create -n snakemake snakemake pandas
+$ mamba create -n snakemake snakemake
+```
+
+If you want to deploy Snakemake on an HPC system using slurm also run:
+
+```shell
+$ pip install snakemake-executor-plugin-slurm
 ```
 
 Activate the environment as follows:
@@ -89,103 +93,50 @@ $ mamba activate snakemake
 
 ## Cloning `damid-seq` GitHub repository
 
-To obtain the workflow code, run the following command:
+The easiest way to obtain the workflow code is to use [snakefetch](https://pypi.org/project/snakefetch/):
 
 ```shell
-$ git clone https://github.com/niekwit/damid-seq.git -b v0.3.0 path/to/analysis/directory
+$ pip install snakefetch
+$ snakefetch --outdir /path/to/analysis --repo-version v0.4.0 --url https://github.com/niekwit/damid-seq
+Downloading archive file for version v0.4.0 from https://github.com/niekwit/damid-seq...
+Extracting config and workflow directories from tar.gz file to /home/niek/Downloads/TEST...
+Done!
 ```
 
-This will clone the latest version of the workflow to a specified directory:
+This will copy the config and workflow directories to the path set with the `--outdir` flag.
 
-```
-path/to/analysis/directory
-├── config
-│   ├── config.yaml
-│   ├── README.md
-│   └── samples.csv
-├── images
-│   └── rule_graph.png
-├── LICENSE
-├── README.md
-└── workflow
-    ├── envs
-    │   ├── damid.yaml
-    │   ├── deeptools.yaml
-    │   ├── peak_calling.yaml
-    │   ├── R.yaml
-    │   └── trim.yaml
-    ├── report
-    │   ├── annotated_peaks.rst
-    │   ├── correlation.rst
-    │   ├── distance_to_tss.rst
-    │   ├── feature_distributions.rst
-    │   ├── heatmap.rst
-    │   ├── mapping_rates.rst
-    │   ├── pca.rst
-    │   ├── profile_plot.rst
-    │   ├── scree.rst
-    │   └── workflow.rst
-    ├── rules
-    │   ├── bedgraph_processing.smk
-    │   ├── bed.smk
-    │   ├── damid.smk
-    │   ├── deeptools.smk
-    │   ├── fastqc.smk
-    │   ├── motifs.smk
-    │   ├── peak_calling.smk
-    │   ├── plotting.smk
-    │   ├── resources.smk
-    │   └── trimming.smk
-    ├── scripts
-    │   ├── annotate_peaks.R
-    │   ├── average_bigwig.py
-    │   ├── average_wig.py
-    │   ├── convert_bed2fasta.py
-    │   ├── create_annotation_file.R
-    │   ├── create_background_fasta.py
-    │   ├── create_blacklist.py
-    │   ├── damidseq_pipeline.py
-    │   ├── filter_overlapping_peaks.py
-    │   ├── general_functions.smk
-    │   ├── get_resource.sh
-    │   ├── install_homer_genome.py
-    │   ├── peak_annotation_plots.R
-    │   ├── plot_mapping_rates.R
-    │   ├── plot_PCA.R
-    │   ├── resources.py
-    │   ├── run_find_peaks.py
-    │   └── trim_galore.py
-    └── Snakefile
+## Preparing raw sequencing data
+
+In the directory containing config/workflow create a directory called reads:
+
+```shell
+$ cd /path/to/analysis
+$ mdkir -p reads 
 ```
 
-## Preparing your data
+Data files from each group of biological replicates should be placed into a unique folder, e.g.:
 
-Place your raw sequencing in path/to/analysis/directory/reads:
-
-Each biological replicate should be placed in a seperate directory as follows:
-
-```
-path/to/analysis/directory/reads
-├── reads
-│   ├── exp1
-│   │   ├── Dam.fastq.gz
-│   │   ├── HIF1A.fastq.gz
-│   │   └── HIF2A.fastq.gz
-│   ├── exp2
-│   │   ├── Dam.fastq.gz
-│   │   ├── HIF1A.fastq.gz
-│   │   └── HIF2A.fastq.gz
-│   └── exp3
-│       ├── Dam.fastq.gz
-│       ├── HIF1A.fastq.gz
-│       └── HIF2A.fastq.gz
+```shell
+reads
+├── exp1
+│   ├── Dam.fastq.gz
+│   ├── HIF1A.fastq.gz
+│   └── HIF2A.fastq.gz
+├── exp2
+│   ├── Dam.fastq.gz
+│   ├── HIF1A.fastq.gz
+│   └── HIF2A.fastq.gz
+└── exp3
+    ├── Dam.fastq.gz
+    ├── HIF1A.fastq.gz
+    └── HIF2A.fastq.gz
 ```
 
-The above example is for single-end (SE) data, where the file extension should be .fastq.gz.
+> [!IMPORTANT]  
+> Single-end fastq files should always end with *fastq.gz*, while paired-end reads should end with *\_R1\_001.fastq.gz/\_R2\_001.fastq.gz*
 
-Paired-end (PE) data should end with \_R1\_001.fastq.gz/\_R2\_001.fastq.gz for read 1 and read 2, respectively.
-
-The Dam only control should always be Dam.fastq.gz (SE) or Dam.\_R1\_001.fastq.gz/Dam.\_R2\_001.fastq.gz
+> [!IMPORTANT]  
+> The Dam only control should always be called Dam.*relevant_extension*
 
 ## Sample meta data and analysis settings
 
@@ -200,10 +151,12 @@ The `config` directory contains `samples.csv` with sample meta data as follows:
 `config.yaml` in the same directory contains the settings for the analysis:
 
 ```yaml
-genome: dm6
+genome: hg38
 ensembl_genome_build: 110
 plasmid_fasta: none
-fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
+fusion_genes: ENSG00000100644,ENSG00000116016 # Genes from these proteins will be removed from the analysis
+bowtie2:
+  extra: ""
 damidseq_pipeline:
   binsize: 300
   extra: "" # extra argument for damidseq_pipeline
@@ -218,7 +171,7 @@ deeptools:
     regionBodyLength: 6000
     upstream: 3000
     downstream: 3000
-    binSize: 10
+    binSize: 100
     averageTypeBins: mean
     regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
     no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
@@ -270,17 +223,34 @@ resources: # computing resources
     time: 20
 ```
 
+A lot of the DamID signal can come from the plasmids that were used to express the Dam-POIs, and this can skew the analysis.
+
+To prevent this, two approaches are available:
+
+1.  The genes (Ensembl gene IDs) fused to Dam can be set in config.yaml["fusion_genes] (separated by commas if multiple plasmids are used). This will mask the genomic locations of these genes in the fasta file that will be used to build the Bowtie2 index, which will exclude these regions from the analysis. 
+
+> [!NOTE]
+> To disable this function set the value of config.yaml["fusion_genes] to ""
+
+2. If a plasmid is used that for example also uses an endogenous promoter besides the Dam fusion proteins, one can set a path to a fasta file containg all the plasmid sequences in config.yaml[""]. It is recommended to store this file in a directory called resources within the analysis folder.
+
+> [!NOTE]
+> To disable this function set the value of config.yaml["plasmid_fasta"] to none
+
+
 ## Configuration of Snakemake
 
 Running Snakemake can entail quite a few command line flags. To make this easier these can be set in a global profile that is defined in a user-specific configuration directory in order to simplify this process.
 
 For example, a profile `config.yaml` can be stored at /home/user/.config/snakemake/profile:
 ```yaml
+cores: 40
+latency-wait: 20
+use-conda: True
+keep-going: False
+rerun-incomplete: True
 printshellcmds: True
 cache: True
-use-conda: True
-cores: 32
-rerun-incomplete: True
 show-failed-logs: True
 ```
 
@@ -289,14 +259,6 @@ Snakemake supports between workflow caching, so that certain resource files, suc
 To enable this append this line to your `~/.bashrc`:
 ```shell
 export SNAKEMAKE_OUTPUT_CACHE=/path/to/snakemake-cache/
-```
-
-## Running the analysis with test data
-
-The .test directory in the cloned GitHub repository contains a small data set that allows for a test run of the workflow:
-
-```shell
-$ snakemake --profile /home/user/.config/snakemake/profile --directory .test/
 ```
 
 ## Dry-run of the analysis
@@ -308,7 +270,15 @@ $ cd path/to/analysis/directory
 $ snakemake -np
 ```
 
-Snakemake will create the DAG of jobs, but it will not execute anything.
+Snakemake will create the DAG of jobs and print the shell command, but it will not execute anything.
+
+## Visualization of workflow
+
+To visualize the workflow run (this command excludes the target rule):
+```shell
+$ mkdir -p images
+$ snakemake --forceall --rulegraph | grep -v '\-> 0\|0\[label = \"all\"' | dot -Tpng > images/rule_graph.png
+```
 
 ## Running the analysis
 
@@ -330,6 +300,12 @@ $ snakemake --report report.html
 
 This report will contain run time information for the Snakemake rules, as well as figures generated by the workflow, and the code used to create these.
 
-## References
+## Literature
 
-TO DO
+:information_source: Some key DamID papers:
+
+Van Steensel and Henikoff. Identification of in vivo DNA targets of chromatin proteins using tethered Dam methyltransferase. 2000 Nature Biotechnology.
+
+Marshall et al. Cell-type-specific profiling of protein–DNA interactions without cell isolation using targeted DamID with next-generation sequencing. 2016 Nature Protocols.
+
+Van den Ameele, Krautz and Brand. TaDa! Analysing cell type-specific chromatin in vivo with Targeted DamID. 2019 Current Opinion in Neurobiology.
