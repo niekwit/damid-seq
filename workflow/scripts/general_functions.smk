@@ -29,32 +29,32 @@ def targets():
     
     if config["peak_calling_perl"]["run"]:
         TARGETS.extend([
-            expand("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", fdr=peak_fdr("perl")),
-            expand("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", fdr=peak_fdr("perl")),
-            expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.annotated.txt", fdr=peak_fdr("perl"),  bg_sample=BG_SAMPLES),
-            expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.geneIDs.txt", fdr=peak_fdr("perl"),  bg_sample=BG_SAMPLES)
+            expand(f"results/plots/peaks/fdr{fdr}/feature_distributions.pdf"),
+            expand(f"results/plots/peaks/fdr{fdr}/distance_to_tss.pdf"),
+            expand(f"results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
+            expand(f"results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
             ])
     
     if config["peak_calling_macs2"]["run"]:
         if config["peak_calling_macs2"]["mode"] == "narrow":
             TARGETS.extend([
-                expand("results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf", fdr=peak_fdr("macs2_narrow")),
-                expand("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf", fdr=peak_fdr("macs2_narrow")),
-                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}_peaks.xls", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}_peaks.narrowPeak", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}_summits.bed", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.annotated.txt", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=peak_fdr("macs2_narrow"), bg_sample=BG_SAMPLES)
+                expand(f"results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf"),
+                expand(f"results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf"),
+                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.xls", bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.narrowPeak",bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_summits.bed", bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
                 ])
         elif config["peak_calling_macs2"]["mode"] == "broad":
             TARGETS.extend([
-                expand("results/plots/macs2_broad/cutoff{fdr}/feature_distributions.pdf", fdr=peak_fdr("macs2_broad_cutoff")),
-                expand("results/plots/macs2_broad/cutoff{fdr}/distance_to_tss.pdf", fdr=peak_fdr("macs2_broad_cutoff")),
-                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}_peaks.xls", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}_peaks.broadPeak", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}_peaks.gappedPeak", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}.annotated.txt", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES),
-                expand("results/macs2_broad/cutoff{fdr}/{bg_sample}.geneIDs.txt", fdr=peak_fdr("macs2_broad_cutoff"), bg_sample=BG_SAMPLES)
+                expand(f"results/plots/macs2_broad/cutoff{fdr}/feature_distributions.pdf"),
+                expand(f"results/plots/macs2_broad/cutoff{fdr}/distance_to_tss.pdf"),
+                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.xls", bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.broadPeak", bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.gappedPeak",bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}.annotated.txt",bg_sample=BG_SAMPLES),
+                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
                 ])
     
     return TARGETS
@@ -430,6 +430,8 @@ def check_plasmid_fasta(fasta):
         raise ValueError(f"File {fasta} not found...")
     
     # Check if fasta file has same number of lines starting with and without >
+    # Problem: most fasta files will have DNA sequence over multiple lines
+    # this function will not work for those files!!! DO NOT USE YET
     with open(fasta, "r") as f:
         lines = f.readlines()
         header = [l for l in lines if l.startswith(">")]
