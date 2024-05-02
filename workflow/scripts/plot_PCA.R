@@ -16,6 +16,7 @@ library(scales)
 data <- read.delim(snakemake@input[[1]],
                    header = TRUE,
                    skip = 1)
+colnames(data) <- gsub("^X", "", colnames(data))
 
 # Unique sample conditions
 colnames(data) <- gsub(".ext300", "", colnames(data))
@@ -27,7 +28,7 @@ if (length(samples) == 1) {
   colours <- "#1B9E77"
 } else if (length(samples) == 2) {
   colours <- c("#1B9E77", "#D95F02")
-} else if (length(genotypes) > 2) {
+} else if (length(samples) > 2) {
   colours <- brewer.pal(length(samples), "Dark2")
 }
 names(colours) <- samples
@@ -83,6 +84,9 @@ df <- data %>%
   dplyr::select(c("Component", "Eigenvalue")) %>%
   mutate(Component = paste0("PC", Component)) %>%
   mutate(cumulative_variance = (cumsum(Eigenvalue) / sum(Eigenvalue) * 100 * scalefactor))
+
+# Re-level PC factors to ensure correct order
+df$Component <- factor(df$Component, levels = df$Component)
 
 # Create scree plot
 s <- ggplot(df, aes(Component, cumulative_variance)) +
