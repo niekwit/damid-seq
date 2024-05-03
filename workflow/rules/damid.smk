@@ -169,7 +169,7 @@ rule sort_bam:
     input:
         bam="results/bam/{dir}/{sample}{bamext}.bam",
     output:
-        sorted_bam=temp("results/bam/sorted/{dir}/{sample}{bamext}.bam"),
+        sorted_bam="results/bam/{dir}/{sample}{bamext}.sorted.bam",
     conda:
         "../envs/damid.yaml"
     threads: config["resources"]["deeptools"]["cpu"]
@@ -183,9 +183,9 @@ rule sort_bam:
 
 rule index_bam:
     input:
-        bam="results/bam/sorted/{dir}/{sample}{bamext}.bam",
+        bam="results/bam/{dir}/{sample}{bamext}.sorted.bam",
     output:
-        bai="results/bam/sorted/{dir}/{sample}{bamext}.bam.bai",
+        bai="results/bam/{dir}/{sample}{bamext}.sorted.bam.bai",
     conda:
         "../envs/damid.yaml"
     threads: config["resources"]["deeptools"]["cpu"]
@@ -199,8 +199,8 @@ rule index_bam:
 
 rule bam2bigwig:
     input:
-        bam="results/bam/sorted/{dir}/{sample}{bamext}.bam",
-        bai="results/bam/sorted/{dir}/{sample}{bamext}.bam.bai",
+        bam="results/bam/{dir}/{sample}{bamext}.sorted.bam",
+        bai="results/bam/{dir}/{sample}{bamext}.sorted.bam.bai",
     output:
         "results/bigwig/bam2bigwig/{dir}/{sample}{bamext}.bw"
     params:
