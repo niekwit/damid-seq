@@ -1,13 +1,15 @@
+# Quantile normalise all samples within one experiment
+# Ref: Cheetham et al. Targeted DamID reveals differential binding of mammalian pluripotency factors 2018
 rule quantile_normalisation:
     input:
-        bg=expand("results/bedgraph/{dir}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+        bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
     output:
-        bg=expand("results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+        bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/quantile_normalisation/qn.log"
+        "logs/quantile_normalisation/{dir}.log"
     conda:
         "../envs/damid.yaml"
     script:
