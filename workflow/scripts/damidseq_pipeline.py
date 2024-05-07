@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import tempfile
 import pandas as pd
+import glob
 from snakemake.shell import shell
 
 def move_files(extension):
@@ -128,6 +129,14 @@ for condition, dam_control in dam_controls.items():
 
     # Move bam files to output directory
     move_files("bam")
+    
+    if not paired:
+        # Rename bam files so that they end with .bam and not -ext300.bam
+        bam_files = glob.glob(f"results/bam/{directory}/*-ext300.bam")
+        assert len(bam_files) > 0, "No single-end bam files found to remove -ext300 from file name..."
+        for bam in bam_files:
+            new_name = bam.replace("-ext300", "")
+            os.rename(bam, new_name)
     
     # Destroy temporary directory
     print(f"Cleaning up temporary directory {temp_dir.name}")
