@@ -1,3 +1,5 @@
+from snakemake.logging import logger
+
 if config["peak_calling_perl"]["run"]:
     fdr = config["peak_calling_perl"]["fdr"]
     rule peak_calling_perl:
@@ -29,10 +31,11 @@ if config["peak_calling_perl"]["run"]:
 if config["peak_calling_macs2"]["run"]:
     if config["peak_calling_macs2"]["mode"] == "narrow":
         fdr = peak_fdr("macs2_narrow")
+        
         rule peak_calling_MACS2_narrow:
             input: 
-                treatment=expand("results/bam/{dir}/{{bg_sample}}{bamext}.bam", bamext=BAM_EXT, dir=DIRS),
-                control=expand("results/bam/{dir}/{dam_sample}{bamext}.bam", dam_sample=DAM_SAMPLES, bamext=BAM_EXT, dir=DIRS),
+                treatment=expand("results/bam/{dir}/{{bg_sample}}.bam", bg_sample=BG_SAMPLES),
+                control=expand("results/bam/{dir}/{dam_sample}.bam", dam_sample=DAM_SAMPLES),
             output:
                 multiext(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}",
                         "_peaks.xls",
@@ -108,8 +111,8 @@ if config["peak_calling_macs2"]["run"]:
         
         rule peak_calling_MACS2_narrow_single:
             input: 
-                treatment=expand("results/bam/{dir}/{bg_sample}{bamext}.bam", bamext=BAM_EXT, dir=DIRS, bg_sample=BG_SAMPLES),
-                control=expand("results/bam/{dir}/{dam_sample}{bamext}.bam", dam_sample=DAM_SAMPLES, bamext=BAM_EXT, dir=DIRS),
+                treatment=expand("results/bam/{dir}/{bg_sample}.bam", dir=DIRS, bg_sample=BG_SAMPLES),
+                control=expand("results/bam/{dir}/{dam_sample}.bam", dam_sample=DAM_SAMPLES, dir=DIRS),
             output:
                 multiext(f"results/macs2_narrow_single/fdr{fdr}/{{bg_sample}}",
                         "_peaks.xls",
@@ -142,13 +145,14 @@ if config["peak_calling_macs2"]["run"]:
                 "bedtools multiinter {params.extra} -i {input.beds} > {output}"
     
     elif config["peak_calling_macs2"]["mode"] == "broad":
-        fdr = peak_fdr("macs2_broad_cutoff")
+        fdr = config["peak_calling_macs2"]["broad_cutoff"]
+        """
         rule peak_calling_MACS2_broad:
             input:
-                treatment=expand("results/bam/{dir}/{bg_sample}{bamext}.bam", bg_sample=BG_SAMPLES, bamext=BAM_EXT, dir=DIRS),
-                control=expand("results/bam/{dir}/{dam_sample}{bamext}.bam", dam_sample=DAM_SAMPLES, bamext=BAM_EXT, dir=DIRS),
+                treatment=expand("results/bam/{dir}/{{bg_sample}}.bam", dir=DIRS),
+                control=expand("results/bam/{dir}/{dam_sample}.bam", dir=DIRS, dam_sample=DAM_SAMPLES),
             output:
-                multiext(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}",
+                multiext(f"results/macs2_broad/fdr{fdr}/{{bg_sample}}",
                         "_peaks.xls",
                         "_peaks.broadPeak",
                         "_peaks.gappedPeak"
@@ -156,7 +160,7 @@ if config["peak_calling_macs2"]["run"]:
             params:
                 macs2_params(),
             log:
-                f"logs/macs2_broad/{{bg_sample}}_cutoff{fdr}.log"
+                f"logs/macs2_broad/{{bg_sample}}_fdr{fdr}.log"
             wrapper:
                 f"{wrapper_version}/bio/macs2/callpeak"
 
@@ -164,10 +168,10 @@ if config["peak_calling_macs2"]["run"]:
         rule peak_annotation_plots_macs2_broad:
             input:
                 gtf=resources.gtf,
-                bed=expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.broadPeak", bg_sample=BG_SAMPLES),
+                bed=expand(f"results/macs2_broad/fdr{fdr}/{{bg_sample}}_peaks.broadPeak", bg_sample=BG_SAMPLES),
             output:
-                fd=report(f"results/plots/macs2_broad/cutoff{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation MACS2 broad"),
-                dt=report(f"results/plots/macs2_broad/cutoff{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation MACS2 broad"),
+                fd=report(f"results/plots/macs2_broad/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation MACS2 broad"),
+                dt=report(f"results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation MACS2 broad"),
             params:
                 extra="",
             threads: config["resources"]["plotting"]["cpu"]
@@ -183,11 +187,11 @@ if config["peak_calling_macs2"]["run"]:
         
         rule annotate_peaks_macs_broad:
             input:
-                bed=f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.broadPeak",
+                bed=f"results/macs2_broad/fdr{fdr}/{{bg_sample}}_peaks.broadPeak",
                 adb=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
                 gtf=resources.gtf,
             output:
-                txt=report(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}.annotated.txt", caption="../report/annotated_peaks.rst", category="Annotated peaks MACS2 broad"),
+                txt=report(f"results/macs2_broad/fdr{fdr}/{{bg_sample}}.annotated.txt", caption="../report/annotated_peaks.rst", category="Annotated peaks MACS2 broad"),
             params:
                 extra=""
             threads: config["resources"]["deeptools"]["cpu"]
@@ -203,9 +207,9 @@ if config["peak_calling_macs2"]["run"]:
                 
         rule get_gene_names_macs2:
             input:
-                txt=f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}.annotated.txt"
+                txt=f"results/macs2_broad/fdr{fdr}/{{bg_sample}}.annotated.txt"
             output:
-                ids=f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}.geneIDs.txt"
+                ids=f"results/macs2_broad/fdr{fdr}/{{bg_sample}}.geneIDs.txt"
             threads: 1
             resources:
                 runtime=5
@@ -218,39 +222,127 @@ if config["peak_calling_macs2"]["run"]:
                 "awk '{{print $(NF-4),$(NF-1)}}' | "
                 "sort | "
                 "uniq > {output.ids}"
-        
-
-        rule peak_calling_MACS2_broad_single:
+        """
+        rule peak_calling_MACS2_broad:
             input:
-                treatment=expand("results/bam/{dir}/{bg_sample}{bamext}.bam", bg_sample=BG_SAMPLES, bamext=BAM_EXT, dir=DIRS),
-                control=expand("results/bam/{dir}/{dam_sample}{bamext}.bam", dam_sample=DAM_SAMPLES, bamext=BAM_EXT, dir=DIRS),
+                bam="results/bam/{dir}/{bg_sample}.bam",
             output:
-                multiext(f"results/macs2_broad_single/cutoff{fdr}/{{bg_sample}}",
+                multiext("results/macs2_broad/fdr{fdr}/{dir}/{bg_sample}",
                         "_peaks.xls",
                         "_peaks.broadPeak",
                         "_peaks.gappedPeak"
                         )
             params:
-                macs2_params(),
+                paired_end=paired_end,
+                mode="broad",
+                cutoff=fdr,
+                genome=resources.genome,
+                data_dir=lambda w, output: os.path.dirname(output[0]),
+                extra=config["peak_calling_macs2"]["extra"]
+            threads: config["resources"]["deeptools"]["cpu"]
+            resources:
+                runtime=config["resources"]["deeptools"]["time"]
             log:
-                f"logs/macs2_broad_single/{{bg_sample}}_cutoff{fdr}.log"
-            wrapper:
-                f"{wrapper_version}/bio/macs2/callpeak"
+                "logs/macs2_broad_single/fdr{fdr}/{dir}/{bg_sample}.log"
+            conda:
+                "../envs/peak_calling.yaml"
+            script:
+                "../scripts/macs2.py"
 
 
-        rule overlapping_peaks_macs2_broad:
+        rule consensus_peaks_macs2_broad:
             input: 
-                peaks=expand(f"results/macs2_broad_single/fdr{fdr}/{{bg_sample}}_peaks.broadPeak", bg_sample=BG_SAMPLES),
+                peaks=expand("results/macs2_broad/fdr{fdr}/{dir}/{{bg_sample}}_peaks.broadPeak", dir=DIRS, fdr=fdr),
             output:
-                f"results/macs2_broad_single/fdr{fdr}/overlapping_peaks/{{bg_sample}}.overlap.bed"
+                "results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed"
             params:
                 extra=""
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
                 runtime=config["resources"]["deeptools"]["time"]
             log:
-                f"logs/overlapping_peaks_macs2_broad_fdr{fdr}/{{bg_sample}}.log"
+                "logs/consensus_peaks_macs2_broad_fdr{fdr}/{bg_sample}.log"
             conda:
                 "../envs/peak_calling.yaml"
             shell:
-                "bedtools multiinter {params.extra} -i {input.beds} > {output}"
+                "bedtools multiinter {params.extra} -i {input.peaks} > {output}"
+
+        
+        rule filter_consensus_peaks_macs2_broad:
+            input:
+                bed="results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed",
+                cs=f"resources/{resources.genome}_chrom.sizes",
+            output:
+                ext_bed="results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
+            params:
+                k=config["consensus_peaks"]["keep"],
+                max_size=config["consensus_peaks"]["max_size"],
+                e=config["consensus_peaks"]["extend_by"],
+            threads: 1
+            resources:
+                runtime=15
+            log:
+                "logs/filter_consensus_peaks/macs2_broad/fdr{fdr}/{{bg_sample}}.log"
+            conda:
+                "../envs/peak_calling.yaml"
+            script:
+                "../scripts/filter_consensus_peaks.py"
+
+                    
+        rule peak_annotation_plots_macs2_broad:
+            input:
+                gtf=resources.gtf,
+                bed=expand("results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed", fdr=fdr,bg_sample=BG_SAMPLES),
+            output:
+                fd=report("results/plots/macs2_broad/fdr{fdr}/feature_distributions_overlap.pdf", caption="../report/feature_distributions.rst", category="Peak annotation MACS2 broad"),
+                dt=report("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf_overlap", caption="../report/distance_to_tss.rst", category="Peak annotation MACS2 broad"),
+            params:
+                extra="",
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"]
+            log:
+                "logs/plotting/macs2_broad_peak_annotation_plots_fdr{fdr}.log"
+            conda:
+                "../envs/R.yaml"
+            script:
+                "../scripts/peak_annotation_plots.R"
+
+        
+        rule annotate_peaks_macs_broad:
+            input:
+                bed="results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
+                adb=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
+                gtf=resources.gtf,
+            output:
+                txt=report("results/macs2_broad/fdr{fdr}/{bg_sample}.annotated.txt", caption="../report/annotated_peaks.rst", category="Annotated peaks MACS2 broad"),
+            params:
+                extra=""
+            log:
+                "logs/annotate_peaks_macs2_broad_fdr{fdr}/{bg_sample}.log"
+            threads: config["resources"]["deeptools"]["cpu"]
+            resources:
+                runtime=config["resources"]["deeptools"]["time"]
+            conda:
+                "../envs/R.yaml"
+            script:
+                "../scripts/annotate_peaks.R" 
+
+
+        rule get_gene_names_macs2:
+            input:
+                txt="results/macs2_broad/fdr{fdr}/{bg_sample}.annotated.txt"
+            output:
+                ids="results/macs2_broad/fdr{fdr}/{bg_sample}.geneIDs.txt"
+            threads: 1
+            resources:
+                runtime=5
+            log:
+                "logs/geneIDs_peaks_macs2_broad_fdr{fdr}/{bg_sample}.log"
+            conda:
+                "../envs/deeptools.yaml"
+            shell:
+                "sed '1d' {input.txt} | "
+                "awk '{{print $(NF-4),$(NF-1)}}' | "
+                "sort | "
+                "uniq > {output.ids}"
