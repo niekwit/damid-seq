@@ -1,12 +1,21 @@
 import pandas as pd
 
 def quantile_normalize(df):
+    """
+    Perform quantile normalization on a DataFrame.
+
+    Parameters:
+    df (pandas.DataFrame): The input DataFrame to be quantile normalized.
+
+    Returns:
+    pandas.DataFrame: The quantile normalized DataFrame.
+    """
     rank_mean = df.stack().groupby(df.rank(method="first").stack().astype(int)).mean()
     return df.rank(method="min").stack().astype(int).map(rank_mean).unstack()
 
 bedgraphs = snakemake.input["bg"]
 assert len(bedgraphs) > 0, "No bedgraphs found"
-bgs= "\n".join(bedgraphs)
+bgs = "\n".join(bedgraphs)
 print(f"Applying quantile normalisation to:\n{bgs}")
 
 data = {}
@@ -38,4 +47,7 @@ for i, filename in enumerate(bedgraphs):
     df = pd.DataFrame(probes, columns=["chrom", "start", "end"])
     df["score"] = normalized_scores[i]
     df["score"] = df["score"].round(3)
-    df.to_csv(output_filename, sep="\t", header=False, index=False)
+    df.to_csv(output_filename, 
+              sep="\t", 
+              header=False, 
+              index=False)
