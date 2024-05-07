@@ -25,7 +25,7 @@ rule multiBigwigSummary_bedgraph:
 
 use rule multiBigwigSummary_bedgraph as multiBigwigSummary_bam with:
     input:
-        expand("results/bigwig/bam2bigwig/{dir}/{sample}{bamext}.bw", dir=DIRS , sample=SAMPLES, bamext=BAM_EXT),
+        expand("results/bigwig/bam2bigwig/{dir}/{sample}.bw", dir=DIRS , sample=SAMPLES),
     output:
         "results/deeptools/scores_per_bin_bam.npz",
     params:

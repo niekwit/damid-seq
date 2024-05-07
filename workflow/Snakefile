@@ -23,7 +23,7 @@ csv = pd.read_csv("config/samples.csv")
 resources = Resources(config["genome"], config["ensembl_genome_build"])
 
 # Get paired-end status and bam extension
-paired_end, BAM_EXT = paired_end()
+paired_end = paired_end()
 
 # Get fusion protein (to be masked in fasta file)
 maskedgenes = masked_genes()
