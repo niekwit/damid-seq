@@ -29,32 +29,28 @@ def targets():
     
     if config["peak_calling_perl"]["run"]:
         TARGETS.extend([
-            expand(f"results/plots/peaks/fdr{fdr}/feature_distributions.pdf"),
-            expand(f"results/plots/peaks/fdr{fdr}/distance_to_tss.pdf"),
-            expand(f"results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
-            expand(f"results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
+            expand("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
+            expand("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
+            expand("results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
+            expand("results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
             ])
     
     if config["peak_calling_macs2"]["run"]:
         if config["peak_calling_macs2"]["mode"] == "narrow":
             TARGETS.extend([
-                expand(f"results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf"),
-                expand(f"results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf"),
-                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.xls", bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.narrowPeak",bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_summits.bed", bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
+                #expand(f"results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf"),
+                #expand(f"results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf"),
+                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.xls", bg_sample=BG_SAMPLES),
+                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.narrowPeak",bg_sample=BG_SAMPLES),
+                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_summits.bed", bg_sample=BG_SAMPLES),
+                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
+                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
                 ])
         elif config["peak_calling_macs2"]["mode"] == "broad":
             TARGETS.extend([
-                expand(f"results/plots/macs2_broad/cutoff{fdr}/feature_distributions.pdf"),
-                expand(f"results/plots/macs2_broad/cutoff{fdr}/distance_to_tss.pdf"),
-                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.xls", bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.broadPeak", bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}_peaks.gappedPeak",bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}.annotated.txt",bg_sample=BG_SAMPLES),
-                expand(f"results/macs2_broad/cutoff{fdr}/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
+                expand("results/plots/macs2_broad/fdr{fdr}/feature_distributions_overlap.pdf", fdr=fdr),
+                expand("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf_overlap", fdr=fdr),
+                expand("results/macs2_broad/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
                 ])
     
     return TARGETS
@@ -289,13 +285,13 @@ def paired_end():
     # Check file extension to see if paired-end reads are used
     if fastq.endswith("_R1_001.fastq.gz"):
         logger.info("Paired-end reads detected...")
-        return True, ""
+        return True
     elif fastq.endswith("_R2_001.fastq.gz"):
         logger.info("Paired-end reads detected...")
-        return True, ""
+        return True
     else:
         logger.info("Single-end reads detected...")
-        return False, "-ext300"
+        return False
     
 
 def computematrix_args(region_labels=False):
@@ -371,14 +367,14 @@ def masked_genes():
         # Check if gene names are Ensemble IDs
         for gene in genes.split(","):
             if "hg" in resources.genome:
-                prefix="ENSG"
-                count="11"
+                prefix = "ENSG"
+                count = 11
             if "mm" in resources.genome:
-                prefix="ENSMUSG"
-                count="11"
+                prefix = "ENSMUSG"
+                count = 11
             if "dm" in resources.genome:
-                prefix="FBgn"
-                count="7"
+                prefix = "FBgn"
+                count = 7
             if not re.match(f"^{prefix}[0-9]{{{count}}}$", gene):
                 raise ValueError(f"Gene {gene} is not an Ensemble ID")
 
