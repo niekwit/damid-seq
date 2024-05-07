@@ -123,18 +123,6 @@ properties:
         enum: ["min", "max"]
       extra:
         type: string
-      overlapping_peaks:
-        type: object
-        properties:
-          max_size:
-            type: integer
-            minimum: 1
-          extend_by:
-            type: integer
-            minimum: 1
-          keep:
-            type: integer
-            minimum: 1
 
   peak_calling_macs2:
     type: object
@@ -153,6 +141,95 @@ properties:
         minimum: 0
         maximum: 1
 
+  consensus_peaks:
+    type: object
+    properties:
+      max_size:
+        type: integer
+        minimum: 1
+      extend_by:
+        type: integer
+        minimum: 1
+      keep:
+        type: integer
+        minimum: 1
+
+  resources:
+    type: object
+    properties:
+      trim:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 1
+        required:
+          - cpu
+          - time
+      fastqc:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 1
+        required:
+          - cpu
+          - time
+      damid:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 1
+        required:
+          - cpu
+          - time
+      index:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 1
+        required:
+          - cpu
+          - time
+      deeptools:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 1
+        required:
+          - cpu
+          - time
+      plotting:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 1
+        required:
+          - cpu
+          - time
+
 required:
   - genome
   - ensembl_genome_build
@@ -161,4 +238,5 @@ required:
   - deeptools
   - peak_calling_perl
   - peak_calling_macs2
+  - consensus_peaks
   - resources
