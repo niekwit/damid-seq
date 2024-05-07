@@ -18,7 +18,7 @@ deeptools:
     regionBodyLength: 6000
     upstream: 3000
     downstream: 3000
-    binSize: 10
+    binSize: 100
     averageTypeBins: mean
     regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
     no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
@@ -38,17 +38,17 @@ peak_calling_perl:
   min_quantile: 0.95 # Minimum quantile for considering peaks
   step: 0.01 # Stepping for quantiles
   unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
-  extra: ""
-  overlapping_peaks:
-    max_size: 10 # Maximum size of peaks to be extended
-    extend_by: 40 # Number of bp to extend peaks on either side
-    keep: 2 # Minimum number peaks that must overlap to keep
+  extra: "" 
 peak_calling_macs2:
   run: False
   mode: narrow
   qvalue: 0.05
   broad_cutoff: 0.1
   extra: ""
+consensus_peaks:
+    max_size: 10 # Maximum size of peaks to be extended
+    extend_by: 40 # Number of bp to extend peaks on either side
+    keep: 2 # Minimum number peaks that must overlap to keep
 resources: # computing resources
   trim:
     cpu: 8
@@ -60,7 +60,7 @@ resources: # computing resources
     cpu: 24
     time: 720
   index:
-    cpu: 36
+    cpu: 40
     time: 60
   deeptools:
     cpu: 8
