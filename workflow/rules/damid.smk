@@ -16,7 +16,7 @@ if config["plasmid_fasta"] == "none":
             ),
         output:
             bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-            bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
+            bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
         params:
             idxdir=lambda wildcards, input: input["idx"][0][:-6],
             paired=paired_end,
@@ -84,7 +84,7 @@ else:
                 ),
             output:
                 bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-                bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
+                bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
@@ -147,7 +147,7 @@ else:
                 ),
             output:
                 bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-                bam=expand("results/bam/{{dir}}/{sample}{bamext}.bam", sample=SAMPLES, bamext=BAM_EXT),
+                bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
@@ -167,42 +167,42 @@ else:
 
 rule sort_bam:
     input:
-        bam="results/bam/{dir}/{sample}{bamext}.bam",
+        bam="results/bam/{dir}/{sample}.bam",
     output:
-        sorted_bam="results/bam/{dir}/{sample}{bamext}.sorted.bam",
+        sorted_bam="results/bam/{dir}/{sample}.sorted.bam",
     conda:
         "../envs/damid.yaml"
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/sort_bam/{dir}/{sample}{bamext}.log"
+        "logs/sort_bam/{dir}/{sample}.log"
     shell:
         "samtools sort -@ {threads} -o {output.sorted_bam} {input.bam} > {log} 2>&1"
 
 
 rule index_bam:
     input:
-        bam="results/bam/{dir}/{sample}{bamext}.sorted.bam",
+        bam="results/bam/{dir}/{sample}.sorted.bam",
     output:
-        bai="results/bam/{dir}/{sample}{bamext}.sorted.bam.bai",
+        bai="results/bam/{dir}/{sample}.sorted.bam.bai",
     conda:
         "../envs/damid.yaml"
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/index_bam/{dir}/{sample}{bamext}.log"
+        "logs/index_bam/{dir}/{sample}.log"
     shell:
         "samtools index {input.bam} > {log} 2>&1"
 
 
 rule bam2bigwig:
     input:
-        bam="results/bam/{dir}/{sample}{bamext}.sorted.bam",
-        bai="results/bam/{dir}/{sample}{bamext}.sorted.bam.bai",
+        bam="results/bam/{dir}/{sample}.sorted.bam",
+        bai="results/bam/{dir}/{sample}.sorted.bam.bai",
     output:
-        "results/bigwig/bam2bigwig/{dir}/{sample}{bamext}.bw"
+        "results/bigwig/bam2bigwig/{dir}/{sample}.bw"
     params:
         bs=config["deeptools"]["bamCoverage"]["binSize"],
         n=config["deeptools"]["bamCoverage"]["normalizeUsing"],
@@ -213,7 +213,7 @@ rule bam2bigwig:
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/bam2bigwig/{dir}/{sample}{bamext}.log"
+        "logs/bam2bigwig/{dir}/{sample}.log"
     shell:
         "bamCoverage "
         "-b {input.bam} "
