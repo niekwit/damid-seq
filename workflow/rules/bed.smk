@@ -34,35 +34,35 @@ rule sort_peak_bed:
         "sort -k1,1 -k2,2n {input} > {output}"
 
 
-# create bed file of overlapping peaks between replicate conditions
-rule overlapping_peaks: # escape bg_sample wildcard to get all replicate bg_samples
+# create bed file of consensus peaks between replicate conditions
+rule consensus_peaks: # escape bg_sample wildcard to get all replicate bg_samples
     input:
         beds=expand("results/peaks/fdr{fdr}/{dir}/{{bg_sample}}.sorted.bed", fdr=peak_fdr("perl") , dir=DIRS)
     output:
-        "results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.overlap.bed"
+        "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed"
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/overlapping_peaks/fdr{fdr}/{bg_sample}.log"
+        "logs/consensus_peaks/fdr{fdr}/{bg_sample}.log"
     conda:
         "../envs/peak_calling.yaml"
     shell:
         "bedtools multiinter {params.extra} -i {input.beds} > {output}"
 
 
-rule filter_overlapping_peaks:
+rule filter_consensus_peaks:
     input:
-        bed="results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.overlap.bed",
+        bed="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed",
         cs=f"resources/{resources.genome}_chrom.sizes",
     output:
-        "results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.filtered.bed",
+        "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed",
     params:
-        m=config["peak_calling_perl"]["overlapping_peaks"]["max_size"],
-        e=config["peak_calling_perl"]["overlapping_peaks"]["extend_by"],
-        k=config["peak_calling_perl"]["overlapping_peaks"]["keep"],
+        m=config["consensus_peaks"]["max_size"],
+        e=config["consensus_peaks"]["extend_by"],
+        k=config["consensus_peaks"]["keep"],
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
@@ -72,16 +72,16 @@ rule filter_overlapping_peaks:
     conda:
         "../envs/peak_calling.yaml"
     script:
-        "../scripts/filter_overlapping_peaks.py"
+        "../scripts/filter_consensus_peaks.py"
 
 
 rule annotate_peaks:
     input:
-        bed="results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.filtered.bed",
+        bed="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed",
         adb=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
         gtf=resources.gtf,
     output:
-        txt=report("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.annotated.txt",  caption="../report/annotated_peaks.rst", category="Annotated peaks"),
+        txt=report("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.annotated.txt",  caption="../report/annotated_peaks.rst", category="Annotated peaks"),
     params:
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
@@ -97,9 +97,9 @@ rule annotate_peaks:
 
 rule get_gene_names:
     input:
-        txt="results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.annotated.txt"
+        txt="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.annotated.txt"
     output:
-        ids="results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.geneIDs.txt"
+        ids="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.geneIDs.txt"
     threads: 1
     resources:
         runtime=5
