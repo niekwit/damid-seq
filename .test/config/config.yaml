@@ -39,16 +39,16 @@ peak_calling_perl:
   step: 0.01 # Stepping for quantiles
   unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
   extra: ""
-  overlapping_peaks:
-    max_size: 10 # Maximum size of peaks to be extended
-    extend_by: 40 # Number of bp to extend peaks on either side
-    keep: 2 # Minimum number peaks that must overlap to keep
 peak_calling_macs2:
   run: False
   mode: narrow
   qvalue: 0.05
   broad_cutoff: 0.1
   extra: ""
+consensus_peaks:
+    max_size: 10 # Maximum size of peaks to be extended
+    extend_by: 40 # Number of bp to extend peaks on either side
+    keep: 2 # Minimum number peaks that must overlap to keep
 resources: # computing resources
   trim:
     cpu: 8
