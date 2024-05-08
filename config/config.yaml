@@ -46,8 +46,8 @@ peak_calling_perl:
 peak_calling_macs2:
   run: False
   mode: narrow
-  qvalue: 0.05
-  broad_cutoff: 0.1
+  qvalue: 0.05 # for narrow peaks
+  broad_cutoff: 0.1 # for broad peaks
   extra: ""
 consensus_peaks:
     max_size: 10 # Maximum size of peaks to be extended
