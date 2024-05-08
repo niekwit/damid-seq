@@ -37,6 +37,7 @@ if paired_end:
             "multiqc " 
             "--force "
             "--outdir {output.d} "
+            "--dirs " # Prepend directory to sample names
             "-n multiqc.html "
             "{params.extra} "
             "{input} "
