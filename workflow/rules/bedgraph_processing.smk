@@ -106,7 +106,7 @@ rule wig2bigwig:
 
 rule reverse_log2:
     input:
-        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph"
+        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph"
     output:
         bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
     threads: 1
