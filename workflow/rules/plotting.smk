@@ -157,7 +157,7 @@ elif config["peak_calling_macs2"]["run"]:
             resources:
                 runtime=config["resources"]["plotting"]["time"]
             log:
-                "logs/plotting/peak_annotation_plots_fdr{fdr}.log"
+                "logs/plotting/peak_annotation_plots_fdr{fdr}_macs2_narrow.log"
             conda:
                 "../envs/R.yaml"
             script:
@@ -177,7 +177,7 @@ elif config["peak_calling_macs2"]["run"]:
             resources:
                 runtime=config["resources"]["plotting"]["time"]
             log:
-                "logs/plotting/peak_annotation_plots_fdr{fdr}.log"
+                "logs/plotting/peak_annotation_plots_fdr{fdr}_macs2_broad.log"
             conda:
                 "../envs/R.yaml"
             script:
