@@ -157,11 +157,12 @@ if config["peak_calling_macs2"]["run"]:
                         "_peaks.gappedPeak"
                         )
             params:
+                outdir=lambda w, output: os.path.dirname(output[0]),
                 paired_end=paired_end,
                 mode="broad",
                 fdr=fdr,
                 genome=resources.genome,
-                data_dir=lambda w, output: os.path.dirname(output[0]),
+                data_dir=lambda w, input: os.path.dirname(input[0]),
                 extra=config["peak_calling_macs2"]["extra"]
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
