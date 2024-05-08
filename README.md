@@ -151,15 +151,19 @@ The `config` directory contains `samples.csv` with sample meta data as follows:
 `config.yaml` in the same directory contains the settings for the analysis:
 
 ```yaml
-genome: hg38
+genome: dm6
 ensembl_genome_build: 110
 plasmid_fasta: none
-fusion_genes: ENSG00000100644,ENSG00000116016 # Genes from these proteins will be removed from the analysis
+fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
 bowtie2:
   extra: ""
 damidseq_pipeline:
+  normalization: kde # kde, rpm or rawbins
   binsize: 300
   extra: "" # extra argument for damidseq_pipeline
+quantile_normalisation:
+  apply: True
+  extra: "" # extra arguments for quantile_normalization
 deeptools:
   bamCoverage: # bam to bigwig conversion for QC
     binSize: 10
@@ -191,17 +195,17 @@ peak_calling_perl:
   min_quantile: 0.95 # Minimum quantile for considering peaks
   step: 0.01 # Stepping for quantiles
   unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
-  extra: ""
-  overlapping_peaks:
-    max_size: 10 # Maximum size of peaks to be extended
-    extend_by: 40 # Number of bp to extend peaks on either side
-    keep: 2 # Minimum number peaks that must overlap to keep
+  extra: "" 
 peak_calling_macs2:
   run: False
   mode: narrow
-  qvalue: 0.05
-  broad_cutoff: 0.1
+  qvalue: 0.05 # for narrow peaks
+  broad_cutoff: 0.1 # for broad peaks
   extra: ""
+consensus_peaks:
+    max_size: 10 # Maximum size of peaks to be extended
+    extend_by: 40 # Number of bp to extend peaks on either side
+    keep: 2 # Minimum number peaks that must overlap to keep
 resources: # computing resources
   trim:
     cpu: 8
@@ -213,7 +217,7 @@ resources: # computing resources
     cpu: 24
     time: 720
   index:
-    cpu: 36
+    cpu: 40
     time: 60
   deeptools:
     cpu: 8
@@ -230,12 +234,12 @@ To prevent this, two approaches are available:
 1.  The genes (Ensembl gene IDs) fused to Dam can be set in config.yaml["fusion_genes] (separated by commas if multiple plasmids are used). This will mask the genomic locations of these genes in the fasta file that will be used to build the Bowtie2 index, which will exclude these regions from the analysis. 
 
 > [!NOTE]
-> To disable this function set the value of config.yaml["fusion_genes] to ""
+> To disable this function set the value of config.yaml["fusion_genes] to "".
 
 2. If a plasmid is used that for example also uses an endogenous promoter besides the Dam fusion proteins, one can set a path to a fasta file containg all the plasmid sequences in config.yaml[""]. It is recommended to store this file in a directory called resources within the analysis folder.
 
 > [!NOTE]
-> To disable this function set the value of config.yaml["plasmid_fasta"] to none
+> To disable this function set the value of config.yaml["plasmid_fasta"] to none.
 
 
 ## Configuration of Snakemake
