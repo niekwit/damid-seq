@@ -111,7 +111,7 @@ for condition, dam_control in dam_controls.items():
         "{arg} "
         "--threads={threads} "
         "--dam={dam} "
-        "--bins={bins}"
+        "--bins={bins} "
         "--norm_method={normalization_method}"
         "{extra} "
         "--gatc_frag_file={gatc} "
@@ -128,6 +128,12 @@ for condition, dam_control in dam_controls.items():
 
     # Move bedgraph files to output directory
     move_files("bedgraph")
+        
+    # Move bam files to output directory
+    move_files("bam")
+    
+    # Go to parent directory
+    os.chdir(cwd)
     
     # Rename bedgraph files so that normalization method is not included in file name
     bedgraphs = glob.glob(f"results/bedgraph/{directory}/*.bedgraph")
@@ -136,8 +142,6 @@ for condition, dam_control in dam_controls.items():
         new_name = bedgraph.replace(f".{normalization_method}-norm.gatc.bedgraph", "-norm.gatc.bedgraph")
         os.rename(bedgraph, new_name)
     
-    # Move bam files to output directory
-    move_files("bam")
     
     if not paired:
         # Rename bam files so that they end with .bam and not -ext300.bam
