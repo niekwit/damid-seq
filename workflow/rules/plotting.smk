@@ -124,7 +124,7 @@ rule plot_profile:
 rule peak_annotation_plots:
     input:
         gtf=resources.gtf,
-        bed=expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.filtered.bed", fdr=peak_fdr("perl"), bg_sample=BG_SAMPLES),
+        bed=expand("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed", fdr=peak_fdr("perl"), bg_sample=BG_SAMPLES),
     output:
         fd=report("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
         dt=report("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
