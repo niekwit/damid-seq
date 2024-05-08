@@ -231,12 +231,14 @@ A lot of the DamID signal can come from the plasmids that were used to express t
 
 To prevent this, two approaches are available:
 
-1.  The genes (Ensembl gene IDs) fused to Dam can be set in config.yaml["fusion_genes] (separated by commas if multiple plasmids are used). This will mask the genomic locations of these genes in the fasta file that will be used to build the Bowtie2 index, which will exclude these regions from the analysis. 
+1.  The genes (Ensembl gene IDs) fused to Dam can be set in config.yaml["fusion_genes] (separated by commas if multiple plasmids are used). This will mask the genomic locations of these genes in the fasta file that will be used to build the Bowtie2 index, hence excluding these regions from the analysis. 
 
 > [!NOTE]
 > To disable this function set the value of config.yaml["fusion_genes] to "".
 
-2. If a plasmid is used that for example also uses an endogenous promoter besides the Dam fusion proteins, one can set a path to a fasta file containg all the plasmid sequences in config.yaml[""]. It is recommended to store this file in a directory called resources within the analysis folder.
+2. If a plasmid is used that for example also uses an endogenous promoter besides the Dam fusion proteins, one can set a path to a fasta file containg all the plasmid sequences in config.yaml[""]. Trimmed reads are first aligned to these sequences, and the resulting non-aligning reads will then be processed as normal.
+
+It is recommended to store this file in a directory called resources within the analysis folder (this folder will also contain all other non-experimental files such as fasta and gtf files).
 
 > [!NOTE]
 > To disable this function set the value of config.yaml["plasmid_fasta"] to none.
