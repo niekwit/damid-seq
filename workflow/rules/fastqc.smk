@@ -3,8 +3,8 @@ if paired_end:
         input:
             "results/trimmed/{dir}/{sample}{end}.fastq.gz",
         output:
-            html="results/qc/fastqc/{dir}_{sample}{end}.html",
-            zip="results/qc/fastqc/{dir}_{sample}{end}_fastqc.zip"
+            html="results/qc/fastqc/{dir}/{sample}{end}.html",
+            zip="results/qc/fastqc/{dir}/{sample}{end}_fastqc.zip"
         params:
             extra = "--quiet"
         log:
@@ -19,7 +19,7 @@ if paired_end:
 
     rule multiqc:
         input:
-            expand("results/qc/fastqc/{dir}_{sample}{end}_fastqc.zip", dir=DIRS, sample=SAMPLES, end=["_1","_2"])
+            expand("results/qc/fastqc/{dir}/{sample}{end}_fastqc.zip", dir=DIRS, sample=SAMPLES, end=["_1","_2"])
         output:
             r="results/qc/multiqc/multiqc.html",
             d=directory("results/qc/multiqc/"),
@@ -46,8 +46,8 @@ else:
         input:
             "results/trimmed/{dir}/{sample}.fastq.gz"
         output:
-            html="results/qc/fastqc/{dir}_{sample}.html",
-            zip="results/qc/fastqc/{dir}_{sample}_fastqc.zip"
+            html="results/qc/fastqc/{dir}/{sample}.html",
+            zip="results/qc/fastqc/{dir}/{sample}_fastqc.zip"
         params:
             extra = "--quiet"
         log:
@@ -62,7 +62,7 @@ else:
 
     rule multiqc:
         input:
-            expand("results/qc/fastqc/{dir}_{sample}_fastqc.zip", dir=DIRS, sample=SAMPLES)
+            expand("results/qc/fastqc/{dir}/{sample}_fastqc.zip", dir=DIRS, sample=SAMPLES)
         output:
             r="results/qc/multiqc/multiqc.html",
             d=directory("results/qc/multiqc/"),
@@ -79,6 +79,7 @@ else:
         shell:
             "multiqc " 
             "--force "
+            "--dirs " # Prepend directory to sample names
             "--outdir {output.d} "
             "-n multiqc.html "
             "{params.extra} "
