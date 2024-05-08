@@ -22,9 +22,20 @@ properties:
   damidseq_pipeline:
     type: object
     properties:
+      normalization:
+        type: string
+        enum: ["kde", "rpm", "rawbins"]
       binsize:
         type: integer
         minimum: 1
+      extra:
+        type: string
+
+  quantile_normalisation:
+    type: object
+    properties:
+      apply:
+        type: boolean
       extra:
         type: string
 
