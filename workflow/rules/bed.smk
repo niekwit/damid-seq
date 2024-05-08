@@ -34,10 +34,10 @@ rule sort_peak_bed:
         "sort -k1,1 -k2,2n {input} > {output}"
 
 
-# create bed file of consensus peaks between replicate conditions
-rule consensus_peaks: # escape bg_sample wildcard to get all replicate bg_samples
+# Create bed file of consensus peaks between replicate conditions
+rule consensus_peaks: # Escape bg_sample wildcard to get all replicate bg_samples
     input:
-        beds=expand("results/peaks/fdr{fdr}/{dir}/{{bg_sample}}.sorted.bed", fdr=peak_fdr("perl") , dir=DIRS)
+        beds=expand("results/peaks/fdr{fdr}/{dir}/{{bg_sample}}.sorted.bed", fdr=fdr , dir=DIRS)
     output:
         "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed"
     params:
