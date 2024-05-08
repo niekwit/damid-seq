@@ -120,26 +120,68 @@ rule plot_profile:
         "{params.extra} "
         "> {log} 2>&1"
 
+if config["peak_calling_perl"]["run"]:
+    fdr = config["peak_calling_perl"]["fdr"]
+    rule peak_annotation_plots:
+        input:
+            gtf=resources.gtf,
+            bed=expand("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed", fdr=fdr, bg_sample=BG_SAMPLES),
+        output:
+            fd=report("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
+            dt=report("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
+        params:
+            extra="",
+        threads: config["resources"]["plotting"]["cpu"]
+        resources:
+            runtime=config["resources"]["plotting"]["time"]
+        log:
+            "logs/plotting/peak_annotation_plots_fdr{fdr}.log"
+        conda:
+            "../envs/R.yaml"
+        script:
+            "../scripts/peak_annotation_plots.R"
 
-rule peak_annotation_plots:
-    input:
-        gtf=resources.gtf,
-        bed=expand("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed", fdr=peak_fdr("perl"), bg_sample=BG_SAMPLES),
-    output:
-        fd=report("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
-        dt=report("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
-    params:
-        extra="",
-    threads: config["resources"]["plotting"]["cpu"]
-    resources:
-        runtime=config["resources"]["plotting"]["time"]
-    log:
-        "logs/plotting/peak_annotation_plots_fdr{fdr}.log"
-    conda:
-        "../envs/R.yaml"
-    script:
-        "../scripts/peak_annotation_plots.R"
-
+elif config["peak_calling_macs2"]["run"]:
+    if config["peak_calling_macs2"]["mode"] == "narrow":
+        fdr = config["peak_calling_macs2"]["qvalue"]
+        rule peak_annotation_plots:
+            input:
+                gtf=resources.gtf,
+                bed=expand("results/macs2_narrow/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed", fdr=fdr, bg_sample=BG_SAMPLES),
+            output:
+                fd=report("results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
+                dt=report("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
+            params:
+                extra="",
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"]
+            log:
+                "logs/plotting/peak_annotation_plots_fdr{fdr}.log"
+            conda:
+                "../envs/R.yaml"
+            script:
+                "../scripts/peak_annotation_plots.R"
+    elif config["peak_calling_macs2"]["mode"] == "broad":
+        fdr = config["peak_calling_macs2"]["broad_cutoff"]
+        rule peak_annotation_plots:
+            input:
+                gtf=resources.gtf,
+                bed=expand("results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed", fdr=fdr, bg_sample=BG_SAMPLES),
+            output:
+                fd=report("results/plots/macs2_broad/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation"),
+                dt=report("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation"),
+            params:
+                extra="",
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"]
+            log:
+                "logs/plotting/peak_annotation_plots_fdr{fdr}.log"
+            conda:
+                "../envs/R.yaml"
+            script:
+                "../scripts/peak_annotation_plots.R"
 
 rule plot_mapping_rates:
     input:
