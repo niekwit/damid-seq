@@ -6,17 +6,16 @@ log = snakemake.log_fmt_shell(stdout=True, stderr=True)
 
 # Load Snakemake variables
 bam = snakemake.input["bam"]
-xls_output = snakemake.output[0]
 fdr = snakemake.params["fdr"]
 extra = snakemake.params["extra"]
 mode = snakemake.params["mode"]
 paired_end = snakemake.params["paired_end"]
 genome = snakemake.params["genome"]
 data_dir = snakemake.params["data_dir"]
+out_dir = snakemake.params["outdir"]
 
 dam = os.path.join(data_dir, "Dam.bam")
-out_dir = os.path.dirname(xls_output)
-name = re.sub("_peaks.xls$", "", os.path.basename(xls_output))
+name = re.sub(".bam$", "", os.path.basename(bam))
 
 # Construct MACS2 arguments
 if paired_end:
@@ -46,6 +45,7 @@ shell(
     "--control {dam} "
     "--outdir {out_dir} "
     "--format {data_format} "
+    "--name {name} "
     "-g {genome} "
     "{qvalue} "
     "{broad} "
