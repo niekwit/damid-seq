@@ -15,13 +15,14 @@ if config["plasmid_fasta"] == "none":
                 ".rev.2.bt2",
             ),
         output:
-            bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+            bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
             bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
         params:
             idxdir=lambda wildcards, input: input["idx"][0][:-6],
             paired=paired_end,
             binsize=config["damidseq_pipeline"]["binsize"],
             trim_dir="trimmed",
+            normalization_method=config["damidseq_pipeline"]["normalization"],
             extra=config["damidseq_pipeline"]["extra"],
         conda:
             "../envs/damid.yaml"
@@ -83,12 +84,13 @@ else:
                     ".rev.2.bt2",
                 ),
             output:
-                bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+                bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
                 bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
                 binsize=config["damidseq_pipeline"]["binsize"],
+                normalization_method=config["damidseq_pipeline"]["normalization"],
                 extra=config["damidseq_pipeline"]["extra"],
             conda:
                 "../envs/damid.yaml"
@@ -146,13 +148,14 @@ else:
                     ".rev.2.bt2",
                 ),
             output:
-                bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+                bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
                 bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
                 trim_dir="trimmed_no_plasmid",
                 binsize=config["damidseq_pipeline"]["binsize"],
+                normalization_method=config["damidseq_pipeline"]["normalization"],
                 extra=config["damidseq_pipeline"]["extra"],
             conda:
                 "../envs/damid.yaml"
