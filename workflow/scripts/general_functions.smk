@@ -31,8 +31,8 @@ def targets():
         TARGETS.extend([
             expand("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
             expand("results/plots/peaks/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
-            expand("results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
-            expand("results/peaks/fdr{fdr}/overlapping_peaks/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
+            expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.annotated.txt", fdr=fdr, bg_sample=BG_SAMPLES),
+            expand("results/peaks/fdr{fdr}/overlapping_peaks/{bg_sample}.geneIDs.txt", fdr=fdr,bg_sample=BG_SAMPLES)
             ])
     
     if config["peak_calling_macs2"]["run"]:
