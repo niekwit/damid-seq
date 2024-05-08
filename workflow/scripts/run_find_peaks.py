@@ -38,7 +38,7 @@ log = f'{cwd}/{snakemake.log[0]}'
 os.makedirs(outdir, exist_ok=True)
 os.chdir(outdir)
 
-sample = os.path.basename(bedgraph).replace("-vs-Dam.kde-norm.gatc.bedgraph","")
+sample = os.path.basename(bedgraph).replace("-vs-Dam-norm.gatc.bedgraph","")
 
 # Run find_peaks
 shell(
