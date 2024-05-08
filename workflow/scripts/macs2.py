@@ -20,9 +20,9 @@ name = re.sub("_peaks.xls$", "", os.path.basename(xls_output))
 
 # Construct MACS2 arguments
 if paired_end:
-        format_ = "BAMPE"
+        data_format = "BAMPE"
 else:
-    format_ = "BAM"
+    data_format = "BAM"
 
 if "hg" in genome:
     genome = "hs"
@@ -45,7 +45,7 @@ shell(
     "--treatment {bam} "
     "--control {dam}"
     "--outdir {out_dir} "
-    "-format {format_} "
+    "--format {data_format} "
     "-g {genome} "
     "{qvalue} "
     "{broad} "
