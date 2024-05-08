@@ -47,6 +47,7 @@ bowtie2_idx = os.path.join(cwd, snakemake.params["idxdir"])
 paired = snakemake.params["paired"]
 threads = snakemake.threads
 bins = snakemake.params["binsize"]
+normalization_method = snakemake.params["normalization_method"]
 extra = snakemake.params["extra"]
 
 # Get sample directory
@@ -111,6 +112,7 @@ for condition, dam_control in dam_controls.items():
         "--threads={threads} "
         "--dam={dam} "
         "--bins={bins}"
+        "--norm_method={normalization_method}"
         "{extra} "
         "--gatc_frag_file={gatc} "
         "--bowtie2_genome_dir={bowtie2_idx} "
@@ -126,7 +128,14 @@ for condition, dam_control in dam_controls.items():
 
     # Move bedgraph files to output directory
     move_files("bedgraph")
-
+    
+    # Rename bedgraph files so that normalization method is not included in file name
+    bedgraphs = glob.glob(f"results/bedgraph/{directory}/*.bedgraph")
+    assert len(bedgraphs) > 0, "No bedgraph files found to rename..."
+    for bedgraph in bedgraphs:
+        new_name = bedgraph.replace(f".{normalization_method}-norm.gatc.bedgraph", "-norm.gatc.bedgraph")
+        os.rename(bedgraph, new_name)
+    
     # Move bam files to output directory
     move_files("bam")
     
