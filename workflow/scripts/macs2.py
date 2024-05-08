@@ -43,7 +43,7 @@ else:
 shell(
     "macs2 callpeak "
     "--treatment {bam} "
-    "--control {dam}"
+    "--control {dam} "
     "--outdir {out_dir} "
     "--format {data_format} "
     "-g {genome} "
