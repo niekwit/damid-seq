@@ -1,44 +1,72 @@
 # Quantile normalise all samples within one experiment
 # Ref: Cheetham et al. Targeted DamID reveals differential binding of mammalian pluripotency factors 2018
-rule quantile_normalisation:
-    input:
-        bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
-    output:
-        bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"]
-    log:
-        "logs/quantile_normalisation/{dir}.log"
-    conda:
-        "../envs/damid.yaml"
-    script:
-        "../scripts/quantile_norm_bedgraph.py"
+if config["quantile_normalisation"]["apply"]
+    logger.info("Applying quantile normalisation...")
+    rule quantile_normalisation:
+        input:
+            bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+        output:
+            bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+        params:
+            extra=""
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"]
+        log:
+            "logs/quantile_normalisation/{dir}.log"
+        conda:
+            "../envs/damid.yaml"
+        script:
+            "../scripts/quantile_norm_bedgraph.py"
 
 
-rule bedgraph2bigwig:
-    input:
-        cs=f"resources/{resources.genome}_chrom.sizes",
-        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph"
-    output:
-        bw="results/bigwig/{dir}/{bg_sample}.bw",
-    params:
-        extra=""
-    threads: config["resources"]["fastqc"]["cpu"]
-    resources: 
-        runtime=config["resources"]["fastqc"]["time"],
-    conda: 
-        "../envs/deeptools.yaml"
-    log:
-        "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log"
-    shell:
-        "bedGraphToBigWig "
-        "{params.extra} "
-        "{input.bg} "
-        "{input.cs} "
-        "{output.bw} > {log} 2>&1"
+    rule bedgraph2bigwig:
+        input:
+            cs=f"resources/{resources.genome}_chrom.sizes",
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph"
+        output:
+            bw="results/bigwig/{dir}/{bg_sample}.bw",
+        params:
+            extra=""
+        threads: config["resources"]["fastqc"]["cpu"]
+        resources: 
+            runtime=config["resources"]["fastqc"]["time"],
+        conda: 
+            "../envs/deeptools.yaml"
+        log:
+            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log"
+        shell:
+            "bedGraphToBigWig "
+            "{params.extra} "
+            "{input.bg} "
+            "{input.cs} "
+            "{output.bw} > {log} 2>&1"
 
+else:
+    logger.info("Skipping quantile normalisation...")
+    rule bedgraph2bigwig:
+        input:
+            cs=f"resources/{resources.genome}_chrom.sizes",
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
+        output:
+            bw="results/bigwig/{dir}/{bg_sample}.bw",
+        params:
+            extra=""
+        threads: config["resources"]["fastqc"]["cpu"]
+        resources: 
+            runtime=config["resources"]["fastqc"]["time"],
+        conda: 
+            "../envs/deeptools.yaml"
+        log:
+            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log"
+        shell: # This has a Snakemake wrapper
+            "bedGraphToBigWig "
+            "{params.extra} "
+            "{input.bg} "
+            "{input.cs} "
+            "{output.bw} > {log} 2>&1"
 
+# MAKE SIMPLER AVERAGE METHOD? --> python script that averages begraphs and then convert to bigwig
 rule average_wig:
     input:
         expand("results/bigwig/{dir}/{bg_sample}.bw", dir=DIRS, bg_sample=BG_SAMPLES),

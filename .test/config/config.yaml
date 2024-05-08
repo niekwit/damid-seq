@@ -5,8 +5,12 @@ bowtie2:
   extra: ""
 fusion_genes: FBgn0004872 # Genes from these proteins will be removed from the analysis
 damidseq_pipeline:
+  normalization: kde # kde, rpm or rawbins
   binsize: 300
   extra: "" # extra argument for damidseq_pipeline
+quantile_normalisation:
+  apply: True
+  extra: "" # extra argument for quantile_normalization
 deeptools:
   bamCoverage: # bam to bigwig conversion for QC
     binSize: 100
