@@ -43,7 +43,7 @@ for key, value in data.items():
 normalized_scores = quantile_normalize(pd.DataFrame(scores))
 
 for i, filename in enumerate(bedgraphs):
-    output_filename = filename.replace(".kde-norm.gatc.bedgraph", ".quantile-norm.gatc.bedgraph")
+    output_filename = filename.replace("-norm.gatc.bedgraph", ".quantile-norm.gatc.bedgraph")
     df = pd.DataFrame(probes, columns=["chrom", "start", "end"])
     df["score"] = normalized_scores[i]
     df["score"] = df["score"].round(3)
