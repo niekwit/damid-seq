@@ -1,6 +1,6 @@
 # Quantile normalise all samples within one experiment
 # Ref: Cheetham et al. Targeted DamID reveals differential binding of mammalian pluripotency factors 2018
-if config["quantile_normalisation"]["apply"]
+if config["quantile_normalisation"]["apply"]:
     logger.info("Applying quantile normalisation...")
     rule quantile_normalisation:
         input:
