@@ -5,7 +5,7 @@ if config["peak_calling_perl"]["run"]:
     rule peak_calling_perl:
         input:
             fp="resources/find_peaks",
-            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.kde-norm.gatc.bedgraph",
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
         output:
             gff="results/peaks/fdr{fdr}/{dir}/{bg_sample}.peaks.gff",
             data="results/peaks/fdr{fdr}/{dir}/{bg_sample}.data",
