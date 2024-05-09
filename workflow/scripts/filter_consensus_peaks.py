@@ -3,7 +3,7 @@ bed = snakemake.input["bed"]
 cs = snakemake.input["cs"]
 ext_bed = snakemake.output[0]
 k = int(snakemake.params["k"])
-max_size = int(snakemake.params["m"])
+max_size = int(snakemake.params["max_size"])
 
 # Load chrom_sizes into dictionary
 # This is needed to make sure that the extended regions 
@@ -16,7 +16,7 @@ with open(cs) as f:
 
 extended_peaks = 0
 skipped_peaks = 0
-count = 1 # Number of peaks included in the output file
+count = 1
 
 with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
     while True:
