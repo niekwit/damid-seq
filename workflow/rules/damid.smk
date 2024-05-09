@@ -170,18 +170,16 @@ else:
 
 rule sort_bam:
     input:
-        bam="results/bam/{dir}/{sample}.bam",
+        "results/bam/{dir}/{sample}.bam",
     output:
-        sorted_bam="results/bam/{dir}/{sample}.sorted.bam",
-    conda:
-        "../envs/damid.yaml"
+        "results/bam/{dir}/{sample}.sorted.bam",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/sort_bam/{dir}/{sample}.log"
-    shell:
-        "samtools sort -@ {threads} -o {output.sorted_bam} {input.bam} > {log} 2>&1"
+        "logs/samtools/sort/{dir}/{sample}.log"
+    wrapper:
+        f"{wrapper_version}/samtools/sort"
 
 
 rule index_bam:
@@ -189,15 +187,13 @@ rule index_bam:
         bam="results/bam/{dir}/{sample}.sorted.bam",
     output:
         bai="results/bam/{dir}/{sample}.sorted.bam.bai",
-    conda:
-        "../envs/damid.yaml"
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
     log:
-        "logs/index_bam/{dir}/{sample}.log"
-    shell:
-        "samtools index {input.bam} > {log} 2>&1"
+        "logs/samtools/index/{dir}/{sample}.log"
+    wrapper:
+        f"{wrapper_version}/samtools/index"
 
 
 rule bam2bigwig:
