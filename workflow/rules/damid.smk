@@ -179,7 +179,7 @@ rule sort_bam:
     log:
         "logs/samtools/sort/{dir}/{sample}.log"
     wrapper:
-        f"{wrapper_version}/samtools/sort"
+        f"{wrapper_version}/bio/samtools/sort"
 
 
 rule index_bam:
@@ -193,7 +193,7 @@ rule index_bam:
     log:
         "logs/samtools/index/{dir}/{sample}.log"
     wrapper:
-        f"{wrapper_version}/samtools/index"
+        f"{wrapper_version}/bio/samtools/index"
 
 
 rule bam2bigwig:
