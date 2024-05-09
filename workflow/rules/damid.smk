@@ -184,9 +184,9 @@ rule sort_bam:
 
 rule index_bam:
     input:
-        bam="results/bam/{dir}/{sample}.sorted.bam",
+        "results/bam/{dir}/{sample}.sorted.bam",
     output:
-        bai="results/bam/{dir}/{sample}.sorted.bam.bai",
+        "results/bam/{dir}/{sample}.sorted.bam.bai",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
