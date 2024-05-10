@@ -60,9 +60,9 @@ rule filter_consensus_peaks:
     output:
         "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed",
     params:
-        m=config["consensus_peaks"]["max_size"],
-        e=config["consensus_peaks"]["extend_by"],
         k=config["consensus_peaks"]["keep"],
+        max_size=config["consensus_peaks"]["max_size"],
+        e=config["consensus_peaks"]["extend_by"],
         extra=""
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
