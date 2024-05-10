@@ -38,13 +38,9 @@ def targets():
     if config["peak_calling_macs2"]["run"]:
         if config["peak_calling_macs2"]["mode"] == "narrow":
             TARGETS.extend([
-                #expand(f"results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf"),
-                #expand(f"results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf"),
-                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.xls", bg_sample=BG_SAMPLES),
-                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_peaks.narrowPeak",bg_sample=BG_SAMPLES),
-                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}_summits.bed", bg_sample=BG_SAMPLES),
-                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.annotated.txt", bg_sample=BG_SAMPLES),
-                #expand(f"results/macs2_narrow/fdr{fdr}/{{bg_sample}}.geneIDs.txt", bg_sample=BG_SAMPLES)
+                expand("results/plots/macs2_narrow/fdr{fdr}/feature_distributions_overlap.pdf", fdr=fdr),
+                expand("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf_overlap", fdr=fdr),
+                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
                 ])
         elif config["peak_calling_macs2"]["mode"] == "broad":
             TARGETS.extend([
