@@ -18,7 +18,9 @@ txdb <- makeTxDbFromGFF(gtf)
 
 # Add sample names to bed files
 # Check which bed files are provided
-if (any(grepl("\\.bed$", bed.files)) == TRUE) {
+if (any(grepl("\\.overlap.bed$", bed.files)) == TRUE) {
+  samples <- sub(".*\\/([^\\/]+)\\.overlap.bed", "\\1", bed.files)
+} else if (any(grepl("\\.overlap.filtered.bed$", bed.files)) == TRUE) {
   samples <- sub(".*\\/([^\\/]+)\\.overlap.filtered.bed", "\\1", bed.files)
 } else if (any(grepl("\\.narrowPeak$", bed.files)) == TRUE) {
   samples <- sub(".*\\/([^\\/]+)\\_peaks.narrowPeak", "\\1", bed.files)

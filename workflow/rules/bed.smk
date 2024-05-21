@@ -58,7 +58,7 @@ rule filter_consensus_peaks:
         bed="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed",
         cs=f"resources/{resources.genome}_chrom.sizes",
     output:
-        "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
+        "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed",
     params:
         k=config["consensus_peaks"]["keep"],
         max_size=config["consensus_peaks"]["max_size"],
@@ -77,7 +77,7 @@ rule filter_consensus_peaks:
 
 rule annotate_peaks:
     input:
-        bed="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
+        bed="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed",
         adb=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
         gtf=resources.gtf,
     output:
