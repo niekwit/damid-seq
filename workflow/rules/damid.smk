@@ -115,6 +115,7 @@ else:
                     ".rev.2.bt2",
                 ),
             output:
+                bam="results/bam/plasmid_removed/{dir}/{sample}.bam",
                 fastq="results/trimmed_no_plasmid/{dir}/{sample}.fastq.gz",
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],

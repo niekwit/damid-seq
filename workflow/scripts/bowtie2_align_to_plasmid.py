@@ -8,6 +8,7 @@ idx = snakemake.params["idxdir"]
 paired = snakemake.params["paired"]
 extra = snakemake.params["extra"]
 out_base = snakemake.params["out_base"]
+bam = snakemake.output["bam"]
 
 # Prepare input and output fastq file flags
 base = flag.replace(".flag", "")
@@ -22,5 +23,12 @@ else:
     
 # Align to plasmid index and only keep non-aligned reads in new fastq file(s)
 shell(
-    "bowtie2 -x {idx} {fastq_in} -p {snakemake.threads} {extra} {fastq_out} > /dev/null {log}"
+    "bowtie2 "
+    "-x {idx} "
+    "{fastq_in} "
+    "-p {snakemake.threads} "
+    "{extra} "
+    "{fastq_out} "
+    "> {bam} "
+    "{log}"
     )
