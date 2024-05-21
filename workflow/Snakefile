@@ -17,7 +17,7 @@ logger.info(f"Workflow version: {VERSION}")
 logger.info(f"Wrapper version: {wrapper_version}")
 
 # Define Docker container for Apptainer usage
-containerized: f"docker://niekwit/crispr-screens:{VERSION}"
+containerized: f"docker://niekwit/damid-seq:{VERSION}"
 
 # Load and validate config file
 configfile: "config/config.yaml"
