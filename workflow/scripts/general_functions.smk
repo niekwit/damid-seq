@@ -38,14 +38,14 @@ def targets():
     if config["peak_calling_macs2"]["run"]:
         if config["peak_calling_macs2"]["mode"] == "narrow":
             TARGETS.extend([
-                expand("results/plots/macs2_narrow/fdr{fdr}/feature_distributions_overlap.pdf", fdr=fdr),
-                expand("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf_overlap", fdr=fdr),
+                expand("results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
+                expand("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
                 expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
                 ])
         elif config["peak_calling_macs2"]["mode"] == "broad":
             TARGETS.extend([
-                expand("results/plots/macs2_broad/fdr{fdr}/feature_distributions_overlap.pdf", fdr=fdr),
-                expand("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf_overlap", fdr=fdr),
+                expand("results/plots/macs2_broad/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
+                expand("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
                 expand("results/macs2_broad/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
                 ])
     
@@ -406,16 +406,7 @@ def macs2_params():
 
     return f"-f {format_} -g {genome} {qvalue} {broad} {extra}"
 
-
-def peak_fdr(type_):
-    if type_ == "perl":
-        return config["peak_calling_perl"]["fdr"]
-    elif type_ == "macs2_narrow":
-        return config["peak_calling_macs2"]["qvalue"]
-    elif type_ == "macs2_broad_cutoff":
-        return config["peak_calling_macs2"]["broad_cutoff"]
-    
-    
+ 
 def check_plasmid_fasta(fasta):
     # Check if fasta file exists
     if not os.path.isfile(fasta):
