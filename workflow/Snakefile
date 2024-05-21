@@ -13,6 +13,12 @@ min_version("8.10.6")
 # Wrapper version
 wrapper_version = "v3.10.2"
 
+logger.info(f"Workflow version: {VERSION}")
+logger.info(f"Wrapper version: {wrapper_version}")
+
+# Define Docker container for Apptainer usage
+containerized: f"docker://niekwit/crispr-screens:{VERSION}"
+
 # Load and validate config file
 configfile: "config/config.yaml"
 validate(config, "schemas/config.schema.yaml")
