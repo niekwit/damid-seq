@@ -24,7 +24,7 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 * [Dry-run of the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#dry-run-of-the-analysis)
 * [Running the analysis](https://github.com/niekwit/damid-seq?tab=readme-ov-file#running-the-analysis)
 * [Report of the results](https://github.com/niekwit/damid-seq?tab=readme-ov-file#report-of-the-results)
-* [References](https://github.com/niekwit/damid-seq?tab=readme-ov-file#references)
+* [Literature](https://github.com/niekwit/damid-seq?tab=readme-ov-file#references)
 
 ## Aim
 
@@ -79,16 +79,16 @@ To install Snakemake create the following environment with `mamba`:
 $ mamba create -n snakemake snakemake
 ```
 
-If you want to deploy Snakemake on an HPC system using slurm also run:
-
-```shell
-$ pip install snakemake-executor-plugin-slurm
-```
-
 Activate the environment as follows:
 
 ```shell
 $ mamba activate snakemake
+```
+
+If you want to deploy Snakemake on an HPC system using slurm also run:
+
+```shell
+$ pip install snakemake-executor-plugin-slurm
 ```
 
 ## Cloning `damid-seq` GitHub repository
