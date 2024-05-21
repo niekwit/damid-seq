@@ -6,7 +6,7 @@ rule get_fasta:
         url=resources.fasta_url,
     log:
         "logs/resources/get_fasta.log"
-    cache: True
+    #cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
@@ -14,39 +14,6 @@ rule get_fasta:
         "../envs/damid.yaml"
     script:
         "../scripts/get_resource.sh"
-
-
-rule index_fasta:
-    input:
-        resources.fasta,
-    output:
-        f"{resources.fasta}.fai",
-    log:
-        "logs/resources/index_fasta.log"
-    cache: True
-    threads: config["resources"]["plotting"]["cpu"]
-    resources: 
-        runtime=config["resources"]["plotting"]["time"]
-    wrapper:
-        f"{wrapper_version}/bio/samtools/faidx"
-
-
-rule chrom_sizes:
-    input:
-        fa=resources.fasta,
-        fai=f"{resources.fasta}.fai",
-    output:
-        f"resources/{resources.genome}_chrom.sizes",
-    log:
-        "logs/resources/chrom_sizes.log"
-    threads: config["resources"]["plotting"]["cpu"]
-    resources: 
-        runtime=config["resources"]["plotting"]["time"]
-    conda:
-        "../envs/damid.yaml"
-    shell:
-        "awk '{{print $1,$2}}' {input.fai} | "
-        r"sed 's/ /\t/'  > {output}"
 
 
 use rule get_fasta as get_gtf with:
@@ -65,7 +32,7 @@ rule install_damidseq_pipeline_software:
         url="https://github.com/owenjm/damidseq_pipeline.git",
         version="-b v1.5.3",
     retries: 3
-    cache: True
+    #cache: True
     log:
         "logs/resources/install_find_peaks_software.log"
     threads: 1
@@ -117,7 +84,7 @@ rule masked_fasta:
         genome=resources.genome,
     log:
         "logs/resources/masked_fasta.log"
-    cache: True
+    #cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
@@ -125,6 +92,39 @@ rule masked_fasta:
         "../envs/peak_calling.yaml"
     script:
         "../scripts/mask_fasta.py"
+
+
+rule index_fasta:
+    input:
+        f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
+    output:
+        f"{resources.fasta}.fai",
+    log:
+        "logs/resources/index_fasta.log"
+    #cache: True
+    threads: config["resources"]["plotting"]["cpu"]
+    resources: 
+        runtime=config["resources"]["plotting"]["time"]
+    wrapper:
+        f"{wrapper_version}/bio/samtools/faidx"
+
+
+rule chrom_sizes:
+    input:
+        fa=resources.fasta,
+        fai=f"{resources.fasta}.fai",
+    output:
+        f"resources/{resources.genome}_chrom.sizes",
+    log:
+        "logs/resources/chrom_sizes.log"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources: 
+        runtime=config["resources"]["plotting"]["time"]
+    conda:
+        "../envs/damid.yaml"
+    shell:
+        "awk '{{print $1,$2}}' {input.fai} | "
+        r"sed 's/ /\t/'  > {output}"
 
 
 rule make_gatc_tracks:
@@ -135,7 +135,7 @@ rule make_gatc_tracks:
         f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
     params:
         genome=lambda wildcards, output: output[0][:-9]
-    cache: True
+    #cache: True
     threads: config["resources"]["fastqc"]["cpu"],
     resources:
         time=config["resources"]["fastqc"]["time"],
@@ -162,7 +162,7 @@ rule bowtie2_build_index:
             ".rev.1.bt2",
             ".rev.2.bt2",
         ),
-    cache: True
+    #cache: True
     log:
         f"logs/bowtie2_build_index/{resources.genome}_{resources.build}.log",
     params:
@@ -191,7 +191,7 @@ if config["plasmid_fasta"] != "none":
                 ".rev.1.bt2",
                 ".rev.2.bt2",
             ),
-        cache: True
+        #cache: True
         log:
             f"logs/bowtie2_build_index/{plasmid_name}.log",
         params:
