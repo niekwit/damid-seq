@@ -30,7 +30,7 @@ if config["peak_calling_perl"]["run"]:
 
 if config["peak_calling_macs2"]["run"]:
     if config["peak_calling_macs2"]["mode"] == "narrow":
-        fdr = peak_fdr("macs2_narrow")
+        fdr = config["peak_calling_macs2"]["qvalue"]
         
         rule peak_calling_MACS2_narrow:
             input:
@@ -104,8 +104,8 @@ if config["peak_calling_macs2"]["run"]:
                 gtf=resources.gtf,
                 bed=expand("results/macs2_narrow/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed", fdr=fdr,bg_sample=BG_SAMPLES),
             output:
-                fd=report("results/plots/macs2_narrow/fdr{fdr}/feature_distributions_overlap.pdf", caption="../report/feature_distributions.rst", category="Peak annotation MACS2 narrow"),
-                dt=report("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf_overlap", caption="../report/distance_to_tss.rst", category="Peak annotation MACS2 narrow"),
+                fd=report("results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation MACS2 narrow"),
+                dt=report("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation MACS2 narrow"),
             params:
                 extra="",
             threads: config["resources"]["plotting"]["cpu"]
@@ -232,8 +232,8 @@ if config["peak_calling_macs2"]["run"]:
                 gtf=resources.gtf,
                 bed=expand("results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed", fdr=fdr,bg_sample=BG_SAMPLES),
             output:
-                fd=report("results/plots/macs2_broad/fdr{fdr}/feature_distributions_overlap.pdf", caption="../report/feature_distributions.rst", category="Peak annotation MACS2 broad"),
-                dt=report("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf_overlap", caption="../report/distance_to_tss.rst", category="Peak annotation MACS2 broad"),
+                fd=report("results/plots/macs2_broad/fdr{fdr}/feature_distributions.pdf", caption="../report/feature_distributions.rst", category="Peak annotation MACS2 broad"),
+                dt=report("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf", caption="../report/distance_to_tss.rst", category="Peak annotation MACS2 broad"),
             params:
                 extra="",
             threads: config["resources"]["plotting"]["cpu"]
