@@ -253,19 +253,23 @@ For example, a profile `config.yaml` can be stored at /home/user/.config/snakema
 cores: 40
 latency-wait: 20
 use-conda: True
+use-apptainer: True
 keep-going: False
 rerun-incomplete: True
 printshellcmds: True
-cache: True
 show-failed-logs: True
 ```
 
-Snakemake supports between workflow caching, so that certain resource files, such as the Bowtie2 index, can be re-used between different analyses.
-
-To enable this append this line to your `~/.bashrc`:
-```shell
-export SNAKEMAKE_OUTPUT_CACHE=/path/to/snakemake-cache/
+When running on a slurm-based HPC, the following lines can be included in `config.yaml`:
+```yaml
+executor: slurm
+jobs: 100
+default-resources:
+        slurm_partition: icelake
+        slurm_account: <ACCOUNT>
 ```
+
+Snakemake supports between workflow caching, so that certain resource files, such as the Bowtie2 index, can be re-used between different analyses.
 
 ## Dry-run of the analysis
 
