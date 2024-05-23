@@ -6,7 +6,6 @@ rule get_fasta:
         url=resources.fasta_url,
     log:
         "logs/resources/get_fasta.log"
-    #cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
@@ -32,7 +31,6 @@ rule install_damidseq_pipeline_software:
         url="https://github.com/owenjm/damidseq_pipeline.git",
         version="-b v1.5.3",
     retries: 3
-    #cache: True
     log:
         "logs/resources/install_find_peaks_software.log"
     threads: 1
@@ -84,7 +82,6 @@ rule masked_fasta:
         genome=resources.genome,
     log:
         "logs/resources/masked_fasta.log"
-    #cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
@@ -101,7 +98,6 @@ rule index_fasta:
         f"{resources.fasta}.fai",
     log:
         "logs/resources/index_fasta.log"
-    #cache: True
     threads: config["resources"]["plotting"]["cpu"]
     resources: 
         runtime=config["resources"]["plotting"]["time"]
@@ -135,7 +131,6 @@ rule make_gatc_tracks:
         f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
     params:
         genome=lambda wildcards, output: output[0][:-9]
-    #cache: True
     threads: config["resources"]["fastqc"]["cpu"],
     resources:
         time=config["resources"]["fastqc"]["time"],
@@ -162,7 +157,6 @@ rule bowtie2_build_index:
             ".rev.1.bt2",
             ".rev.2.bt2",
         ),
-    #cache: True
     log:
         f"logs/bowtie2_build_index/{resources.genome}_{resources.build}.log",
     params:
@@ -175,9 +169,6 @@ rule bowtie2_build_index:
 
 
 if config["plasmid_fasta"] != "none":
-    # Check plasmid fasta
-    #check_plasmid_fasta(config["plasmid_fasta"])
-    
     rule bowtie2_build_index_plasmid:
         input:
             ref=config["plasmid_fasta"],
@@ -191,7 +182,6 @@ if config["plasmid_fasta"] != "none":
                 ".rev.1.bt2",
                 ".rev.2.bt2",
             ),
-        #cache: True
         log:
             f"logs/bowtie2_build_index/{plasmid_name}.log",
         params:
@@ -200,6 +190,4 @@ if config["plasmid_fasta"] != "none":
         resources:
             runtime=config["resources"]["index"]["time"],
         wrapper:
-            f"{wrapper_version}/bio/bowtie2/build"
-
-    
+            f"{wrapper_version}/bio/bowtie2/build"    
