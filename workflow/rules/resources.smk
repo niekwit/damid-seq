@@ -133,7 +133,7 @@ rule make_gatc_tracks:
         genome=lambda wildcards, output: output[0][:-9]
     threads: config["resources"]["fastqc"]["cpu"],
     resources:
-        time=config["resources"]["fastqc"]["time"],
+        runtime=config["resources"]["fastqc"]["time"],
     conda:
         "../envs/damid.yaml",
     log:
