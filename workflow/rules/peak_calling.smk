@@ -81,6 +81,7 @@ if config["peak_calling_macs2"]["run"]:
         rule filter_consensus_peaks_macs2_narrow:
             input:
                 bed="results/macs2_narrow/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed",
+                peaks=expand("results/macs2_narrow/fdr{fdr}/{dir}/{{bg_sample}}_peaks.narrowPeak", dir=DIRS, fdr=fdr),
                 cs=f"resources/{resources.genome}_chrom.sizes",
             output:
                 ext_bed="results/macs2_narrow/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
@@ -209,6 +210,7 @@ if config["peak_calling_macs2"]["run"]:
         rule filter_consensus_peaks_macs2_broad:
             input:
                 bed="results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed",
+                peaks=expand("results/macs2_broad/fdr{fdr}/{dir}/{{bg_sample}}_peaks.broadPeak", dir=DIRS, fdr=fdr),
                 cs=f"resources/{resources.genome}_chrom.sizes",
             output:
                 ext_bed="results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
