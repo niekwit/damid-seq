@@ -260,16 +260,16 @@ printshellcmds: True
 show-failed-logs: True
 ```
 
-When running on a slurm-based HPC, the following lines can be included in `config.yaml`:
+When running on a slurm-based HPC, the following lines should be included in `config.yaml`:
 ```yaml
 executor: slurm
 jobs: 100
+apptainer-args: "--bind '/parent_dir/of/analysis'" # if analysis in not in /home/$USER
 default-resources:
         slurm_partition: icelake
         slurm_account: <ACCOUNT>
 ```
 
-Snakemake supports between workflow caching, so that certain resource files, such as the Bowtie2 index, can be re-used between different analyses.
 
 ## Dry-run of the analysis
 
