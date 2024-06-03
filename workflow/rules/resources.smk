@@ -62,9 +62,9 @@ rule create_annotation_file:
         rdata=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
     log:
         "logs/resources/create_annotation_file.log"
-    threads: config["resources"]["plotting"]["cpu"]
+    threads: config["resources"]["trim"]["cpu"]
     resources: 
-        runtime=config["resources"]["plotting"]["time"]
+        runtime=config["resources"]["trim"]["time"]
     conda:
         "../envs/R.yaml"
     script:
