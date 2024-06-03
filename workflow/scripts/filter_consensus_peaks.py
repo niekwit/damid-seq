@@ -1,9 +1,13 @@
+import pandas as pd
+
 # Load Snakemake variables
 bed = snakemake.input["bed"]
+peaks = snakemake.input["peaks"]
 cs = snakemake.input["cs"]
 ext_bed = snakemake.output[0]
 k = int(snakemake.params["k"])
 max_size = int(snakemake.params["max_size"])
+sample = snakemake.wildcards["bg_sample"]
 
 # Load chrom_sizes into dictionary
 # This is needed to make sure that the extended regions 
@@ -14,6 +18,13 @@ with open(cs) as f:
        (key, value) = line.split()
        chrom_sizes[key] = int(value)
 
+# Load individual peaks into data frames
+ind_peaks = []
+for peak in peaks:
+    df = pd.read_csv(peak, sep="\t", header=None, low_memory=False)
+    ind_peaks.append(df)
+
+# Counters for logging
 extended_peaks = 0
 skipped_peaks = 0
 count = 1
@@ -40,6 +51,18 @@ with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
             skipped_peaks += 1
             continue # Skip to next line
         
+        # Instead of only the overlapping region, get the region that contains 
+        # the whole area of the overlapping regions
+        starts = []
+        ends = []
+        for df in ind_peaks:
+            df = df[(df[0] == chrom) & (df[1] <= int(end)) & (df[2] >= int(start))]
+            if not df.empty:
+                starts.append(df[1].min())
+                ends.append(df[2].max())
+        start = min(starts)
+        end = max(ends)
+                
         # Check if region is short enough to extend 
         # otherwise just keep the original region
         start = int(start)
