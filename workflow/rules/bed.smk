@@ -56,7 +56,7 @@ rule consensus_peaks: # Escape bg_sample wildcard to get all replicate bg_sample
 rule filter_consensus_peaks:
     input:
         bed="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed",
-        peaks=expand("results/peaks/fdr{fdr}/{dir}/{{bg_sample}}.sorted.bed", fdr=fdr , dir=DIRS)
+        peaks=expand("results/peaks/fdr{fdr}/{dir}/{{bg_sample}}.sorted.bed", fdr=fdr , dir=DIRS),
         cs=f"resources/{resources.genome}_chrom.sizes",
     output:
         "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed",
