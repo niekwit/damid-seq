@@ -1,6 +1,6 @@
 FROM condaforge/mambaforge:latest
 LABEL io.github.snakemake.containerized="true"
-LABEL io.github.snakemake.conda_env_hash="c5a326651c7f183cccd58d1723ac96357a3ce6654daf36293784636da3a119f2"
+LABEL io.github.snakemake.conda_env_hash="25db955700d91a6414a309a42569ef2a16f312574eb0c3a8553a4318bd72cfbf"
 
 # Step 1: Retrieve conda environments
 
@@ -56,7 +56,7 @@ ADD https://github.com/snakemake/snakemake-wrappers/raw/v3.10.2/bio/samtools/ind
 
 # Conda environment:
 #   source: workflow/envs/R.yaml
-#   prefix: /conda-envs/b287d5a87a7b181ed59611ddc5af0a8f
+#   prefix: /conda-envs/4554a2c6669fb2054cdfbe43af1d6154
 #   name: R
 #   channels: 
 #     - conda-forge
@@ -74,8 +74,10 @@ ADD https://github.com/snakemake/snakemake-wrappers/raw/v3.10.2/bio/samtools/ind
 #     - bioconductor-genomicfeatures=1.54.1
 #     - bioconductor-rtracklayer=1.62.0
 #     - r-viridislite=0.4.2
-RUN mkdir -p /conda-envs/b287d5a87a7b181ed59611ddc5af0a8f
-COPY workflow/envs/R.yaml /conda-envs/b287d5a87a7b181ed59611ddc5af0a8f/environment.yaml
+#     - r-enrichr=3.2
+#     - r-openxlsx=4.2.5.2
+RUN mkdir -p /conda-envs/4554a2c6669fb2054cdfbe43af1d6154
+COPY workflow/envs/R.yaml /conda-envs/4554a2c6669fb2054cdfbe43af1d6154/environment.yaml
 
 # Conda environment:
 #   source: workflow/envs/damid.yaml
@@ -154,7 +156,7 @@ RUN mamba env create --prefix /conda-envs/e471b5222afe25a895718be01070f68f --fil
     mamba env create --prefix /conda-envs/90ea9a0a5f4de478eb6aa43932774175 --file /conda-envs/90ea9a0a5f4de478eb6aa43932774175/environment.yaml && \
     mamba env create --prefix /conda-envs/b29db9b4576aa24f6ca5cdabda9911b4 --file /conda-envs/b29db9b4576aa24f6ca5cdabda9911b4/environment.yaml && \
     mamba env create --prefix /conda-envs/adec7d399fa9492178d9caa96f93852d --file /conda-envs/adec7d399fa9492178d9caa96f93852d/environment.yaml && \
-    mamba env create --prefix /conda-envs/b287d5a87a7b181ed59611ddc5af0a8f --file /conda-envs/b287d5a87a7b181ed59611ddc5af0a8f/environment.yaml && \
+    mamba env create --prefix /conda-envs/4554a2c6669fb2054cdfbe43af1d6154 --file /conda-envs/4554a2c6669fb2054cdfbe43af1d6154/environment.yaml && \
     mamba env create --prefix /conda-envs/cb2a9c9685efe98f401d666d5b884a76 --file /conda-envs/cb2a9c9685efe98f401d666d5b884a76/environment.yaml && \
     mamba env create --prefix /conda-envs/0c5edaf30d052120fe12000c137275cb --file /conda-envs/0c5edaf30d052120fe12000c137275cb/environment.yaml && \
     mamba env create --prefix /conda-envs/35dbd4f499c2bf378ca66a63855a13dc --file /conda-envs/35dbd4f499c2bf378ca66a63855a13dc/environment.yaml && \
