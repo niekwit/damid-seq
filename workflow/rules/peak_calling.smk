@@ -157,6 +157,45 @@ if config["peak_calling_macs2"]["run"]:
                 "awk '{{print $(NF-4),$(NF-1)}}' | "
                 "sort | "
                 "uniq > {output.ids}"
+
+
+        if config["consensus_peaks"]["enrichment_analysis"]["run"]:
+            rule enrichment_analysis:
+                input:
+                    txt="results/macs2_narrow/fdr{fdr}/{bg_sample}.geneIDs.txt",
+                output:
+                    xlsx="results/macs2_narrow/fdr{fdr}/enrichment_analysis/{bg_sample}.xlsx",
+                params:
+                    extra="",
+                    genome=resources.genome,
+                    dbs=config["consensus_peaks"]["enrichment_analysis"]["dbs"]
+                threads: config["resources"]["deeptools"]["cpu"]
+                resources:
+                    runtime=config["resources"]["deeptools"]["time"]
+                log:
+                    "logs/enrichment_analysis/macs2_narrow/fdr{fdr}/{bg_sample}.log"
+                conda:
+                    "../envs/R.yaml"
+                script:
+                    "../scripts/enrichment_analysis.R"
+
+            rule plot_enrichment:
+                input:
+                    xlsx="results/macs2_narrow/fdr{fdr}/enrichment_analysis/{bg_sample}.xlsx",
+                output:
+                    plots=expand("results/plots/macs2_narrow/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS),
+                params:
+                    terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
+                    dirname=lambda w, output: os.path.dirname(output[0]),
+                threads: config["resources"]["plotting"]["cpu"]
+                resources:
+                    runtime=config["resources"]["plotting"]["time"]
+                log:
+                    "logs/plot_enrichment/macs2_narrow/fdr{fdr}/{bg_sample}.log"
+                conda:
+                    "../envs/R.yaml"
+                script:
+                    "../scripts/plot_enrichment.R"
     
     elif config["peak_calling_macs2"]["mode"] == "broad":
         fdr = config["peak_calling_macs2"]["broad_cutoff"]
@@ -286,3 +325,42 @@ if config["peak_calling_macs2"]["run"]:
                 "awk '{{print $(NF-4),$(NF-1)}}' | "
                 "sort | "
                 "uniq > {output.ids}"
+
+
+        if config["consensus_peaks"]["enrichment_analysis"]["run"]:
+            rule enrichment_analysis:
+                input:
+                    txt="results/macs2_broad/fdr{fdr}/{bg_sample}.geneIDs.txt",
+                output:
+                    xlsx="results/macs2_broad/fdr{fdr}/enrichment_analysis/{bg_sample}.xlsx",
+                params:
+                    extra="",
+                    genome=resources.genome,
+                    dbs=config["consensus_peaks"]["enrichment_analysis"]["dbs"]
+                threads: config["resources"]["deeptools"]["cpu"]
+                resources:
+                    runtime=config["resources"]["deeptools"]["time"]
+                log:
+                    "logs/enrichment_analysis/macs2_broad/fdr{fdr}/{bg_sample}.log"
+                conda:
+                    "../envs/R.yaml"
+                script:
+                    "../scripts/enrichment_analysis.R"
+
+            rule plot_enrichment:
+                input:
+                    xlsx="results/macs2_broad/fdr{fdr}/enrichment_analysis/{bg_sample}.xlsx",
+                output:
+                    plots=expand("results/plots/macs2_broad/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS),
+                params:
+                    terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
+                    dirname=lambda w, output: os.path.dirname(output[0]),
+                threads: config["resources"]["plotting"]["cpu"]
+                resources:
+                    runtime=config["resources"]["plotting"]["time"]
+                log:
+                    "logs/plot_enrichment/macs2_broad/fdr{fdr}/{bg_sample}.log"
+                conda:
+                    "../envs/R.yaml"
+                script:
+                    "../scripts/plot_enrichment.R"

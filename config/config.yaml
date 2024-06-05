@@ -53,6 +53,10 @@ consensus_peaks:
     max_size: 10 # Maximum size of peaks to be extended
     extend_by: 40 # Number of bp to extend peaks on either side
     keep: 2 # Minimum number peaks that must overlap to keep
+    enrichment_analysis: 
+      run: True # Perform enrichment analysis
+      dbs: ["GO_Molecular_Function_2018","GO_Biological_Process_2018","KEGG_2019"]
+      terms: 10 # Number of terms to plot
 resources: # computing resources
   trim:
     cpu: 8

@@ -164,7 +164,18 @@ properties:
       keep:
         type: integer
         minimum: 1
-
+      enrichment_analysis:
+        type: object
+        properties:
+          run:
+            type: boolean
+          dbs:
+            type: array
+            items:
+              type: string
+          terms:
+            type: integer
+            minimum: 1
   resources:
     type: object
     properties:

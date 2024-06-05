@@ -113,3 +113,42 @@ rule get_gene_names:
         "awk '{{print $(NF-4),$(NF-1)}}' |"
         " sort | "
         "uniq > {output.ids}"
+
+if config["peak_calling_perl"]["run"]:
+    if config["consensus_peaks"]["enrichment_analysis"]["run"]:
+        rule enrichment_analysis:
+            input:
+                txt="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.geneIDs.txt",
+            output:
+                xlsx="results/peaks/fdr{fdr}/consensus_peaks/enrichment_analysis/{bg_sample}.xlsx",
+            params:
+                extra="",
+                genome=resources.genome,
+                dbs=config["consensus_peaks"]["enrichment_analysis"]["dbs"]
+            threads: config["resources"]["deeptools"]["cpu"]
+            resources:
+                runtime=config["resources"]["deeptools"]["time"]
+            log:
+                "logs/enrichment_analysis/peaks/fdr{fdr}/{bg_sample}.log"
+            conda:
+                "../envs/R.yaml"
+            script:
+                "../scripts/enrichment_analysis.R"
+
+        rule plot_enrichment:
+            input:
+                xlsx="results/peaks/fdr{fdr}/consensus_peaks/enrichment_analysis/{bg_sample}.xlsx",
+            output:
+                plots=report(expand("results/plots/peaks/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS), caption="../report/enrichment_analysis.rst", category="Enrichment analysis"),
+            params:
+                terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
+                dir_name=lambda w, output: os.path.dirname(output[0]),
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"]
+            log:
+                "logs/plot_enrichment/peaks/fdr{fdr}/{bg_sample}.log"
+            conda:
+                "../envs/R.yaml"
+            script:
+                "../scripts/plot_enrichment.R"

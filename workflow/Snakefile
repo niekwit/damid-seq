@@ -41,11 +41,13 @@ maskedgenes = masked_genes()
 if data_type() == "matrix":
     matrix_samples()
 
+# Wildcard values
 DIRS = dirs()
 SAMPLES = samples() # Includes Dam control
 BG_SAMPLES = samples(bedgraph=True) # SAMPLES minus Dam control
 DAM_SAMPLES = samples(bedgraph=True, dam=True)
- 
+DBS = config["consensus_peaks"]["enrichment_analysis"]["dbs"]
+
 # Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
@@ -57,7 +59,7 @@ include: "rules/plotting.smk"
 include: "rules/peak_calling.smk"
 include: "rules/bed.smk"
 
-localrules: all, plot_mapping_rates, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, index_fasta, chrom_sizes
+localrules: all, plot_mapping_rates, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, index_fasta, chrom_sizes, plot_enrichment
 
 # Target rule
 rule all:

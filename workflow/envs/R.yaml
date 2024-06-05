@@ -15,3 +15,5 @@ dependencies:
   - bioconductor-genomicfeatures=1.54.1
   - bioconductor-rtracklayer=1.62.0
   - r-viridislite=0.4.2
+  - r-enrichr=3.2
+  - r-openxlsx=4.2.5.2

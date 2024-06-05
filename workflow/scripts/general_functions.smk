@@ -34,6 +34,10 @@ def targets():
             expand("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.annotated.txt", fdr=fdr, bg_sample=BG_SAMPLES),
             expand("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.geneIDs.txt", fdr=fdr,bg_sample=BG_SAMPLES)
             ])
+        if config["consensus_peaks"]["enrichment_analysis"]["run"]:
+            TARGETS.extend([
+                expand("results/plots/peaks/fdr{fdr}/enrichment_analysis/{bg_sample}/{db}.pdf", fdr=fdr, bg_sample=BG_SAMPLES, db=DBS),
+                ])
     
     if config["peak_calling_macs2"]["run"]:
         if config["peak_calling_macs2"]["mode"] == "narrow":
@@ -42,13 +46,20 @@ def targets():
                 expand("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
                 expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
                 ])
+            if config["consensus_peaks"]["enrichment_analysis"]["run"]:
+                TARGETS.extend([
+                    expand("results/plots/macs2_narrow/fdr{fdr}/enrichment_analysis/{bg_sample}/{db}.pdf", fdr=fdr, bg_sample=BG_SAMPLES, db=DBS),
+                    ])
         elif config["peak_calling_macs2"]["mode"] == "broad":
             TARGETS.extend([
                 expand("results/plots/macs2_broad/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
                 expand("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
                 expand("results/macs2_broad/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
                 ])
-    
+            if config["consensus_peaks"]["enrichment_analysis"]["run"]:
+                TARGETS.extend([
+                     expand("results/plots/macs2_broad/fdr{fdr}/enrichment_analysis/{bg_sample}/{db}.pdf", fdr=fdr, bg_sample=BG_SAMPLES, db=DBS),
+                    ])
     return TARGETS
 
 
@@ -417,6 +428,14 @@ def check_plasmid_fasta(fasta):
     # this function will not work for those files!!! DO NOT USE YET
     with open(fasta, "r") as f:
         lines = f.readlines()
+        
+        # Remove newlines from non-header lines
+        # Problem: this will remove newlines from DNA sequence (last line of sequence)
+        lines = [l.strip() for l in lines if not l.startswith(">")]
+
+        # Reintroduce newlines before each > where this character is not at the start of the line
+        ####
+        
         header = [l for l in lines if l.startswith(">")]
         sequence = [l for l in lines if not l.startswith(">")]
         if len(header) != len(sequence):

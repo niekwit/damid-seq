@@ -9,7 +9,7 @@ library(cowplot)
 
 # Load Snakemake variables
 xlsx <- snakemake@input[["xlsx"]]
-dir_name <- snakemake@output[["dir_name"]]
+dir_name <- snakemake@params[["dir_name"]]
 terms <- snakemake@params[["terms"]]
 
 # Create output directory
