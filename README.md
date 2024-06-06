@@ -1,6 +1,6 @@
 # Snakemake workflow: `damid-seq`
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥8.10.6-brightgreen.svg)](https://snakemake.github.io)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥8.12.0-brightgreen.svg)](https://snakemake.github.io)
 [![Tests](https://github.com/niekwit/damid-seq/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/damid-seq/actions/workflows/main.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/niekwit/damid-seq/badge)](https://www.codefactor.io/repository/github/niekwit/damid-seq)
 [![DOI](https://zenodo.org/badge/708194033.svg)](https://zenodo.org/doi/10.5281/zenodo.10737672)
@@ -270,6 +270,11 @@ default-resources:
         slurm_account: <ACCOUNT>
 ```
 
+Some system have limited space allocated to `/tmp`, which can be problematic when using Apptainer. Add the following line to `~/.bashrc` to set a different temporary directory location:
+
+```shell
+export APPTAINER_TMPDIR=~/rds/hpc-work/apptainer_tmp
+```
 
 ## Dry-run of the analysis
 
