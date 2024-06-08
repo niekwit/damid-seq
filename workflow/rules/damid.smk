@@ -28,7 +28,8 @@ if config["plasmid_fasta"] == "none":
             "../envs/damid.yaml"
         threads: config["resources"]["damid"]["cpu"]
         resources:
-            runtime=config["resources"]["damid"]["time"]
+            runtime=config["resources"]["damid"]["time"],
+            tmpdir=config["resources"]["damid"]["tmpdir"],
         log:
             "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
         script:
@@ -96,7 +97,8 @@ else:
                 "../envs/damid.yaml"
             threads: config["resources"]["damid"]["cpu"]
             resources:
-                runtime=config["resources"]["damid"]["time"]
+                runtime=config["resources"]["damid"]["time"],
+                tmpdir=config["resources"]["damid"]["tmpdir"],
             log:
                 "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
             script:
@@ -162,7 +164,8 @@ else:
                 "../envs/damid.yaml"
             threads: config["resources"]["damid"]["cpu"]
             resources:
-                runtime=config["resources"]["damid"]["time"]
+                runtime=config["resources"]["damid"]["time"],
+                tmpdir=config["resources"]["damid"]["tmpdir"],
             log:
                 "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
             script:
