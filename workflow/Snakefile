@@ -1,6 +1,7 @@
 include: "scripts/general_functions.smk"
 from scripts.resources import Resources
 from snakemake.utils import min_version, validate
+from snakemake.shell import shell
 
 report: "report/workflow.rst"
 
@@ -73,7 +74,9 @@ os.makedirs("logs/snakemake", exist_ok=True)
 
 onsuccess: 
     shell("cp -v {log} {snake_log}")
-    print("Analysis finished successfully!")
+    logger.info("Analysis finished successfully!")
+    logger.info("Generating report...")
+    shell("snakemake --report report.html")
 onerror:
     shell("cp -v {log} {snake_log}")
-    print(f"Analysis failed...\nCheck {snake_log} for details")
+    logger.info(f"Analysis failed...\nCheck {snake_log} for details")
