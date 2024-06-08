@@ -29,7 +29,7 @@ for (i in sheets) {
   df$Ratio <- str_split(df$Overlap, "/") %>%
     map_dbl(~ as.numeric(.x[1]) / as.numeric(.x[2]))
   
-  # Wrap term longer than 60 characters over multiple lines
+  # Wrap terms longer than 60 characters over multiple lines
   df$Term <- str_wrap(df$Term, 60)
   
   # Relevel terms to avoid alphabetical sorting
@@ -51,7 +51,8 @@ for (i in sheets) {
     theme(axis.text.x = element_text(angle = 45, 
                                      hjust = 1)) +
     labs(x = "-log10(Adjusted P value)", 
-         y = NULL)
+         y = NULL) +
+      ggtitle(i)
   
   # Save plot
   ggsave(paste0(dir_name, "/", i, ".pdf"), 
