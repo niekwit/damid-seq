@@ -8,10 +8,11 @@
 .. image:: https://img.shields.io/github/stars/niekwit/damid-seq?style=social
     :alt: GitHub stars
 
+
 damid-seq
 =========
 
-`damid-seq` is a (containerized) Snakemake pipeline for reproducible analysis of single/paired-end DamID-seq short read Illumina data.
+`damid-seq` is a containerized Snakemake pipeline for reproducible analysis of single/paired-end DamID-seq short read Illumina data.
 
 The core of the pipeline is the Perl script `damidseq_pipeline <https://github.com/owenjm/damidseq_pipeline>`_, which is a great tool for the first steps of analysing DamID-seq data. However, it does not process biological replicate data, and is not written with deployment to server, cluster, grid and cloud environments in mind.
 
@@ -19,43 +20,51 @@ The core of the pipeline is the Perl script `damidseq_pipeline <https://github.c
 Aim
 ---
 
-`damid-seq` implements the [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow management system, which overcomes the above issues. In addition, we have added many features to the DamID-seq analysis workflow.
+`damid-seq` implements the `Snakemake <https://snakemake.readthedocs.io/en/stable/>`_ workflow management system, which overcomes the above issues. In addition, we have added many features to the DamID-seq analysis workflow.
 
-**CONTENTS**
+
+**Contents**
 ------------
 
 .. toctree::
     :caption: DamID
-    :maxdepth: 2
+    :maxdepth: 1
 
     damid.rst
 
 .. toctree::
     :caption: Installation
-    :maxdepth: 2
+    :maxdepth: 1
 
     installation.rst
 
 .. toctree::
     :caption: Usage
-    :maxdepth: 2
+    :maxdepth: 1
 
     usage.rst
 
 .. toctree::
     :caption: Output
-    :maxdepth: 2
+    :maxdepth: 1
 
     output.rst
 
 .. toctree::
     :caption: Citation
-    :maxdepth: 2
+    :maxdepth: 1
 
     citation.rst
 
 .. toctree::
     :caption: Literature
-    :maxdepth: 2
+    :maxdepth: 1
 
     literature.rst
+
+
+.. toctree::
+    :caption: Source code
+    :maxdepth: 1
+
+    sourcecode.rst
