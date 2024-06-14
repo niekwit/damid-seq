@@ -2,6 +2,7 @@
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥8.12.0-brightgreen.svg)](https://snakemake.github.io)
 [![Tests](https://github.com/niekwit/damid-seq/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/damid-seq/actions/workflows/main.yml)
+[![Documentation Status](https://readthedocs.org/projects/damid-seq/badge/?version=latest)](https://damid-seq.readthedocs.io/en/latest/?badge=latest)
 [![CodeFactor](https://www.codefactor.io/repository/github/niekwit/damid-seq/badge)](https://www.codefactor.io/repository/github/niekwit/damid-seq)
 [![DOI](https://zenodo.org/badge/708194033.svg)](https://zenodo.org/doi/10.5281/zenodo.10737672)
 
