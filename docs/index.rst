@@ -33,7 +33,7 @@ Aim
     damid.rst
 
 .. toctree::
-    :caption: Installation
+    :caption: Software requirements
     :maxdepth: 1
 
     installation.rst

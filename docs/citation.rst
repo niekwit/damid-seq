@@ -12,4 +12,13 @@ Software used in workflow
 
 Please also cite the software used in this workflow:
 
-TO DO
+* Fastqc
+* MultiQC
+* samtools
+* Trim Galore
+* Bowtie2
+* deeptools
+* damidseq_pipeline
+* bedtools
+* MACS2
+* Biopython

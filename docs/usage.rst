@@ -132,7 +132,7 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
         cpu: 2
         time: 20
 
-A lot of the DamID signal can come from the plasmids that were used to express the Dam-POIs, and this can skew the analysis.
+A lot of the DamID signal can come from the plasmids that are used to express the Dam-POIs, and this can skew the analysis.
 
 To prevent this, two approaches are available:
 

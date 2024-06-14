@@ -39,7 +39,7 @@ It is highly recommended to run the workflow using the ``--use-conda --use-appta
 Snakefetch
 ----------
 
-The easiest way to obtain the workflow code is to use `snakefetch <https://pypi.org/project/snakefetch/>`_.
+The easiest way to obtain the `damid-seq` workflow code is to use `snakefetch <https://pypi.org/project/snakefetch/>`_.
 
 To install snakefetch, run:
 
@@ -47,7 +47,11 @@ To install snakefetch, run:
 
     $ pip install snakefetch
 
-Then, fetch the workflow as follows:
+
+Workflow installation
+---------------------
+
+Using snakefetch:
 
 .. code-block:: console
 
@@ -117,3 +121,22 @@ Then, fetch the workflow as follows:
         └── Snakefile
 
     7 directories, 51 files
+
+Alternatively, you can clone the repository in a directory of choice, and copy the config and workflow directories to the desired location:
+
+.. code-block:: console
+
+    $ cd /path/to/store/code
+    $ git clone https://github.com/niekwit/damid-seq.git
+    $ cp -r damid-seq/config damid-seq/workflow /path/to/analysis
+
+This will download the development version of the workflow. 
+
+If you want to obtain a specific release instead:
+
+.. code-block:: console
+
+    $ cd /path/to/store/code
+    $ git clone https://github.com/niekwit/damid-seq.git -b v0.5.0
+    $ cp -r damid-seq/config damid-seq/workflow /path/to/analysis
+
