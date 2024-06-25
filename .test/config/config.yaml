@@ -3,7 +3,9 @@ ensembl_genome_build: 110
 plasmid_fasta: none
 bowtie2:
   extra: ""
-fusion_genes: FBgn0004872 # Genes from these proteins will be removed from the analysis
+fusion_genes: 
+  genes: FBgn0004872 # Genes from these proteins will be masked from the fasta file
+  feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
 damidseq_pipeline:
   normalization: kde # kde, rpm or rawbins
   binsize: 300
