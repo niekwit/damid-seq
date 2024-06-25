@@ -27,7 +27,7 @@ class Resources:
             if genome == "mm38":
                 name = "GRCm38"
             elif genome == "mm39":
-                name = "GCRm39"
+                name = "GRCm39"
                 
             # create URLs for genome files
             self.fasta_url = f"{base_url_ens}fasta/mus_musculus/dna/Mus_musculus.{name}.dna.primary_assembly.fa.gz"
