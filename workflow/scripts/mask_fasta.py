@@ -3,10 +3,9 @@ import subprocess
 from Bio import SeqIO
 
 """
-Replaces gene sequences set in config:fusion_genes 
-in fasta file with Ns.
-
-TO DO: instead of whole gene sequence, mask only exonic regions
+Replaces gene sequences set in config:fusion_genes:genes 
+in fasta file with Ns. Either whole gene sequence or
+just exons can be masked (config:fusion_genes:feature_to_mask).
 
 Reason: plasmid expressing Dam fusion 
 genes can be methylated at very high levels
@@ -57,14 +56,14 @@ else:
             except ValueError:
                 continue # Skip empty line (last one)
             
-            # Load chromosome sequence where gene is located
+            # Load chromosome sequence where gene feuture is located
             seq = chr_seq[chr]
             
             # Correct start and end positions for 0-based indexing
             start = int(start) - 1
             end = int(end) - 1
             
-            # Mask gene sequence with Ns
+            # Mask gene feature sequence with Ns
             seq_masked = seq[:start] + "N" * (end - start) + seq[end:]
             
             # Replace sequence in dict
