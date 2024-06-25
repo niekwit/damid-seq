@@ -44,7 +44,7 @@ for (i in sheets) {
                shape = 21,
                colour = "black") +
     scale_fill_gradient(low = "white", 
-                        high = "forestgreen",
+                        high = "#419179",
                         guide = guide_colorbar(frame.colour = "black", 
                                                ticks.colour = "black")) +
     theme_cowplot(18) +
