@@ -80,6 +80,7 @@ rule masked_fasta:
     params:
         g2m=maskedgenes,
         genome=resources.genome,
+        f2m=config["fusion_genes"]["feature_to_mask"]
     log:
         "logs/resources/masked_fasta.log"
     threads: config["resources"]["plotting"]["cpu"]

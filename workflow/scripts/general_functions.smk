@@ -362,7 +362,7 @@ def masked_genes():
     """
     Returns string with genes that were masked in fasta file
     """
-    genes = config["fusion_genes"]
+    genes = config["fusion_genes"]["genes"]
 
     # If no genes are given, return no_genes
     if genes == "":

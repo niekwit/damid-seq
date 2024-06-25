@@ -1,9 +1,9 @@
 genome: dm6
 ensembl_genome_build: 110
-plasmid_fasta: none
-fusion_genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be removed from the analysis
-bowtie2:
-  extra: ""
+plasmid_fasta: none # Path to plasmid fasta file with sequences to be removed
+fusion_genes: 
+  genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be masked from the fasta file
+  feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
 damidseq_pipeline:
   normalization: kde # kde, rpm or rawbins
   binsize: 300
@@ -67,6 +67,7 @@ resources: # computing resources
   damid:
     cpu: 24
     time: 720
+    tmpdir: /tmp
   index:
     cpu: 40
     time: 60

@@ -16,9 +16,16 @@ properties:
     description: Ensembl genome build
  
   fusion_genes:
-    type: string
-    description: Genes from these proteins will be removed from the analysis
-  
+    type: object
+    properties:
+      genes:
+        type: string
+        description: Genes from these proteins will be masked from the fasta file
+      feature_to_mask:
+        type: string
+        enum: ["exon", "gene"]
+        description: Feature to mask from the fasta file (exon or gene)
+
   damidseq_pipeline:
     type: object
     properties:
