@@ -83,7 +83,13 @@ def matrix_samples():
 
     Note: only works for paired-end reads at the moment.
     """
-    def symlink_files(list_):
+    logger.info("Matrix samples detected...")
+    logger.info("Preparing directory structure for all combinations of Dam controls vs Dam-fusion(s)...")
+    
+    cwd = os.getcwd()
+
+    if paired_end:
+        def symlink_files(list_):
             """
             Symlink each file in list to unique dir_
             Remove _[0-9] before paired-end end extension
@@ -99,13 +105,11 @@ def matrix_samples():
                 tmp.extend(l)
                 log.append(tmp)
                 for f in l:
-                    dest = re.sub(r"_\d{1,2}_R", "_R", f)  
-                    os.symlink(f, f"{dir_}/{os.path.basename(dest)}")
+                    dest = re.sub(r"_\d{1,2}_R", "_R", f)
+                    dest = f"{cwd}/{dir_}/{os.path.basename(dest)}"
+                    shell(f"ln -s {os.path.join(cwd, f)} {dest}")
             return log
-    logger.info("Matrix samples detected...")
-    logger.info("Preparing directory structure for all combinations of Dam controls vs Dam-fusion(s)...")
     
-    if paired_end:
         # Get all R1 files in reads/
         r1 = glob.glob("reads/*_R1_001.fastq.gz")
 
@@ -157,7 +161,7 @@ def matrix_samples():
         # Save log data to csv
         df.to_csv("reads/sample_matrix.csv", index=False)
     else:
-        reads = glob.glob(f"reads/*.fastq.gz")
+        r1 = glob.glob(f"reads/*.fastq.gz")
 
         # Get all R1 Dam only files in reads/
         dam = [f for f in r1 if "Dam" in f]
@@ -202,8 +206,9 @@ def matrix_samples():
                     tmp.extend(l)
                     log.append(tmp)
                     for f in l:
-                        dest = re.sub(r"_\d{1,2}", "", f)  
-                        os.symlink(f, f"{dir_}/{os.path.basename(dest)}")
+                        dest = re.sub(r"_\d{1,2}", "", f)
+                        dest = f"{cwd}/{dir_}/{os.path.basename(dest)}"
+                        shell(f"ln -s {os.path.join(cwd, f)} {dest}")
                 return log
 
         log_symlink = symlink_files(matched_samples)
@@ -257,13 +262,16 @@ def samples(bedgraph=False, dam=False):
                 r1= f"reads/{dir}/{sample}_R1_001.fastq.gz"
                 r2= f"reads/{dir}/{sample}_R2_001.fastq.gz"
                 if not os.path.isfile(r1):
-                    not_found.append(r1)
+                    if not os.path.islink(r1):
+                        not_found.append(r1)
                 if not os.path.isfile(r2):
-                    not_found.append(r2)
+                    if not os.path.islink(r2):
+                        not_found.append(r2)
             else:
                 r1= f"reads/{dir}/{sample}.fastq.gz"
                 if not os.path.isfile(r1):
-                    not_found.append(r1)
+                    if not os.path.islink(r1):
+                        not_found.append(r1)
     if len(not_found) != 0:
         not_found = "\n".join(not_found)
         raise ValueError(f"Following were files not found:\n{not_found}")
