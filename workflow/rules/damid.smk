@@ -51,6 +51,7 @@ else:
             output:
                 r1_fastq="results/trimmed_no_plasmid/{dir}/{sample}_1.fastq.gz",
                 r2_fastq="results/trimmed_no_plasmid/{dir}/{sample}_2.fastq.gz",
+                bam="results/bam/plasmid_reads/{dir}/{sample}.bam",
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
@@ -117,7 +118,7 @@ else:
                     ".rev.2.bt2",
                 ),
             output:
-                bam="results/bam/plasmid_removed/{dir}/{sample}.bam",
+                bam="results/bam/plasmid_reads/{dir}/{sample}.bam",
                 fastq="results/trimmed_no_plasmid/{dir}/{sample}.fastq.gz",
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
