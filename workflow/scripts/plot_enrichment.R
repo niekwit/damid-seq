@@ -52,7 +52,8 @@ for (i in sheets) {
                                      hjust = 1)) +
     labs(x = "-log10(Adjusted P value)", 
          y = NULL) +
-      ggtitle(i)
+    ggtitle(i) +
+    guides(fill = guide_legend(title = "Ratio\n(genes found /\ngenes in term)"))
   
   # Save plot
   ggsave(paste0(dir_name, "/", i, ".pdf"), 
