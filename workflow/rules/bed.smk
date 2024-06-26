@@ -142,7 +142,7 @@ if config["peak_calling_perl"]["run"]:
                 plots=report(expand("results/plots/peaks/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS), caption="../report/enrichment_analysis.rst", category="Enrichment analysis"),
             params:
                 terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
-                dir_name=lambda w, output: os.path.dirname(output[0]),
+                dirname=lambda w, output: os.path.dirname(output[0]),
             threads: config["resources"]["plotting"]["cpu"]
             resources:
                 runtime=config["resources"]["plotting"]["time"]
