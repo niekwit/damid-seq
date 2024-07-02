@@ -60,7 +60,7 @@ include: "rules/plotting.smk"
 include: "rules/peak_calling.smk"
 include: "rules/bed.smk"
 
-localrules: all, plot_mapping_rates, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, index_fasta, chrom_sizes, plot_enrichment
+localrules: all, plot_mapping_rates, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, index_fasta, chrom_sizes
 
 # Target rule
 rule all:
