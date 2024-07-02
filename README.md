@@ -10,11 +10,8 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 
 ## Aim
 
-`damid-seq` is a containerized Snakemake pipeline for reproducible analysis of single/paired-end DamID-seq short read Illumina data.
+`damid-seq` is a containerized Snakemake pipeline for reproducible and scalable analysis of single/paired-end DamID-seq short read Illumina data.
 
-The core of the pipeline is the Perl script [damidseq_pipeline](https://github.com/owenjm/damidseq_pipeline), which is a great tool for the first steps of analysing DamID-seq data. However, it does not process biological replicate data, and is not written with deployment to server, cluster, grid and cloud environments in mind.
-
-`damid-seq` implements the [Snakemake](https://snakemake.readthedocs.io/en/stable/) workflow management system, which overcomes the above issues. In addition, we have added many features to the DamID-seq analysis workflow.
 
 ## Documentation
 
