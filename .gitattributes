@@ -1,2 +1,3 @@
 # Recognize .smk files as Python scripts
-*.smk linguist-language=Python
+workflow/rules/*.smk linguist-language=Python
+workflow/scripts/*.smk linguist-language=Python
