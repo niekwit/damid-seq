@@ -18,6 +18,11 @@ data <- read.delim(snakemake@input[[1]],
                    skip = 1)
 colnames(data) <- gsub("^X", "", colnames(data))
 
+# Limit data to first ten components if there are more
+if (nrow(data) > 10) {
+  data <- data[1:10, ]
+}
+
 # Unique sample conditions
 colnames(data) <- gsub(".ext300", "", colnames(data))
 samples <- colnames(data)[2:(ncol(data) - 1)]
@@ -33,7 +38,7 @@ if (length(samples) == 1) {
 }
 names(colours) <- samples
 
-# Keep only components 1 and 2, transpose and add sample information
+# Keep only components 1 and 2 for plotting, transpose and add sample information
 df <- data[1:2, ] %>%
   dplyr::select(-c("Component", "Eigenvalue")) %>%
   t() %>%
