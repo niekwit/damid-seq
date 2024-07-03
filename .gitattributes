@@ -1,0 +1,2 @@
+# Recognize .smk files as Python scripts
+*.smk linguist-language=Python
