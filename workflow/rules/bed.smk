@@ -152,3 +152,56 @@ if config["peak_calling_perl"]["run"]:
                 "../envs/R.yaml"
             script:
                 "../scripts/plot_enrichment.R"
+
+    rule count_reads_in_peaks:
+        # Adapted from https://www.biostars.org/p/337872/#337890
+        input:
+            bam="results/bam/{dir}/{bg_sample}.bam",
+            b="results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed",
+        output:
+            total_read_count="results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
+            peak_read_count="results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count",
+        params:
+            extra="",
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"]
+        log:
+            "logs/bedtools_intersect/fdr{fdr}/{dir}/{bg_sample}.log"
+        conda:
+            "../envs/peak_calling.yaml"
+        shell:
+            "bedtools bamtobed "
+            "{params.extra} "
+            "-i {input.bam} | "
+            "sort -k1,1 -k2,2n | "
+            "tee >(wc -l > {output.total_read_count}) | "
+            "bedtools intersect "
+            "{params.extra} "
+            "-sorted "
+            "-c "
+            "-a {input.b} "
+            "-b stdin | "
+            "awk '{{i+=$NF}}END{{print i}}' > "
+            "{output.peak_read_count} "
+            "{log}"
+                
+
+    rule plot_fraction_of_reads_in_peaks:
+        input:
+            total_read_count=expand("results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
+            peak_read_count=expand("results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
+        output:
+            plot="results/plots/peaks/fdr{fdr}/frip.pdf",
+            csv="results/peaks/fdr{fdr}/frip.csv",
+        params:
+            extra="",
+        threads: config["resources"]["plotting"]["cpu"]
+        resources:
+            runtime=config["resources"]["plotting"]["time"]
+        log:
+            "logs/plot_frip/fdr{fdr}.log"
+        conda:
+            "../envs/R.yaml"
+        script:
+            "../scripts/plot_frip.R"
