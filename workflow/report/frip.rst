@@ -1,0 +1,1 @@
+Fraction of reads in peaks of each replicate non-Dam sample.

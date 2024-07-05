@@ -139,7 +139,7 @@ if config["peak_calling_perl"]["run"]:
             input:
                 xlsx="results/peaks/fdr{fdr}/consensus_peaks/enrichment_analysis/{bg_sample}.xlsx",
             output:
-                plots=report(expand("results/plots/peaks/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS), caption="../report/enrichment_analysis.rst", category="Enrichment analysis"),
+                plots=report(expand("results/plots/peaks/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS), caption="../report/enrichment_analysis.rst", category="Pathway enrichment analysis"),
             params:
                 terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
                 dirname=lambda w, output: os.path.dirname(output[0]),
@@ -191,7 +191,7 @@ if config["peak_calling_perl"]["run"]:
             total_read_count=expand("results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
             peak_read_count=expand("results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
         output:
-            plot="results/plots/peaks/fdr{fdr}/frip.pdf",
+            plot=report("results/plots/peaks/fdr{fdr}/frip.pdf", caption="../report/frip.rst", category="Fraction of reads in peaks"),
             csv="results/peaks/fdr{fdr}/frip.csv",
         params:
             extra="",

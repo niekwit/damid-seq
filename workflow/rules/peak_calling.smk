@@ -181,7 +181,7 @@ if config["peak_calling_macs2"]["run"]:
                 input:
                     xlsx="results/macs2_narrow/fdr{fdr}/enrichment_analysis/{bg_sample}.xlsx",
                 output:
-                    plots=expand("results/plots/macs2_narrow/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS),
+                    plots=report(expand("results/plots/macs2_narrow/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS), caption="../report/enrichment_analysis.rst", category="Pathway enrichment analysis"),
                 params:
                     terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
                     dirname=lambda w, output: os.path.dirname(output[0]),
@@ -235,7 +235,7 @@ if config["peak_calling_macs2"]["run"]:
                 total_read_count=expand("results/macs2_broad/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
                 peak_read_count=expand("results/macs2_broad/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
             output:
-                plot="results/plots/macs2_broad/fdr{fdr}/frip.pdf",
+                plot=report("results/plots/macs2_broad/fdr{fdr}/frip.pdf", caption="../report/frip.rst", category="Fraction of reads in peaks"),
                 csv="results/macs2_broad/fdr{fdr}/frip.csv",
             params:
                 extra="",
@@ -404,7 +404,7 @@ if config["peak_calling_macs2"]["run"]:
                 input:
                     xlsx="results/macs2_broad/fdr{fdr}/enrichment_analysis/{bg_sample}.xlsx",
                 output:
-                    plots=expand("results/plots/macs2_broad/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS),
+                    plots=report(expand("results/plots/macs2_broad/fdr{{fdr}}/enrichment_analysis/{{bg_sample}}/{db}.pdf", db=DBS), caption="../report/enrichment_analysis.rst", category="Pathway enrichment analysis"),
                 params:
                     terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
                     dirname=lambda w, output: os.path.dirname(output[0]),
@@ -458,7 +458,7 @@ if config["peak_calling_macs2"]["run"]:
                 total_read_count=expand("results/macs2_broad/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
                 peak_read_count=expand("results/macs2_broad/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
             output:
-                plot="results/plots/macs2_broad/fdr{fdr}/frip.pdf",
+                plot=report("results/plots/macs2_broad/fdr{fdr}/frip.pdf", caption="../report/frip.rst", category="Fraction of reads in peaks"),
                 csv="results/macs2_broad/fdr{fdr}/frip.csv",
             params:
                 extra="",
