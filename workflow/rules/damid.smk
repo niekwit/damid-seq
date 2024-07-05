@@ -16,7 +16,7 @@ if config["plasmid_fasta"] == "none":
             ),
         output:
             bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-            bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
+            bam=temp(expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES)),
         params:
             idxdir=lambda wildcards, input: input["idx"][0][:-6],
             paired=paired_end,
@@ -87,7 +87,7 @@ else:
                 ),
             output:
                 bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-                bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
+                bam=temp(expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES)),
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
@@ -153,7 +153,7 @@ else:
                 ),
             output:
                 bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-                bam=expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES),
+                bam=temp(expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES)),
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,

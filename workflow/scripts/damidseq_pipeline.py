@@ -151,6 +151,11 @@ for condition, dam_control in dam_controls.items():
             new_name = bam.replace("-ext300", "")
             os.rename(bam, new_name)
     
+    # Remove all trimmed fastq files
+    shell(
+        "rm results/trimmed/{directory}/*.fastq.gz"
+        )
+    
     # Destroy temporary directory
     print(f"Cleaning up temporary directory {temp_dir.name}")
     temp_dir.cleanup()
