@@ -55,9 +55,9 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
     genome: hg38
     ensembl_genome_build: 110
     plasmid_fasta: none # Path to plasmid fasta file with sequences to be removed
-    fusion_genes: ENSG00000100644,ENSG00000116016 # Genes from these proteins will be removed from the analysis
-    bowtie2:
-        extra: ""
+    fusion_genes: 
+        genes: ENSG00000100644,ENSG00000116016 # Ensembl gene IDs for genes to be masked from the fasta file
+        feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
     damidseq_pipeline:
         normalization: kde # kde, rpm or rawbins
         binsize: 300
@@ -66,10 +66,10 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
         apply: True
         extra: "" # extra argument for quantile_normalization
     deeptools:
-    bamCoverage: # bam to bigwig conversion for QC
-        binSize: 10
-        normalizeUsing: RPKM
-        extra: ""
+        bamCoverage: # bam to bigwig conversion for QC
+            binSize: 10
+            normalizeUsing: RPKM
+            extra: ""
     matrix: # Settings for computeMatrix
         mode: scale-regions # scale-regions or reference-point
         referencePoint: TSS # TSS, TES, center (only for reference-point mode)
@@ -88,28 +88,28 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
         alpha: 1.0
         extra: "" 
     peak_calling_perl:
-    run: True
-    iterations: 5 # N argument
-    fdr: 0.01
-    fraction: 0 # Fraction of random fragments to consider per iteration
-    min_count: 2 # Minimum number of reads to consider a peak
-    min_quantile: 0.95 # Minimum quantile for considering peaks
-    step: 0.01 # Stepping for quantiles
-    unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
-    extra: "" 
+        run: True
+        iterations: 5 # N argument
+        fdr: 0.01
+        fraction: 0 # Fraction of random fragments to consider per iteration
+        min_count: 2 # Minimum number of reads to consider a peak
+        min_quantile: 0.95 # Minimum quantile for considering peaks
+        step: 0.01 # Stepping for quantiles
+        unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
+        extra: "" 
     peak_calling_macs2:
-    run: False
-    mode: narrow
-    qvalue: 0.05 # for narrow peaks
-    broad_cutoff: 0.1 # for broad peaks
-    extra: ""
+        run: False
+        mode: narrow
+        qvalue: 0.05 # for narrow peaks
+        broad_cutoff: 0.1 # for broad peaks
+        extra: ""
     consensus_peaks:
         max_size: 10 # Maximum size of peaks to be extended
         extend_by: 40 # Number of bp to extend peaks on either side
         keep: 2 # Minimum number peaks that must overlap to keep
         enrichment_analysis: 
         run: True # Perform enrichment analysis
-        dbs: ["GO_Molecular_Function_2023","GO_Biological_Process_2023","Reactome_2022"]
+        dbs: ["GO_Molecular_Function_2018","GO_Biological_Process_2018","KEGG_2019"]
         terms: 10 # Number of terms to plot
     resources: # computing resources
     trim:
@@ -131,6 +131,7 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
     plotting:
         cpu: 2
         time: 20
+
 
 A lot of the DamID signal can come from the plasmids that are used to express the Dam-POIs, and this can skew the analysis.
 
