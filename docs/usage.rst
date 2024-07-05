@@ -1,6 +1,10 @@
 Preparing raw sequencing data
 -----------------------------
 
+
+Matching number of Dam-only and Dam-protein samples
+===================================================
+
 In the directory containing config/workflow create a directory called reads:
 
 .. code-block:: console
@@ -31,6 +35,75 @@ Data files from each group of biological replicates should be placed into a uniq
     Single-end fastq files should always end with `fastq.gz`, while paired-end reads should end with *\_R1\_001.fastq.gz/\_R2\_001.fastq.gz*.
 
     Also, the Dam only control should always be called Dam.fastq.gz or Dam_R1_001.fastq.gz and Dam_R2_001.fastq.gz for single-end and paired-end reads, respectively.
+
+
+Non-matching number of Dam-only and Dam-protein samples
+=======================================================
+
+In some cases the number of non-Dam and Dam samples might not match. In this case, place all the read files together in the reads directory as follows:
+
+.. code-block:: console
+    
+    reads
+    ├── Dam_1.fastq.gz
+    ├── HIF1A_1.fastq.gz
+    ├── HIF2A_1.fastq.gz
+    ├── Dam_2.fastq.gz
+    ├── HIF1A_2.fastq.gz
+    ├── HIF2A_2.fastq.gz
+    ├── HIF1A_3.fastq.gz
+    └── HIF2A_3.fastq.gz
+
+When `damid-seq` is run is this case, it will create directories in reads/ for each Dam-only sample matching all non-Dam samples. Symlinks will be created in these directories to the original files in reads/:
+
+.. code-block:: console
+
+    reads
+    ├── Dam_1.fastq.gz
+    ├── Dam_2.fastq.gz
+    ├── HIF1A_1.fastq.gz
+    ├── HIF1A_2.fastq.gz
+    ├── HIF1A_3.fastq.gz
+    ├── HIF2A_1.fastq.gz
+    ├── HIF2A_2.fastq.gz
+    ├── HIF2A_3.fastq.gz
+    ├── repl_1
+    │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_1.fastq.gz
+    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_1.fastq.gz
+    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_1.fastq.gz
+    ├── repl_2
+    │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_2.fastq.gz
+    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_1.fastq.gz
+    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_1.fastq.gz
+    ├── repl_3
+    │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_1.fastq.gz
+    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_2.fastq.gz
+    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_2.fastq.gz
+    ├── repl_4
+    │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_2.fastq.gz
+    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_2.fastq.gz
+    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_2.fastq.gz
+    ├── repl_5
+    │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_1.fastq.gz
+    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_3.fastq.gz
+    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_3.fastq.gz
+    ├── repl_6
+    │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_2.fastq.gz
+    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_3.fastq.gz
+    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_3.fastq.gz
+    └── sample_matrix.csv
+
+`sample_matrix.csv`` file contains a log of which file was symlinked to which directory:
+
+.. code-block:: console
+
+    dir
+    "['reads/repl_1', 'reads/Dam_1.fastq.gz', 'reads/HIF1A_1.fastq.gz', 'reads/HIF2A_1.fastq.gz']"
+    "['reads/repl_2', 'reads/Dam_2.fastq.gz', 'reads/HIF1A_1.fastq.gz', 'reads/HIF2A_1.fastq.gz']"
+    "['reads/repl_3', 'reads/Dam_1.fastq.gz', 'reads/HIF1A_2.fastq.gz', 'reads/HIF2A_2.fastq.gz']"
+    "['reads/repl_4', 'reads/Dam_2.fastq.gz', 'reads/HIF1A_2.fastq.gz', 'reads/HIF2A_2.fastq.gz']"
+    "['reads/repl_5', 'reads/Dam_1.fastq.gz', 'reads/HIF1A_3.fastq.gz', 'reads/HIF2A_3.fastq.gz']"
+    "['reads/repl_6', 'reads/Dam_2.fastq.gz', 'reads/HIF1A_3.fastq.gz', 'reads/HIF2A_3.fastq.gz']"
 
 
 Sample meta data and analysis settings
@@ -112,25 +185,25 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
         dbs: ["GO_Molecular_Function_2018","GO_Biological_Process_2018","KEGG_2019"]
         terms: 10 # Number of terms to plot
     resources: # computing resources
-    trim:
-        cpu: 8
-        time: 60
-    fastqc:
-        cpu: 4
-        time: 60
-    damid:
-        cpu: 24
-        time: 720
-        tmpdir: /tmp
-    index:
-        cpu: 40
-        time: 60
-    deeptools:
-        cpu: 8
-        time: 90
-    plotting:
-        cpu: 2
-        time: 20
+        trim:
+            cpu: 8
+            time: 60
+        fastqc:
+            cpu: 4
+            time: 60
+        damid:
+            cpu: 24
+            time: 720
+            tmpdir: /tmp
+        index:
+            cpu: 40
+            time: 60
+        deeptools:
+            cpu: 8
+            time: 90
+        plotting:
+            cpu: 2
+            time: 20
 
 
 A lot of the DamID signal can come from the plasmids that are used to express the Dam-POIs, and this can skew the analysis.
