@@ -7,10 +7,10 @@ library(tidyverse)
 library(cowplot)
 
 # Plot bar graph of FRiP values
-total_read_counts <- snakemake@input[["total_read_counts"]]
+total_read_counts <- snakemake@input[["total_read_count"]]
 peak_read_counts <- snakemake@input[["peak_read_count"]]
 
-# df to store FRiP values
+# Create df to store FRiP values
 df <- data.frame(sample = character(),
                  read_in_peaks = numeric(),
                  total_reads = numeric(),
@@ -18,7 +18,8 @@ df <- data.frame(sample = character(),
 
 # Add FRiP values to df
 for (i in seq_along(total_read_counts)) {
-  sample <- snakemake@wildcards[["bg_sample"]][i]
+  sample <- basename(total_read_counts[i]) %>% str_remove(".total.count")
+  sample <- paste(basename(dirname(total_read_counts[i])), sample, sep="_")
   total_reads <- as.numeric(read_lines(total_read_counts[i]))
   peak_reads <- as.numeric(read_lines(peak_read_counts[i]))
   frip <- peak_reads / total_reads
@@ -29,6 +30,9 @@ for (i in seq_along(total_read_counts)) {
             total_reads = total_reads,
             fraction_of_reads_in_peaks = frip)
 }
+
+# Save df to file
+write.csv(df, snakemake@output[["csv"]], row.names = FALSE)
 
 # Create plot
 p <- ggplot(df, aes(x = sample, 
@@ -43,11 +47,10 @@ p <- ggplot(df, aes(x = sample,
                      limits = c(0, 1)) +
   labs(title = NULL,
        x = NULL,
-       y = "Fraction of reads in peaks") +
-  theme(plot.title = element_text(hjust = 0.5))
+       y = "Fraction of reads in peaks")
 
 # Save plot
-ggsave(snakemake@output[[1]], p)
+ggsave(snakemake@output[["plot"]], p)
 
 # Close redirection of output/messages
 sink(log, type = "output")

@@ -184,7 +184,6 @@ if config["peak_calling_perl"]["run"]:
             "-b stdin | "
             "awk '{{i+=$NF}}END{{print i}}' > "
             "{output.peak_read_count} "
-            "{log}"
                 
 
     rule plot_fraction_of_reads_in_peaks:

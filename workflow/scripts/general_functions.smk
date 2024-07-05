@@ -34,7 +34,7 @@ def targets():
             expand("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.annotated.txt", fdr=fdr, bg_sample=BG_SAMPLES),
             expand("results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.geneIDs.txt", fdr=fdr,bg_sample=BG_SAMPLES),
             expand("results/plots/peaks/fdr{fdr}/frip.pdf", fdr=fdr),
-            expand("results/plots/peaks/fdr{fdr}/frip.csv", fdr=fdr),
+            expand("results/peaks/fdr{fdr}/frip.csv", fdr=fdr),
             ])
         if config["consensus_peaks"]["enrichment_analysis"]["run"]:
             TARGETS.extend([
