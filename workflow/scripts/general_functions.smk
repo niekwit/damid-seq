@@ -466,3 +466,14 @@ def input_extension():
         return []
     else:
         return ".fastq.gz"
+
+
+def check_consensus_peak_settings():
+    keep = config["consensus_peaks"]["keep"]
+
+    # Get number of subdirectories in reads/
+    subdirs = glob.glob("reads/*")
+    subdirs = len([d for d in subdirs if os.path.isdir(d)])
+
+    if keep > subdirs:
+        raise ValueError(f"Number of overlapping peaks to keep consensus peaks (config > consensus_peak > keep) is greater than number of subdirectories in reads/...")

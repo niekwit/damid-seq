@@ -23,6 +23,7 @@ containerized: f"docker://niekwit/damid-seq:{VERSION}"
 # Load and validate config file
 configfile: "config/config.yaml"
 validate(config, "schemas/config.schema.yaml")
+check_consensus_peak_settings()
 
 plasmid_name = plasmid_fasta_name(config["plasmid_fasta"])
 
