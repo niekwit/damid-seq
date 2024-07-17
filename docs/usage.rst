@@ -100,7 +100,7 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
 +-----------+----------+-----------+
 | sample    | genotype | treatment |
 +===========+==========+===========+
-|Piwi       | Piwi_ko  | None      |
+|Piwi       | WT       | None      |
 +-----------+----------+-----------+
 |Dam        | WT       | None      |
 +-----------+----------+-----------+
