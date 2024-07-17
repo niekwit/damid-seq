@@ -35,10 +35,15 @@ Documentation of how to use `damid-seq` can be found at https://damid-seq.readth
     - Visualization of the workflow
     - Running the analysis
     - Report of the results
-* Output
+    - Archive of the analysis
+* Output files
     - Quality control
     - Visualization of damid-seq data
-    - Peaks
+    - Peak-related plots
 * Citation
     - Workflow
     - Software used in workflow
+* literature
+    - DamID
+* Source code
+    - Reporting issues
