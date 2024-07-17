@@ -310,3 +310,7 @@ To archive the whole analysis, the following command can be used:
     $ snakemake --archive /path/to/archive.tar.gz
 
 This process will archive all code and configuration files under Git version control, include all input files in the archive, and incorporate the software packages from each specified Conda environment. The result is a self-contained workflow archive that can be re-executed on a clean machine with only Conda and Snakemake installed.
+
+.. note::
+
+    Please note that the archive is platform-specific. For instance, if it is created on a Linux system, it will run on any Linux version newer than the minimum version supported by the Conda packages at the time of archiving.
