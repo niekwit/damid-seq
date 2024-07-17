@@ -37,7 +37,7 @@ damid-seq
     usage.rst
 
 .. toctree::
-    :caption: Output
+    :caption: Output files
     :maxdepth: 1
 
     output.rst
