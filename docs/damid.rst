@@ -1,7 +1,7 @@
 DamID principle
 ---------------
 
-DamID is a method that identifies genomic binding sites of a protein of interest (POI). In contrast to ChIP-seq, no antibodies again the POI are required.
+DamID is a method that identifies genomic binding sites of a protein of interest (POI). In contrast to ChIP-seq, no antibodies against the POI are required.
 
 The method is based on fusing the POI to a DNA adenine methyltransferase (Dam) from *E. coli*. Dam methylates adenine bases in GATC motifs, which are not present in the eukaryotic genome. 
 
