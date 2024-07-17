@@ -16,19 +16,16 @@ Data files from each group of biological replicates should be placed into a uniq
 
 .. code-block:: console
     
-    reads
+    reads/
     ├── exp1
     │   ├── Dam.fastq.gz
-    │   ├── HIF1A.fastq.gz
-    │   └── HIF2A.fastq.gz
+    │   └── Piwi.fastq.gz
     ├── exp2
     │   ├── Dam.fastq.gz
-    │   ├── HIF1A.fastq.gz
-    │   └── HIF2A.fastq.gz
+    │   └── Piwi.fastq.gz
     └── exp3
         ├── Dam.fastq.gz
-        ├── HIF1A.fastq.gz
-        └── HIF2A.fastq.gz
+        └── Piwi.fastq.gz
 
 .. note::
     
@@ -44,53 +41,41 @@ In some cases the number of non-Dam and Dam samples might not match. In this cas
 
 .. code-block:: console
     
-    reads
+    reads/
     ├── Dam_1.fastq.gz
-    ├── HIF1A_1.fastq.gz
-    ├── HIF2A_1.fastq.gz
     ├── Dam_2.fastq.gz
-    ├── HIF1A_2.fastq.gz
-    ├── HIF2A_2.fastq.gz
-    ├── HIF1A_3.fastq.gz
-    └── HIF2A_3.fastq.gz
+    ├── Piwi_1.fastq.gz
+    ├── Piwi_2.fastq.gz
+    └── Piwi_3.fastq.gz
 
 When `damid-seq` is run is this case, it will create directories in reads/ for each Dam-only sample matching all non-Dam samples. Symlinks will be created in these directories to the original files in reads/:
 
 .. code-block:: console
 
-    reads
+    reads/
     ├── Dam_1.fastq.gz
     ├── Dam_2.fastq.gz
-    ├── HIF1A_1.fastq.gz
-    ├── HIF1A_2.fastq.gz
-    ├── HIF1A_3.fastq.gz
-    ├── HIF2A_1.fastq.gz
-    ├── HIF2A_2.fastq.gz
-    ├── HIF2A_3.fastq.gz
+    ├── Piwi_1.fastq.gz
+    ├── Piwi_2.fastq.gz
+    ├── Piwi_3.fastq.gz
     ├── repl_1
     │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_1.fastq.gz
-    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_1.fastq.gz
-    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_1.fastq.gz
+    │   └── Piwi.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Piwi_1.fastq.gz
     ├── repl_2
     │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_2.fastq.gz
-    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_1.fastq.gz
-    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_1.fastq.gz
+    │   └── Piwi.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Piwi_1.fastq.gz
     ├── repl_3
     │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_1.fastq.gz
-    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_2.fastq.gz
-    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_2.fastq.gz
+    │   └── Piwi.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Piwi_2.fastq.gz
     ├── repl_4
     │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_2.fastq.gz
-    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_2.fastq.gz
-    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_2.fastq.gz
+    │   └── Piwi.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Piwi_2.fastq.gz
     ├── repl_5
     │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_1.fastq.gz
-    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_3.fastq.gz
-    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_3.fastq.gz
+    │   └── Piwi.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Piwi_3.fastq.gz
     ├── repl_6
     │   ├── Dam.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Dam_2.fastq.gz
-    │   ├── HIF1A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF1A_3.fastq.gz
-    │   └── HIF2A.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/HIF2A_3.fastq.gz
+    │   └── Piwi.fastq.gz -> /mnt/4TB_SSD/analyses/DamID/test/reads/Piwi_3.fastq.gz
     └── sample_matrix.csv
 
 `sample_matrix.csv`` file contains a log of which file was symlinked to which directory:
@@ -98,12 +83,13 @@ When `damid-seq` is run is this case, it will create directories in reads/ for e
 .. code-block:: console
 
     dir
-    "['reads/repl_1', 'reads/Dam_1.fastq.gz', 'reads/HIF1A_1.fastq.gz', 'reads/HIF2A_1.fastq.gz']"
-    "['reads/repl_2', 'reads/Dam_2.fastq.gz', 'reads/HIF1A_1.fastq.gz', 'reads/HIF2A_1.fastq.gz']"
-    "['reads/repl_3', 'reads/Dam_1.fastq.gz', 'reads/HIF1A_2.fastq.gz', 'reads/HIF2A_2.fastq.gz']"
-    "['reads/repl_4', 'reads/Dam_2.fastq.gz', 'reads/HIF1A_2.fastq.gz', 'reads/HIF2A_2.fastq.gz']"
-    "['reads/repl_5', 'reads/Dam_1.fastq.gz', 'reads/HIF1A_3.fastq.gz', 'reads/HIF2A_3.fastq.gz']"
-    "['reads/repl_6', 'reads/Dam_2.fastq.gz', 'reads/HIF1A_3.fastq.gz', 'reads/HIF2A_3.fastq.gz']"
+    "['reads/repl_1', 'reads/Dam_1.fastq.gz', 'reads/Piwi_1.fastq.gz']"
+    "['reads/repl_2', 'reads/Dam_2.fastq.gz', 'reads/Piwi_1.fastq.gz']"
+    "['reads/repl_3', 'reads/Dam_1.fastq.gz', 'reads/Piwi_2.fastq.gz']"
+    "['reads/repl_4', 'reads/Dam_2.fastq.gz', 'reads/Piwi_2.fastq.gz']"
+    "['reads/repl_5', 'reads/Dam_1.fastq.gz', 'reads/Piwi_3.fastq.gz']"
+    "['reads/repl_6', 'reads/Dam_2.fastq.gz', 'reads/Piwi_3.fastq.gz']"
+
 
 
 Sample meta data and analysis settings
@@ -114,22 +100,20 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
 +-----------+----------+-----------+
 | sample    | genotype | treatment |
 +===========+==========+===========+
-|HIF1A      | WT       | Hypoxia   |
+|Piwi       | Piwi_ko  | None      |
 +-----------+----------+-----------+
-|HIF2A      | WT       | Hypoxia   |
+|Dam        | WT       | None      |
 +-----------+----------+-----------+
-|Dam        | WT       | Hypoxia   |
-+-----------+----------+-----------+ 
 
 `config.yaml` in the same directory contains the settings for the analysis:
 
 .. code-block:: yaml
     
-    genome: hg38
+    genome: dm6
     ensembl_genome_build: 110
     plasmid_fasta: none # Path to plasmid fasta file with sequences to be removed
     fusion_genes: 
-        genes: ENSG00000100644,ENSG00000116016 # Ensembl gene IDs for genes to be masked from the fasta file
+        genes: FBgn0004872 # Ensembl gene IDs for genes to be masked from the fasta file
         feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
     damidseq_pipeline:
         normalization: kde # kde, rpm or rawbins
@@ -210,7 +194,7 @@ A lot of the DamID signal can come from the plasmids that are used to express th
 
 To prevent this, two approaches are available:
 
-1.  The genes (Ensembl gene IDs) fused to Dam can be set in config.yaml["fusion_genes] (separated by commas if multiple plasmids are used). This will mask the genomic locations of these genes in the fasta file that will be used to build the Bowtie2 index, hence excluding these regions from the analysis. 
+1.  The genes (Ensembl gene IDs) fused to Dam can be set in config.yaml["fusion_genes] (separated by commas if multiple plasmids are used). This will mask the features set in config > fusion_genes > feature_to_mask (exons or gene) of these genes in the fasta file that will be used to build the Bowtie2 index, hence excluding these regions from the analysis. 
 
 .. note::
     
