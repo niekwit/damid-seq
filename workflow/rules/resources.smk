@@ -126,23 +126,28 @@ rule chrom_sizes:
 
 rule make_gatc_tracks:
     input:
-        sw="resources/damidseq_pipeline",
         fa=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
     output:
         f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
     params:
-        genome=lambda wildcards, output: output[0][:-9]
-    threads: config["resources"]["fastqc"]["cpu"],
+        genome=resources.genome,
+        motif="GATC",
+        extras="",
+    threads: config["resources"]["damid"]["cpu"],
     resources:
-        runtime=config["resources"]["fastqc"]["time"],
+        runtime=45,
     conda:
-        "../envs/damid.yaml",
+        "../envs/peak_calling.yaml",
     log:
         "logs/make_gatc_tracks/tracks.log",
     shell:
-        "perl resources/damidseq_pipeline/gatc.track.maker.pl "
-        "--name={params.genome} "
-        "{input.fa} > {log} 2>&1 "
+        "python workflow/scripts/gatc.track.maker.py "
+        "--genome {params.genome} "
+        "--fasta {input.fa} "
+        "--outfile {output} "
+        "--threads {threads} "
+        "--motif {params.motif} "
+        "{params.extras} > {log} 2>&1 "
 
 
 rule bowtie2_build_index:
