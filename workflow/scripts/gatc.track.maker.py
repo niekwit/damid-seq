@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 
 import argparse
-import gzip
 import re
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from Bio import SeqIO
 
 # Command line argument processing
 def process_cli():
-    parser = argparse.ArgumentParser(description='Generates a GFF file containing the locations of all GATC sites in the genome sequence')
+    parser = argparse.ArgumentParser(
+        description="""
+        Generates a GFF file containing the locations of all motif sites in the genome sequence
+        """
+        )
     parser.add_argument("--fasta", "-f",
                         type=str, 
-                        help='Input genome FASTA file')
+                        help="Input genome FASTA file")
     parser.add_argument("--outfile", "-o", 
                         type=str, 
                         required=True,
@@ -22,7 +25,7 @@ def process_cli():
                         choices=["hg38", "mm38", "dm6", 
                                  "dm3", "hg19", "mm39"],
                         required=True,
-                        help='Genome build (default: hg38)')
+                        help="Genome build (default: hg38)")
     parser.add_argument("--threads", "-t", 
                         type=int, 
                         default=1, 
@@ -43,15 +46,12 @@ def process_cli():
 def regex_patterns(genome):
     # Dictionary to store scaffold and mitochondrial regex patterns
     patterns = {
-        "hg38": [r"",""],
-        "hg19": [r"",""],
-        "mm38": [r"",""],
-        "mm39": [r"",""],
+        "hg38": [r"^KI|^GL","MT"],
+        "hg19": [r"^GL","MT"],
+        "mm39": [r"^JH|^GL|^MU","MT"],
         "dm6": [r"Scaffold|\d{15}","mitochondrion_genome"],
-        "dm3": [r"",""], 
     }
     return patterns[genome]
-
 
 def load_fasta(fasta, args):
     """
@@ -71,11 +71,10 @@ def load_fasta(fasta, args):
         chr_seq = {k: v for k, v in chr_seq.items() if not re.search(mito_pattern, k, re.IGNORECASE)}
     
     return chr_seq
-   
-    
+       
 # Generate track function
 def generate_track(args):
-    motif = "GATC"
+    motif = args.motif
     motif_len = len(motif)
     
     fasta = args.fasta
@@ -101,15 +100,10 @@ def generate_track(args):
                 for result in results:
                     track.write(result)
 
-    print("All done!")
-
-
 # Process function
 def process(chr_name, seq, motif, motif_len):
-    #print(f"Processing {chr_name} ...", file=sys.stderr)
     results = motif_hash(seq, chr_name, motif, motif_len)
     return chr_name, results
-
 
 # Motif hash function
 def motif_hash(seq, chr_name, motif, motif_len):
@@ -125,7 +119,9 @@ def motif_hash(seq, chr_name, motif, motif_len):
 # Main function
 def main():
     args = process_cli()
+    print(f"Mapping {args.motif} sites in {args.fasta}")
     generate_track(args)
+    print("All done!")
 
 if __name__ == "__main__":
     main()
