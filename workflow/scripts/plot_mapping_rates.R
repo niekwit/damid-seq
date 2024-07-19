@@ -7,65 +7,30 @@ sink(slog, type = "message")
 library(tidyverse)
 library(cowplot)
 
-# Get log files and dirs
-# These log files are empty but use them to get 
-# log dirs and find proper log files
 log.files <- snakemake@input["log"]
-log.dirs <- unlist(lapply(log.files, dirname))
-
-# Get proper log files (log file starts with pipeline- and ends with .log)
-log.files <- list.files(log.dirs,
-                        pattern = "pipeline-.*.log",
-                        full.names = TRUE)
-
-# Get base dir for each log file
-log.dirs <- dirname(log.files)
-
-if (length(log.dirs) == length(log.files)) {
-  proper.log.files <- log.files
-} else {
-  # Check for each basedir if there is just one log file
-  proper.log.files <- list()
-  for (i in seq_along(log.dirs)) {
-    # Get log files in basedir
-    tmp <- list.files(log.dirs[[i]],
-                            pattern = "pipeline-.*.log",
-                            full.names = TRUE)
-    
-    # If there is more than one log file, select newest
-    if (length(tmp) > 1) {
-      proper.log.files[[i]] <- tmp[which.max(file.info(tmp)$mtime)]
-    }
-  }
-}
 
 # Data frame to store mapping rates of all experiments
 mapping.rates.all <- data.frame(sample = character(),
                                 overall_mapping_rate = numeric())
 
 # Extract mappings rates from each log file (one log file per experiment)
-for (i in seq_along(proper.log.files)) {
+for (i in seq_along(log.files)) {
   # Get dir name (dir = experiment)
-  dir <- basename(log.dirs[[i]])
-
-  # Read part of log file that contains mapping data
-  log.section <- system(paste("sed '/Reading data files/,/Reading GATC file/!d'", log.files[[i]]), 
-                        intern = TRUE)
+  dir <- basename(dirname(log.files[[i]]))
 
   # Get sample names and add dir name
-  sample.names <- log.section[grepl("Now working on ", log.section)]
-  sample.names <- str_replace(sample.names, "Now working on ", "")
-  sample.names <- paste0(dir, "_", str_replace(sample.names, " ...", ""))
+  sample <- str_replace(paste0(dir, "_",basename(log.files[[i]])), ".log", "")
 
-  # Get line numbers where overall mapping rate is printed
-  rate.lines <- grep("% overall alignment rate", log.section)
+  # Read log file
+  log <- readLines(con = log.files[i])
   
-  # Extract mapping rates
-  rates <- as.numeric(str_extract(log.section[rate.lines], "\\d+\\.\\d+"))
+  # Extract mapping rate
+  rate <- log[grepl("% overall alignment rate", log)]
+  rate <- as.numeric(str_replace(rate, "% overall alignment rate", ""))
 
   # Extract mapping rates
-  mapping.rates <- data.frame(sample = sample.names,
-                              overall_mapping_rate = rates)
+  mapping.rates <- data.frame(sample = sample,
+                              overall_mapping_rate = rate)
 
   # Add to data frame with all data
   mapping.rates.all <- rbind(mapping.rates.all, mapping.rates)
@@ -78,7 +43,7 @@ p <- ggplot(mapping.rates.all,
   geom_bar(stat = "identity",
            position = "dodge",
            colour = "black",
-           fill = "aquamarine4") +
+           fill = "#419179") +
   theme_cowplot(18) +
   theme(plot.margin = margin(t = 0.5,
                              r = 1.5,
