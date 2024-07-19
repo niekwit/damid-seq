@@ -1,5 +1,6 @@
 import sys
 import subprocess
+import re
 from Bio import SeqIO
 
 """
@@ -17,6 +18,7 @@ genes2mask = snakemake.params["g2m"]
 feature2mask = snakemake.params["f2m"]
 fasta = snakemake.input["fa"]
 masked_fasta = snakemake.output["out"]
+genome = snakemake.params["genome"]
 
 def write_dict2fasta(d, out):
     """
@@ -26,10 +28,25 @@ def write_dict2fasta(d, out):
         for name, seq in d.items():
             f.write(f">{name}\n{seq}\n")
 
+# Dictionary to store scaffold regex patterns
+patterns = {
+    "hg38": r"^KI|^GL|^MT",
+    "hg19": r"^GL|^MT",
+    "mm39": r"^JH|^GL|^MU|^MT",
+    "dm6": r"Scaffold|^\d{15}$|^mitochondrion_genome$",
+    }
+
 # Load fasta file as dict
 chr_seq = {}
 for chr_ in SeqIO.parse(fasta, "fasta"):
     chr_seq[chr_.id] = chr_.seq
+
+# Remove scaffolds and mito genome from sequences
+print(f"Removing non-chromosome sequences from {fasta}...")
+pattern = patterns[genome]
+for chr in list(chr_seq.keys()):
+    if re.search(pattern, chr):
+        del chr_seq[chr]
 
 # Mask gene sequences with Ns
 if genes2mask == "no_genes":
