@@ -94,6 +94,7 @@ def generate_track(args):
                 print(f"Processing chromosome: {chromosome}")
                 seq_str = str(chr_seq[chromosome])
                 futures.append(executor.submit(process, chromosome, seq_str, motif, motif_len))
+                print(f"{chromosome} done!")
 
             for future in as_completed(futures):
                 chromosome, results = future.result()
@@ -113,7 +114,6 @@ def motif_hash(seq, chr_name, motif, motif_len):
         window = seq[base:base + motif_len]
         if re.search(motif, window, re.IGNORECASE):
             results.append(f"{chr_name}\t.\t.\t{base}\t{base + motif_len}\t1\t+\t.\t.\n")
-    print(f"{chr_name} done!")
     return results
 
 # Main function
