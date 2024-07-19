@@ -477,3 +477,14 @@ def check_consensus_peak_settings():
 
     if keep > subdirs:
         raise ValueError(f"Number of overlapping peaks to keep consensus peaks (config > consensus_peak > keep) is greater than number of subdirectories in reads/...")
+
+
+def regex_patterns():
+    # Dictionary to store scaffold regex patterns
+    patterns = {
+        "hg38": r"^KI|^GL",
+        "hg19": r"^GL",
+        "mm39": r"^JH|^GL|^MU",
+        "dm6": r"Scaffold|^\d{{15}}",
+    }
+    return patterns[resources.genome]
