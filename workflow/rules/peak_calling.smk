@@ -199,7 +199,7 @@ if config["peak_calling_macs2"]["run"]:
         rule count_reads_in_peaks:
         # Adapted from https://www.biostars.org/p/337872/#337890
             input:
-                bam="results/bam/{dir}/{bg_sample}.bam",
+                bam="results/bam/{dir}/{bg_sample}.sorted.bam",
                 b="results/macs2_narrow/fdr{fdr}/{dir}/{bg_sample}_peaks.narrowPeak",
             output:
                 total_read_count="results/macs2_narrow/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
@@ -422,7 +422,7 @@ if config["peak_calling_macs2"]["run"]:
         rule count_reads_in_peaks:
         # Adapted from https://www.biostars.org/p/337872/#337890
             input:
-                bam="results/bam/{dir}/{bg_sample}.bam",
+                bam="results/bam/{dir}/{bg_sample}.sorted.bam",
                 b="results/macs2_broad/fdr{fdr}/{dir}/{bg_sample}_peaks.broadPeak",
             output:
                 total_read_count="results/macs2_broad/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
