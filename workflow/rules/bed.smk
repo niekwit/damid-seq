@@ -18,7 +18,8 @@ rule gff2bed:
 
 rule sort_peak_bed:
     input:
-        "results/peaks/fdr{fdr}/{dir}/{bg_sample}.bed"
+        in_file="results/peaks/fdr{fdr}/{dir}/{bg_sample}.bed",
+        genome=f"resources/{resources.genome}_chrom_order.txt",
     output:
         "results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed"
     params:
@@ -30,8 +31,8 @@ rule sort_peak_bed:
         "logs/sort_peak_bed/{dir}_{bg_sample}_fdr{fdr}.log"
     conda:
         "../envs/peak_calling.yaml"
-    shell:
-        "sort -k1,1 -k2,2n {input} > {output}"
+    wrapper:
+        f"{wrapper_version}/bio/bedtools/sort"
 
 
 # Create bed file of consensus peaks between replicate conditions
@@ -156,8 +157,10 @@ if config["peak_calling_perl"]["run"]:
     rule count_reads_in_peaks:
         # Adapted from https://www.biostars.org/p/337872/#337890
         input:
-            bam="results/bam/{dir}/{bg_sample}.bam",
+            bam="results/bam/{dir}/{bg_sample}.extended.sorted.bam",
+            bai="results/bam/{dir}/{bg_sample}.extended.sorted.bam.bai",
             b="results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed",
+            order=f"resources/{resources.genome}_chrom_order.txt",
         output:
             total_read_count="results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
             peak_read_count="results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count",
@@ -174,11 +177,12 @@ if config["peak_calling_perl"]["run"]:
             "bedtools bamtobed "
             "{params.extra} "
             "-i {input.bam} | "
-            "sort -k1,1 -k2,2n | "
+            "bedtools sort -g {input.order} "
             "tee >(wc -l > {output.total_read_count}) | "
             "bedtools intersect "
             "{params.extra} "
             "-sorted "
+            "-g {input.order} "
             "-c "
             "-a {input.b} "
             "-b stdin | "
