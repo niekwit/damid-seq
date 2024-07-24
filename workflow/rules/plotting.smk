@@ -52,6 +52,7 @@ rule plot_correlation_bedgraph:
         "--outFileCorMatrix {output.tab} "
         "--colorMap viridis "
         "--skipZeros "
+        "{params.extra} "
         "> {log} 2>&1"
 
 
@@ -76,7 +77,7 @@ rule plot_heatmap:
         pt=config["deeptools"]["plotHeatmap"]["plotType"],
         cm=config["deeptools"]["plotHeatmap"]["colorMap"],
         a=config["deeptools"]["plotHeatmap"]["alpha"],
-        extra="",
+        extra=config["deeptools"]["plotHeatmap"]["extra"],
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"]
@@ -185,7 +186,7 @@ elif config["peak_calling_macs2"]["run"]:
 
 rule plot_mapping_rates:
     input:
-        log=expand("logs/damidseq_pipeline/{dir}/damidseq_pipeline.log", dir=DIRS),
+        log=expand("logs/bowtie2_align/{dir}/{sample}.log", dir=DIRS, sample=SAMPLES),
     output:
         pdf=report("results/plots/mapping_rates.pdf", caption="../report/mapping_rates.rst", category="Mapping rates"),
     params:
