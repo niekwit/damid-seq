@@ -7,8 +7,7 @@ sink(slog, type = "message")
 library(tidyverse)
 library(cowplot)
 
-log.files <- snakemake@input["log"]
-
+log.files <- snakemake@input[["log"]]
 # Data frame to store mapping rates of all experiments
 mapping.rates.all <- data.frame(sample = character(),
                                 overall_mapping_rate = numeric())
@@ -22,7 +21,7 @@ for (i in seq_along(log.files)) {
   sample <- str_replace(paste0(dir, "_",basename(log.files[[i]])), ".log", "")
 
   # Read log file
-  log <- readLines(con = log.files[i])
+  log <- readLines(log.files[[i]])
   
   # Extract mapping rate
   rate <- log[grepl("% overall alignment rate", log)]
