@@ -66,6 +66,9 @@ resources: # computing resources
   fastqc:
     cpu: 4
     time: 60
+  bowtie2:
+    cpu: 24
+    time: 90
   damid:
     cpu: 24
     time: 720
