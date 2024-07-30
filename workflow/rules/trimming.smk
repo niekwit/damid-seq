@@ -1,42 +1,36 @@
 if paired_end:
     rule trim_galore_pe:
         input:
-            r1="reads/{dir}/{sample}_R1_001.fastq.gz", 
-            r2="reads/{dir}/{sample}_R2_001.fastq.gz",
+            ["reads/{dir}/{sample}_R1_001.fastq.gz",
+            "reads/{dir}/{sample}_R2_001.fastq.gz"],
         output:
-            r1="results/trimmed/{dir}/{sample}_1.fastq.gz",
-            r2="results/trimmed/{dir}/{sample}_2.fastq.gz",
-            flag=touch("results/trimmed/{dir}/{sample}.flag"),
+            fasta_fwd="results/trimmed/{dir}/{sample}_1.fastq.gz",
+            fasta_rev="results/trimmed/{dir}/{sample}_2.fastq.gz",
+            report_fwd="results/trimmed/{dir}/{sample}_1.fastq.gz_trimming_report.txt",
+            report_rev="results/trimmed/{dir}/{sample}_2.fastq.gz_trimming_report.txt",
+        params:
+            extra="--illumina -q 20",
         threads: config["resources"]["trim"]["cpu"],
         resources:
             runtime=config["resources"]["trim"]["time"],
-        params:
-            paired=True,
-            extra="--illumina -q 20",
         log:
             "logs/trim_galore/{dir}/{sample}.log",
-        conda:
-            "../envs/trim.yaml"
-        script:
-            "../scripts/trim_galore.py"
+        wrapper:
+            f"{wrapper_version}/bio/trim_galore/pe"
 else:
     rule trim_galore_se:
         input:
-            r1="reads/{dir}/{sample}.fastq.gz",
+            "reads/{dir}/{sample}.fastq.gz",
         output:
-            r1="results/trimmed/{dir}/{sample}.fastq.gz",
-            flag=touch("results/trimmed/{dir}/{sample}.flag"),
+            fasta="results/trimmed/{dir}/{sample}.fastq.gz",
+            report="results/trimmed/{dir}/{sample}.fastq.gz_trimming_report.txt",
+        params:
+            extra="--illumina -q 20",
         threads: config["resources"]["trim"]["cpu"],
         resources:
             runtime=config["resources"]["trim"]["time"],
-        params:
-            paired=False,
-            extra="--illumina -q 20",
         log:
             "logs/trim_galore/{dir}/{sample}.log",
-        conda:
-            "../envs/trim.yaml"
-        script:
-            "../scripts/trim_galore.py"
-
+        wrapper:
+            f"{wrapper_version}/bio/trim_galore/se"
         
