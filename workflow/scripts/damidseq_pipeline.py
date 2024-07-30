@@ -7,10 +7,11 @@ Problem: parallel analysis of replicate(s) will generate same output files in sa
 Solution: work in a temporary directory and move files to appropriate locations at the end.
 """
 
+import logging
 import os
 from pathlib import Path
 import tempfile
-import pandas as pd
+import re
 import glob
 from snakemake.shell import shell
 
@@ -27,135 +28,84 @@ def move_files(extension):
         "mv *.{extension} {out_dir}"
         )
 
-def allfastq(directory):
-    """Returns absolute file paths for all fastq.gz files in a directory.
-    Based on https://stackoverflow.com/questions/9816816/get-absolute-paths-of-all-files-in-a-directory
-    """
-    path = os.path.abspath(directory)
-    all_files= [entry.path for entry in os.scandir(path) if entry.is_file()]
-    all_fastq = [x for x in all_files if x.endswith(".fastq.gz")]
-    return all_fastq
-
 # Get current working directory
 cwd = os.getcwd()
 
 # Load Snakemake variables
-trim_dir = snakemake.params["trim_dir"]
-flags = snakemake.input["flag"]
+bams = snakemake.input["bam"]
+bams = [os.path.join(cwd,x) for x in bams]
 gatc = os.path.join(cwd, snakemake.input["gatc"])
-bowtie2_idx = os.path.join(cwd, snakemake.params["idxdir"])
-paired = snakemake.params["paired"]
 threads = snakemake.threads
 bins = snakemake.params["binsize"]
 normalization_method = snakemake.params["normalization_method"]
+idx = os.path.join(cwd,snakemake.params["idx"])
 extra = snakemake.params["extra"]
+log = os.path.join(cwd, snakemake.log[0])
+
+# Setup log file
+logging.basicConfig(format='%(levelname)s:%(message)s', 
+                    level=logging.DEBUG,
+                    handlers=[logging.FileHandler(log),
+                              logging.StreamHandler()])
 
 # Get sample directory
-directory = list(set([os.path.basename(os.path.dirname(x)) for x in flags]))
+directory = list(set([os.path.basename(os.path.dirname(x)) for x in bams]))
 assert len(directory) == 1, "Too many replicate directories used..."
 directory = directory[0]
 
 # Path to damidseq_pipeline script
 damidseq_pipeline = os.path.join(cwd,"resources/damidseq_pipeline/damidseq_pipeline")
 
-# Load sample table
-csv = pd.read_csv("config/samples.csv")
+# Get dam bam
+dam_bam = [x for x in bams if re.search("dam.extended.bam$", x.lower())]
+assert len(dam_bam) == 1
+# TO DO: allow for multiple Dam only bam files (i.e. multiple conditions)
 
-# Check if treatment column contains any NaN values, if so replace with "none"
-if csv["treatment"].isnull().values.any():
-    csv.fillna({"treatment": "none"}, inplace=True)
+# Get non-Dam bam files
+non_dam_bams = [x for x in bams if x != dam_bam[0]]
 
-# Combine genotypes and treatments into one condition column
-csv["condition"] = csv["genotype"] + "_" + csv["treatment"]
+logging.info(f"Analysing data in results/bam/{directory}...")
 
-# Create sample table without Dam only samples
-csv_no_dam = csv[~csv["sample"].str.contains("Dam")]
+# Create temporary directory and move there
+temp_dir = tempfile.TemporaryDirectory()
+logging.info(f"Creating temporary directory {temp_dir.name}")
+os.chdir(temp_dir.name)
 
-# For each unique condition, find Dam only control file
-conditions = csv["condition"].unique().tolist()
-dam_controls = {} # Has dam control for each condition
-for c in conditions:
-    # Get Dam sample that matches condition in csv and add to dam_controls, i.e. Dam in sample column
-    dam_controls[c] = csv[csv["sample"].str.contains("Dam") & csv["condition"].str.contains(c)]["sample"].tolist()[0]
+# Run damidseq_pipeline
+command = [
+    f"perl {damidseq_pipeline} "
+    f"--threads={threads} "
+    f"--dam={dam_bam[0]} "
+    f"--bins={bins} "
+    f"--norm_method={normalization_method} "
+    f"{extra} "
+    f"--gatc_frag_file={gatc} "
+    f"--bowtie2_genome_dir={idx} "
+    f"{' '.join(non_dam_bams)} "
+    ]
+logging.info(f"Running damidseq_pipeline with command: {' '.join(command)}")
+shell(" ".join(command))
 
-# Get all fastq files
-all_fastq = allfastq(f"results/{trim_dir}/{directory}/")
+logging.info("Moving output files from temporary directory to appropriate locations")
+# Move log file to logs directory
+target = os.path.join(cwd, f"logs/damidseq_pipeline/{directory}")
+shell(
+    "mv pipeline-*.log {target}"
+    )
 
-# Run damidseq_pipeline for each condition
-for condition, dam_control in dam_controls.items():
-    print(f"Analysing data in results/trimmed/{directory}...\nUsing {dam_control} as control")
+# Move bedgraph files to output directory
+move_files("bedgraph")
     
-    # Create temporary directory and move there
-    temp_dir = tempfile.TemporaryDirectory()
-    print(f"Creating temporary directory {temp_dir.name}")
-    os.chdir(temp_dir.name)
-       
-    # Define Dam only control file(s)
-    if paired:
-        arg = "--paired"
-        dam = sorted([x for x in all_fastq if f"{dam_control}_1.fastq.gz" or f"{dam_control}_2.fastq.gz" in x])
-        dam = " ".join(dam)
-    else:
-        arg = ""
-        dam = [x for x in all_fastq if f"{dam_control}.fastq.gz" in x][0]
-        
-    # Get all non-Dam only files that match condition
-    INPUT = csv_no_dam[csv_no_dam["condition"].str.contains(condition)]["sample"].tolist()
-    INPUT = sorted([x for x in all_fastq if any([y in x for y in INPUT])])
-    INPUT = " ".join(INPUT)
-    assert len(INPUT) > len(all_fastq), "No trimmed Dam only files found..."
-    
-    # Run damidseq_pipeline
-    shell(
-        "perl {damidseq_pipeline} "
-        "{arg} "
-        "--threads={threads} "
-        "--dam={dam} "
-        "--bins={bins} "
-        "--norm_method={normalization_method}"
-        "{extra} "
-        "--gatc_frag_file={gatc} "
-        "--bowtie2_genome_dir={bowtie2_idx} "
-        "{INPUT} "
-        )
+# Go to parent directory
+os.chdir(cwd)
 
-    print("Moving output files from temporary directory to appropriate locations")
-    # Move log file to logs directory
-    target = os.path.join(cwd, f"logs/damidseq_pipeline/{directory}")
-    shell(
-        "mv pipeline-*.log {target}"
-        )
+# Rename bedgraph files so that normalization method is not included in file name
+bedgraphs = glob.glob(f"results/bedgraph/{directory}/*.bedgraph")
+assert len(bedgraphs) > 0, "No bedgraph files found to rename..."
+for bedgraph in bedgraphs:
+    new_name = bedgraph.replace(f".{normalization_method}-norm.gatc.bedgraph", "-norm.gatc.bedgraph")
+    os.rename(bedgraph, new_name)
 
-    # Move bedgraph files to output directory
-    move_files("bedgraph")
-        
-    # Move bam files to output directory
-    move_files("bam")
-    
-    # Go to parent directory
-    os.chdir(cwd)
-    
-    # Rename bedgraph files so that normalization method is not included in file name
-    bedgraphs = glob.glob(f"results/bedgraph/{directory}/*.bedgraph")
-    assert len(bedgraphs) > 0, "No bedgraph files found to rename..."
-    for bedgraph in bedgraphs:
-        new_name = bedgraph.replace(f".{normalization_method}-norm.gatc.bedgraph", "-norm.gatc.bedgraph")
-        os.rename(bedgraph, new_name)
-    
-    
-    if not paired:
-        # Rename bam files so that they end with .bam and not -ext300.bam
-        bam_files = glob.glob(f"results/bam/{directory}/*-ext300.bam")
-        assert len(bam_files) > 0, "No single-end bam files found to remove -ext300 from file name..."
-        for bam in bam_files:
-            new_name = bam.replace("-ext300", "")
-            os.rename(bam, new_name)
-    
-    # Remove all trimmed fastq files
-    shell(
-        "rm results/trimmed/{directory}/*.fastq.gz"
-        )
-    
-    # Destroy temporary directory
-    print(f"Cleaning up temporary directory {temp_dir.name}")
-    temp_dir.cleanup()
+# Destroy temporary directory
+logging.info(f"Cleaning up temporary directory {temp_dir.name}")
+temp_dir.cleanup()
