@@ -1,23 +1,38 @@
-# Quantile normalise all samples within one experiment
-# Ref: Cheetham et al. Targeted DamID reveals differential binding of mammalian pluripotency factors 2018
+# Quantile normalise all samples together
 if config["quantile_normalisation"]["apply"]:
     logger.info("Applying quantile normalisation...")
     rule quantile_normalisation:
         input:
-            bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+            bg=expand("results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
         output:
-            bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+            bg=expand("results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
         params:
             extra=""
         threads: config["resources"]["deeptools"]["cpu"]
         resources:
             runtime=config["resources"]["deeptools"]["time"]
         log:
-            "logs/quantile_normalisation/{dir}.log"
+            expand("logs/quantile_normalisation/{dir}/{bg_sample}.log", dir=DIRS, bg_sample=BG_SAMPLES)
         conda:
             "../envs/damid.yaml"
         script:
             "../scripts/quantile_norm_bedgraph.py"
+
+
+    rule reverse_log2:
+        input:
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph"
+        output:
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
+        threads: 1
+        resources:
+            runtime=30
+        log:
+            "logs/rev_log2/{dir}/{bg_sample}.log"
+        conda:
+            "../envs/deeptools.yaml"
+        script:
+            "../scripts/reverse_log2.py"
 
 
     rule bedgraph2bigwig:
@@ -66,6 +81,21 @@ else:
             "{input.cs} "
             "{output.bw} > {log} 2>&1"
 
+    rule reverse_log2:
+        input:
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph"
+        output:
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
+        threads: 1
+        resources:
+            runtime=30
+        log:
+            "logs/rev_log2/{dir}/{bg_sample}.log"
+        conda:
+            "../envs/deeptools.yaml"
+        script:
+            "../scripts/reverse_log2.py"
+
 # MAKE SIMPLER AVERAGE METHOD? --> python script that averages begraphs and then convert to bigwig
 rule average_wig:
     input:
@@ -102,22 +132,6 @@ rule wig2bigwig:
         "../envs/deeptools.yaml"
     shell:
         "wigToBigWig {input.wig} {input.cs} {output}"
-
-
-rule reverse_log2:
-    input:
-        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph"
-    output:
-        bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
-    threads: 1
-    resources:
-        runtime=30
-    log:
-        "logs/rev_log2/{dir}/{bg_sample}.log"
-    conda:
-        "../envs/deeptools.yaml"
-    script:
-        "../scripts/reverse_log2.py"
 
 
 use rule bedgraph2bigwig as bedgraph2bigwig_rev_log2 with:
