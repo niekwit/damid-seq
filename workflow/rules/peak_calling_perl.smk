@@ -205,7 +205,7 @@ if config["peak_calling_perl"]["run"]:
             "bedtools bamtobed "
             "{params.extra} "
             "-i {input.bam} | "
-            "bedtools sort -g {input.order} "
+            "bedtools sort -g {input.order} | "
             "tee >(wc -l > {output.total_read_count}) | "
             "bedtools intersect "
             "{params.extra} "
