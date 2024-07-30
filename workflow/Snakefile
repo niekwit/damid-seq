@@ -6,13 +6,13 @@ from snakemake.shell import shell
 report: "report/workflow.rst"
 
 # Workflow version
-VERSION = "v0.5.0"
+VERSION = "v0.6.0"
 
 # Set minimum snakemake version
 min_version("8.12.0")
 
 # Wrapper version
-wrapper_version = "v3.10.2"
+wrapper_version = "v3.13.8"
 
 logger.info(f"Workflow version: {VERSION}")
 logger.info(f"Wrapper version: {wrapper_version}")
@@ -23,6 +23,14 @@ containerized: f"docker://niekwit/damid-seq:{VERSION}"
 # Load and validate config file
 configfile: "config/config.yaml"
 validate(config, "schemas/config.schema.yaml")
+
+# Get paired-end status and bam extension
+paired_end = paired_end()
+
+# Get data type
+if data_type() == "matrix":
+    matrix_samples()
+
 check_consensus_peak_settings()
 
 plasmid_name = plasmid_fasta_name(config["plasmid_fasta"])
@@ -33,15 +41,8 @@ csv = pd.read_csv("config/samples.csv")
 # Load genome resources to be used in rules
 resources = Resources(config["genome"], config["ensembl_genome_build"])
 
-# Get paired-end status and bam extension
-paired_end = paired_end()
-
 # Get fusion protein (to be masked in fasta file)
 maskedgenes = masked_genes()
-
-# Get data type
-if data_type() == "matrix":
-    matrix_samples()
 
 # Wildcard values
 DIRS = dirs()
@@ -58,10 +59,10 @@ include: "rules/damid.smk"
 include: "rules/bedgraph_processing.smk"
 include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
-include: "rules/peak_calling.smk"
-include: "rules/bed.smk"
+include: "rules/peak_calling_perl.smk"
+include: "rules/macs2.smk"
 
-localrules: all, plot_mapping_rates, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, index_fasta, chrom_sizes
+localrules: all, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, chrom_sizes
 
 # Target rule
 rule all:
