@@ -8,6 +8,8 @@ Replaces gene sequences set in config:fusion_genes:genes
 in fasta file with Ns. Either whole gene sequence or
 just exons can be masked (config:fusion_genes:feature_to_mask).
 
+Scaffold and mitochondrial sequences are also removed.
+
 Reason: plasmid expressing Dam fusion 
 genes can be methylated at very high levels
 """
@@ -30,9 +32,9 @@ def write_dict2fasta(d, out):
 
 # Dictionary to store scaffold regex patterns
 patterns = {
-    "hg38": r"^KI|^GL|^MT",
-    "hg19": r"^GL|^MT",
-    "mm39": r"^JH|^GL|^MU|^MT",
+    "hg38": r"^KI|^GL|^MT$",
+    "hg19": r"^GL|^MT$",
+    "mm39": r"^JH|^GL|^MU|^MT$",
     "dm6": r"Scaffold|^\d{15}$|^mitochondrion_genome$",
     }
 
