@@ -71,7 +71,7 @@ rule create_annotation_file:
         "../scripts/create_annotation_file.R"
 
 
-rule masked_fasta:
+rule mask_fasta:
     input:
         fa=resources.fasta,
         gtf=resources.gtf,
@@ -121,18 +121,34 @@ rule chrom_sizes:
         "../envs/damid.yaml"
     shell:
         "awk '{{print $1,$2}}' {input.fai} | "
-        r"sed 's/ /\t/'  > {output}"
+        r"sed 's/\s/\t/'  > {output}"
+
+
+rule chrom_order:
+    input:
+        f"resources/{resources.genome}_chrom.sizes",
+    output:
+        f"resources/{resources.genome}_chrom_order.txt",
+    log:
+        "logs/resources/chrom_order.log"
+    threads: 1
+    resources: 
+        runtime=5
+    conda:
+        "../envs/damid.yaml"
+    shell:
+        f"grep -vP '{regex_patterns()}'" # Remove scaffolds sequences
+        " {input} > {output}"
 
 
 rule make_gatc_tracks:
     input:
         fa=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
     output:
-        f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
+        out=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
     params:
         genome=resources.genome,
         motif="GATC",
-        extras="",
     threads: config["resources"]["damid"]["cpu"],
     resources:
         runtime=45,
@@ -140,14 +156,8 @@ rule make_gatc_tracks:
         "../envs/peak_calling.yaml",
     log:
         "logs/make_gatc_tracks/tracks.log",
-    shell:
-        "python workflow/scripts/gatc.track.maker.py "
-        "--genome {params.genome} "
-        "--fasta {input.fa} "
-        "--outfile {output} "
-        "--threads {threads} "
-        "--motif {params.motif} "
-        "{params.extras} > {log} 2>&1 "
+    script:
+        "../scripts/gatc.track.maker.py"
 
 
 rule bowtie2_build_index:
