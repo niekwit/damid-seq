@@ -79,12 +79,13 @@ logging.info(f"Extending reads up to {n} bases or nearest GATC site...")
 samfile_in = pysam.AlignmentFile(input_bam, "rb")
 
 # Open pipe to samtools to write to new BAM file
-command = ["samtools", "view", "-Shb", "-t", fai, "-o", output_bam] # @SQ header is not written
+command = f"samtools view -Shb -t {fai} - | samtools sort -o {output_bam}" # @SQ header is not written
 process = subprocess.Popen(command,
                            stdin=subprocess.PIPE, 
                            #stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
-                           text=True)
+                           text=True,
+                           shell=True)
 
 for read in samfile_in.fetch():
     # First filter out reads with low mapping quality
