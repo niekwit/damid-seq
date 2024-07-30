@@ -40,26 +40,16 @@ if paired_end:
             expand("results/qc/fastqc/{dir}/{sample}{end}{trim}_fastqc.zip", dir=DIRS, sample=SAMPLES, end=["_1","_2"], trim=["_pre_trim","_post_trim"])
         output:
             r="results/qc/multiqc/multiqc.html",
-            d=directory("results/qc/multiqc/"),
         params:
-            extra="",  # Optional: extra parameters for multiqc
+            extra="--dirs --dirs-depth 2",  # Optional: extra parameters for multiqc
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb = 2048,
         log:
             "logs/multiqc/multiqc.log"
-        conda:
-            "../envs/trim.yaml"
-        shell:
-            "multiqc " 
-            "--force "
-            "--outdir {output.d} "
-            "--dirs " # Prepend directory to sample names
-            "-n multiqc.html "
-            "{params.extra} "
-            "{input} "
-            "> {log} 2>&1"
+        wrapper:
+            f"{wrapper_version}/bio/multiqc"
 else:
     rule post_trim_fastqc:
         input:
