@@ -66,6 +66,7 @@ if config["plasmid_fasta"] == "none":
                 idx=f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
                 binsize=config["damidseq_pipeline"]["binsize"],
                 normalization_method=config["damidseq_pipeline"]["normalization"],
+                extension=".sorted.bam",
                 extra=config["damidseq_pipeline"]["extra"],
             conda:
                 "../envs/damid.yaml"
@@ -196,6 +197,7 @@ if config["plasmid_fasta"] == "none":
                 idx=f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
                 binsize=config["damidseq_pipeline"]["binsize"],
                 normalization_method=config["damidseq_pipeline"]["normalization"],
+                extension=".extended.bam",
                 extra=config["damidseq_pipeline"]["extra"],
             conda:
                 "../envs/damid.yaml"

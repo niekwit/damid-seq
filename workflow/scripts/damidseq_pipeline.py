@@ -33,12 +33,13 @@ cwd = os.getcwd()
 
 # Load Snakemake variables
 bams = snakemake.input["bam"]
-bams = [os.path.join(cwd,x) for x in bams]
+bams = [os.path.join(cwd, x) for x in bams]
 gatc = os.path.join(cwd, snakemake.input["gatc"])
 threads = snakemake.threads
 bins = snakemake.params["binsize"]
 normalization_method = snakemake.params["normalization_method"]
 idx = os.path.join(cwd,snakemake.params["idx"])
+extension = snakemake.params["extension"]
 extra = snakemake.params["extra"]
 log = os.path.join(cwd, snakemake.log[0])
 
@@ -57,8 +58,8 @@ directory = directory[0]
 damidseq_pipeline = os.path.join(cwd,"resources/damidseq_pipeline/damidseq_pipeline")
 
 # Get dam bam
-dam_bam = [x for x in bams if re.search("dam.extended.bam$", x.lower())]
-assert len(dam_bam) == 1
+dam_bam = [x for x in bams if x.lower().endswith(f"dam{extension}")]
+assert len(dam_bam) == 1, "No Dam only bam file found..."
 # TO DO: allow for multiple Dam only bam files (i.e. multiple conditions)
 
 # Get non-Dam bam files
