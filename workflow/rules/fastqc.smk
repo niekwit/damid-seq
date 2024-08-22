@@ -1,14 +1,14 @@
 if paired_end:
     rule post_trim_fastqc:
         input:
-            "results/trimmed/{dir}/{sample}{end}.fastq.gz",
+            "results/trimmed/{dir}/{sample}_{end}.fastq.gz",
         output:
-            html="results/qc/fastqc/{dir}/{sample}{end}_post_trim.html",
-            zip="results/qc/fastqc/{dir}/{sample}{end}_post_trim_fastqc.zip"
+            html="results/qc/fastqc/{dir}/post_trim/{sample}_R{end}_001.html",
+            zip="results/qc/fastqc/{dir}/post_trim/{sample}_R{end}_001_fastqc.zip"
         params:
             extra = "--quiet"
         log:
-            "logs/fastqc/{dir}/{sample}{end}.log"
+            "logs/fastqc/post_trim/{dir}/{sample}_R{end}_001.log"
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
@@ -19,14 +19,14 @@ if paired_end:
 
     rule pre_trim_fastqc:
         input:
-            "reads/{dir}/{sample}{end}.fastq.gz",
+            "reads/{dir}/{sample}_R{end}_001.fastq.gz",
         output:
-            html="results/qc/fastqc/{dir}/{sample}{end}_pre_trim.html",
-            zip="results/qc/fastqc/{dir}/{sample}{end}_pre_trim_fastqc.zip"
+            html="results/qc/fastqc/{dir}/pre_trim/{sample}_R{end}_001.html",
+            zip="results/qc/fastqc/{dir}/pre_trim/{sample}_R{end}_001_fastqc.zip"
         params:
             extra = "--quiet"
         log:
-            "logs/fastqc/{dir}/{sample}{end}.log"
+            "logs/fastqc/pre_trim/{dir}/{sample}_R{end}_001.log"
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
@@ -37,7 +37,7 @@ if paired_end:
 
     rule multiqc:
         input:
-            expand("results/qc/fastqc/{dir}/{sample}{end}{trim}_fastqc.zip", dir=DIRS, sample=SAMPLES, end=["_1","_2"], trim=["_pre_trim","_post_trim"])
+            expand("results/qc/fastqc/{dir}/{trim}/{sample}_R{end}_001_fastqc.zip", dir=DIRS, sample=SAMPLES, end=["1","2"], trim=["pre_trim","post_trim"])
         output:
             r="results/qc/multiqc/multiqc.html",
         params:
