@@ -2,7 +2,7 @@ genome: test
 ensembl_genome_build: 110
 plasmid_fasta: none
 fusion_genes: 
-  genes: "" # Genes from these proteins will be masked from the fasta file
+  genes: none # Genes from these proteins will be masked from the fasta file (none for nothing to mask)
   feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
 bowtie2:
   extra: ""
