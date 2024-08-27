@@ -1,0 +1,84 @@
+genome: test
+ensembl_genome_build: 110
+plasmid_fasta: none
+fusion_genes: 
+  genes: "" # Genes from these proteins will be masked from the fasta file
+  feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
+bowtie2:
+  extra: ""
+damidseq_pipeline:
+  normalization: rpm 
+  binsize: 300
+  extra: "" # extra argument for damidseq_pipeline
+quantile_normalisation:
+  apply: True
+  extra: "" # extra argument for quantile_normalization
+deeptools:
+  bamCoverage: # bam to bigwig conversion for QC
+    binSize: 10
+    normalizeUsing: RPKM
+    extra: ""
+  matrix: # Settings for computeMatrix
+    mode: scale-regions # scale-regions or reference-point
+    referencePoint: TSS # TSS, TES, center (only for reference-point mode)
+    regionBodyLength: 6000
+    upstream: 3000
+    downstream: 3000
+    binSize: 1000
+    averageTypeBins: mean
+    regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
+    no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
+    extra: "" # Any additional parameters for computeMatrix
+  plotHeatmap:
+    interpolationMethod: auto
+    plotType: lines # lines, fill, se, std
+    colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
+    alpha: 1.0
+    extra: "" 
+peak_calling_perl:
+  run: False
+  iterations: 5 # N argument
+  fdr: 0.01
+  fraction: 0 # Fraction of random fragments to consider per iteration
+  min_count: 2 # Minimum number of reads to consider a peak
+  min_quantile: 0.95 # Minimum quantile for considering peaks
+  step: 0.01 # Stepping for quantiles
+  unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
+  extra: ""
+peak_calling_macs2:
+  run: True
+  mode: broad
+  qvalue: 0.05
+  broad_cutoff: 0.1
+  extra: ""
+consensus_peaks:
+    max_size: 100 # Maximum size of peaks to be extended
+    extend_by: 100 # Number of bp to extend peaks on either side
+    keep: 3 # Minimum number peaks that must overlap to keep
+    enrichment_analysis: 
+      run: False # Perform enrichment analysis
+      dbs: ["GO_Molecular_Function_2023","GO_Biological_Process_2023","Reactome_2021"]
+      terms: 10 # Number of terms to plot
+resources: # computing resources
+  trim:
+    cpu: 8
+    time: 60
+  fastqc:
+    cpu: 4
+    time: 60
+  damid:
+    cpu: 18
+    time: 720
+    tmpdir: '/mnt/4TB_SSD/analyses/DamID/test3'
+  index:
+    cpu: 36
+    time: 60
+  deeptools:
+    cpu: 8
+    time: 90
+  plotting:
+    cpu: 2
+    time: 20
+  bowtie2:
+    cpu: 24
+    time: 90
