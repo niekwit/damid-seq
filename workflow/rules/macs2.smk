@@ -1,10 +1,14 @@
 if config["peak_calling_macs2"]["run"]:
+    if paired_end:
+            extension = ".sorted"
+    else:
+        extension = ".extended"
     if config["peak_calling_macs2"]["mode"] == "narrow":
         fdr = config["peak_calling_macs2"]["qvalue"]
         
         rule peak_calling_MACS2_narrow:
             input:
-                bam="results/bam/{dir}/{bg_sample}.bam",
+                bam=f"results/bam/{{dir}}/{{bg_sample}}{extension}.bam",
             output:
                 multiext("results/macs2_broad/fdr{fdr}/{dir}/{bg_sample}",
                         "_peaks.xls",
@@ -171,7 +175,7 @@ if config["peak_calling_macs2"]["run"]:
         rule count_reads_in_peaks:
         # Adapted from https://www.biostars.org/p/337872/#337890
             input:
-                bam="results/bam/{dir}/{bg_sample}.sorted.bam",
+                bam=f"results/bam/{{dir}}/{{bg_sample}}{extension}.bam",
                 b="results/macs2_narrow/fdr{fdr}/{dir}/{bg_sample}_peaks.narrowPeak",
             output:
                 total_read_count="results/macs2_narrow/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
@@ -226,7 +230,7 @@ if config["peak_calling_macs2"]["run"]:
 
         rule peak_calling_MACS2_broad:
             input:
-                bam="results/bam/{dir}/{bg_sample}.bam",
+                bam=f"results/bam/{{dir}}/{{bg_sample}}{extension}.bam",
             output:
                 multiext("results/macs2_broad/fdr{fdr}/{dir}/{bg_sample}",
                         "_peaks.xls",
@@ -394,7 +398,7 @@ if config["peak_calling_macs2"]["run"]:
         rule count_reads_in_peaks:
         # Adapted from https://www.biostars.org/p/337872/#337890
             input:
-                bam="results/bam/{dir}/{bg_sample}.sorted.bam",
+                bam=f"results/bam/{{dir}}/{{bg_sample}}{extension}.bam",
                 b="results/macs2_broad/fdr{fdr}/{dir}/{bg_sample}_peaks.broadPeak",
             output:
                 total_read_count="results/macs2_broad/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
