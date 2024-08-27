@@ -70,8 +70,8 @@ resources: # computing resources
     cpu: 24
     time: 90
   damid:
-    cpu: 24
-    time: 720
+    cpu: 12
+    time: 90
     tmpdir: /tmp
   index:
     cpu: 36
