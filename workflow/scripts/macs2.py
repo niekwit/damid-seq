@@ -1,5 +1,6 @@
 import os
 import re
+import glob
 import pandas as pd
 from snakemake.shell import shell
 
@@ -16,29 +17,16 @@ data_dir = snakemake.params["data_dir"]
 out_dir = snakemake.params["outdir"]
 
 #dam = os.path.join(data_dir, "Dam.bam")
-name = re.sub(".bam$", "", os.path.basename(bam))
+name = re.sub(".sorted.bam$", "", os.path.basename(bam))
 
-# Load sample table
-csv = pd.read_csv("config/samples.csv")
-
-# Check if treatment column contains any NaN values, if so replace with "none"
-if csv["treatment"].isnull().values.any():
-    csv.fillna({"treatment": "none"}, inplace=True)
-
-# Combine genotypes and treatments into one condition column
-csv["condition"] = csv["genotype"] + "_" + csv["treatment"]
-
-# Get condition for name
-condition = csv[csv["sample"] == name]["condition"].tolist()[0]
-
-# Get dam sample that matches bam sample (name) condition in csv
-dam = csv[csv["sample"].str.contains("Dam")]
-
-if len(dam) == 1:
-    dam = dam["sample"].tolist()[0]
+# Get Dam only bam file
+dam = [x for x in glob.glob(os.path.join(data_dir, "*.sorted.bam")) if "dam" in x.lower()]
+if len(dam) == 0:
+    raise ValueError("No Dam only bam file found...")
+elif len(dam) > 1:
+    raise ValueError("Too many Dam only bam files found...")
 else:
-    dam = dam[csv["condition"].str.contains(condition)]["sample"].tolist()[0]
-dam = os.path.join(data_dir, dam + ".bam")
+    dam = dam[0]
 
 # Construct MACS2 arguments
 if paired_end:
