@@ -40,6 +40,16 @@ class Resources:
             self.fasta_url = f"{base_url_ens}fasta/drosophila_melanogaster/dna/Drosophila_melanogaster.{name}.dna.toplevel.fa.gz"
             self.gtf_url = f"{base_url_ens}gtf/drosophila_melanogaster/Drosophila_melanogaster.{name}.{build}.gtf.gz" 
         
+        elif "test" in genome:
+            if genome == "dm6":
+                name = "BDGP6.46"
+
+            self.fasta_url = "https://github.com/niekwit/damid-seq/raw/main/.test_pe/Homo_sapiens.GRCh38.dna.primary_assembly_subset.fa.gz"
+            self.gtf_url = "https://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz"
+            
+        else:
+            raise ValueError("Genome {genome} not supported")
+        
         # downloaded unzipped file names
         self.fasta = self._file_from_url(self.fasta_url)
         self.gtf = self._file_from_url(self.gtf_url)
@@ -50,10 +60,4 @@ class Resources:
         """
         return f"resources/{os.path.basename(url).replace('.gz','')}"
     
-    
-  
-        
-        
-            
-            
     
