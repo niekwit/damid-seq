@@ -45,7 +45,7 @@ class Resources:
                 name = "BDGP6.46"
 
             self.fasta_url = "https://github.com/niekwit/damid-seq/raw/main/.test_pe/Homo_sapiens.GRCh38.dna.primary_assembly_subset.fa.gz"
-            self.gtf_url = "https://ftp.ensembl.org/pub/release-112/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz"
+            self.gtf_url = "https://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz"
             
         else:
             raise ValueError("Genome {genome} not supported")
