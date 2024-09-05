@@ -230,7 +230,8 @@ if config["peak_calling_macs2"]["run"]:
 
         rule peak_calling_MACS2_broad:
             input:
-                bam=f"results/bam/{{dir}}/{{bg_sample}}{extension}.bam",
+                treatment=f"results/bam/{{dir}}/{{bg_sample}}{extension}.bam",
+                control=f"results/bam/{{dir}}/Dam{extension}.bam",
             output:
                 multiext("results/macs2_broad/fdr{fdr}/{dir}/{bg_sample}",
                         "_peaks.xls",
@@ -238,24 +239,20 @@ if config["peak_calling_macs2"]["run"]:
                         "_peaks.gappedPeak"
                         )
             params:
-                outdir=lambda w, output: os.path.dirname(output[0]),
-                paired_end=paired_end,
-                mode="broad",
-                fdr=fdr,
-                genome=resources.genome,
-                data_dir=lambda w, input: os.path.dirname(input[0]),
-                extra=config["peak_calling_macs2"]["extra"]
+                macs2_params()
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
                 runtime=config["resources"]["deeptools"]["time"]
             log:
                 "logs/macs2_broad/fdr{fdr}/{dir}/{bg_sample}.log"
-            conda:
-                "../envs/peak_calling.yaml"
-            script:
-                "../scripts/macs2.py"
+            #conda:
+            #    "../envs/peak_calling.yaml"
+            #script:
+            #    "../scripts/macs2.py"
+            wrapper:
+                "v3.13.8/bio/macs2/callpeak"
 
-
+        
         rule consensus_peaks_macs2_broad:
             input: 
                 peaks=expand("results/macs2_broad/fdr{fdr}/{dir}/{{bg_sample}}_peaks.broadPeak", dir=DIRS, fdr=fdr),
@@ -280,7 +277,7 @@ if config["peak_calling_macs2"]["run"]:
                 peaks=expand("results/macs2_broad/fdr{fdr}/{dir}/{{bg_sample}}_peaks.broadPeak", dir=DIRS, fdr=fdr),
                 cs=f"resources/{resources.genome}_chrom.sizes",
             output:
-                ext_bed="results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
+                ext_bed=temp("results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.tmp.bed"),
             params:
                 k=config["consensus_peaks"]["keep"],
                 max_size=config["consensus_peaks"]["max_size"],
@@ -294,7 +291,24 @@ if config["peak_calling_macs2"]["run"]:
                 "../envs/peak_calling.yaml"
             script:
                 "../scripts/filter_consensus_peaks.py"
+        
 
+        rule remove_duplicate_peaks:
+            input:
+                "results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.tmp.bed",
+            output:
+                "results/macs2_broad/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.filtered.bed",
+            threads: 1
+            resources:
+                runtime=5
+            log:
+                "logs/remove_duplicate_peaks/macs2_broad/fdr{fdr}/{bg_sample}.log"
+            conda:
+                "../envs/peak_calling.yaml"
+            shell:
+                # Remove duplicates based on the first 3 columns 
+                "sort -k 1,1 -k2,2 -k3,3n -u {input} > {output}"
+            
                     
         rule peak_annotation_plots_macs2_broad:
             input:

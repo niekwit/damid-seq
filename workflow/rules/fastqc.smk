@@ -14,7 +14,7 @@ if paired_end:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb = 2048,
         wrapper:
-            f"{wrapper_version}/bio/fastqc"
+            "v3.13.8/bio/fastqc"
 
 
     rule pre_trim_fastqc:
@@ -32,7 +32,7 @@ if paired_end:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb = 2048,
         wrapper:
-            f"{wrapper_version}/bio/fastqc"
+            "v3.13.8/bio/fastqc"
 
 
     rule multiqc:
@@ -49,7 +49,7 @@ if paired_end:
         log:
             "logs/multiqc/multiqc.log"
         wrapper:
-            f"{wrapper_version}/bio/multiqc"
+            "v3.13.8/bio/multiqc"
 else:
     rule post_trim_fastqc:
         input:
@@ -66,7 +66,7 @@ else:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb = 2048,
         wrapper:
-            f"{wrapper_version}/bio/fastqc"
+            "v3.13.8/bio/fastqc"
 
 
     rule pre_trim_fastqc:
@@ -84,7 +84,7 @@ else:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb = 2048,
         wrapper:
-            f"{wrapper_version}/bio/fastqc"
+            "v3.13.8/bio/fastqc"
 
 
     rule multiqc:
@@ -101,4 +101,4 @@ else:
         log:
             "logs/multiqc/multiqc.log"
         wrapper:
-            f"{wrapper_version}/bio/multiqc"
+            "v3.13.8/bio/multiqc"
