@@ -26,7 +26,8 @@ import re
 import subprocess
 import pysam
 import numpy as np
-import gffpandas.gffpandas as gffpd
+import pandas as pd
+#import gffpandas.gffpandas as gffpd
 
 input_bam = snakemake.input["bam"]
 fai = snakemake.input["fai"]
@@ -45,17 +46,25 @@ logging.basicConfig(format='%(levelname)s:%(message)s',
 
 # For each chromosome obtain start sites of GATC sites in np array
 logging.info("Reading GATC sites from GFF file...")
-gatc_gff = gffpd.read_gff3(gatc_gff).df
+#gatc_gff = gffpd.read_gff3(gatc_gff).df
+gatc_gff = pd.read_csv(gatc_gff, 
+                       header=None, sep="\t", 
+                       low_memory=False)
 
 chr_gatc = {}
-for chr in gatc_gff["seq_id"].unique():
-    chr_gatc[chr] = gatc_gff[gatc_gff["seq_id"] == chr]
+for chr in gatc_gff[0].unique():
+    """
+    Store the GATC sites for each chromosome in a dictionary.
+    """
+    # Subset GATC sites for the current chromosome
+    chr = str(chr)
+    tmp = gatc_gff[gatc_gff[0] == chr]
     
-    # Only keep the start position
-    chr_gatc[chr] = chr_gatc[chr]["start"].values + 2 # Correct for DpnI cut site
+    # Obtain start sites of GATC sites (4th column)
+    tmp = tmp[3].values + 2 # Correct for DpnI cut site
     
     # Convert to Numpy array for speed
-    chr_gatc[chr] = np.sort(chr_gatc[chr])
+    chr_gatc[chr] = np.sort(tmp)
 
 # Read first column of fai file into 0-based index
 # converts target ID to reference name
