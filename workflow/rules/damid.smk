@@ -153,7 +153,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/extend_reads/{dir}/{sample}.log"
             shell:
-                "../scripts/extend_reads.pl " 
+                "perl workflow/scripts/extend_reads.pl " 
                 "{input.bam} "
                 "{output.bam} "
                 "{input.gatc_gff} "
