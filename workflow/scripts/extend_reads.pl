@@ -85,7 +85,7 @@ sub extend_reads_gatc {
     open (IN, "samtools view -h $vars{'bam'} |") || die "Unable to read $vars{'bam'}: $!\n";
     
     printout("  Processing data ...\n");
-    open (OUT, "| samtools view -Shb - > $vars{'bam_out'}");
+    open (OUT, "| samtools view -Shb | samtools sort -o $vars{'bam_out'}");
     
     my $c=0;
     my $seqs;
