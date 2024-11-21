@@ -1,6 +1,6 @@
 if config["peak_calling_macs2"]["run"]:
     if paired_end:
-            extension = ".sorted"
+        extension = ".sorted"
     else:
         extension = ".extended"
     if config["peak_calling_macs2"]["mode"] == "narrow":
@@ -227,7 +227,7 @@ if config["peak_calling_macs2"]["run"]:
     
     elif config["peak_calling_macs2"]["mode"] == "broad":
         fdr = config["peak_calling_macs2"]["broad_cutoff"]
-
+        print(extension)
         rule peak_calling_MACS2_broad:
             input:
                 treatment=f"results/bam/{{dir}}/{{bg_sample}}{extension}.bam",
@@ -250,7 +250,7 @@ if config["peak_calling_macs2"]["run"]:
             #script:
             #    "../scripts/macs2.py"
             wrapper:
-                "v3.13.8/bio/macs2/callpeak"
+                "v5.2.0/bio/macs2/callpeak"
 
         
         rule consensus_peaks_macs2_broad:

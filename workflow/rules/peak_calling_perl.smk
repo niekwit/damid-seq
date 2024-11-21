@@ -60,7 +60,7 @@ if config["peak_calling_perl"]["run"]:
         conda:
             "../envs/peak_calling.yaml"
         wrapper:
-            "v3.13.8/bio/bedtools/sort"
+            "v5.2.0/bio/bedtools/sort"
 
 
     # Create bed file of consensus peaks between replicate conditions

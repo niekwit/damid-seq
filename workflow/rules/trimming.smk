@@ -16,7 +16,7 @@ if paired_end:
         log:
             "logs/trim_galore/{dir}/{sample}.log",
         wrapper:
-            "v3.13.8/bio/trim_galore/pe"
+            "v5.2.0/bio/trim_galore/pe"
 else:
     rule trim_galore_se:
         input:
@@ -32,5 +32,5 @@ else:
         log:
             "logs/trim_galore/{dir}/{sample}.log",
         wrapper:
-            "v3.13.8/bio/trim_galore/se"
+            "v5.2.0/bio/trim_galore/se"
         

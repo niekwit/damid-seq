@@ -23,7 +23,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/bowtie2_align/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/bowtie2/align"
+                "v5.2.0/bio/bowtie2/align"
 
 
         rule sort_bowtie2_bam:
@@ -37,7 +37,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/samtools/sort/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/samtools/sort"
+                "v5.2.0/bio/samtools/sort"
 
         
         rule index_bowtie2_bam:
@@ -51,7 +51,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/samtools/index/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/samtools/index"
+                "v5.2.0/bio/samtools/index"
 
         
         rule damidseq_pipeline: # Ignore dir wildcard in expand statement (double braces)
@@ -101,7 +101,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/bowtie2_align/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/bowtie2/align"
+                "v5.2.0/bio/bowtie2/align"
 
 
         rule sort_bowtie2_bam:
@@ -115,7 +115,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/samtools/index/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/samtools/sort"
+                "v5.2.0/bio/samtools/sort"
 
 
         rule index_bowtie2_bam:
@@ -129,7 +129,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/samtools/index/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/samtools/index"
+                "v5.2.0/bio/samtools/index"
 
 
         # Single-end fragments are extended to n bp
@@ -172,7 +172,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/samtools/sort/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/samtools/sort"
+                "v5.2.0/bio/samtools/sort"
         '''
         
         rule index_bam:
@@ -186,7 +186,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/samtools/index/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/samtools/index"
+                "v5.2.0/bio/samtools/index"
         
     
         # dir wildcard is escaped so that multiple dirs can be run in parallel
@@ -309,7 +309,7 @@ else:
             log:
                 "logs/bowtie2_align/{dir}/{sample}.log"
             wrapper:
-                "v3.13.8/bio/bowtie2/align"
+                "v5.2.0/bio/bowtie2/align"
         '''
         rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces)
             input:
