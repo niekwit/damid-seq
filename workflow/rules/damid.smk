@@ -152,8 +152,13 @@ if config["plasmid_fasta"] == "none":
                 runtime=config["resources"]["deeptools"]["time"]
             log:
                 "logs/extend_reads/{dir}/{sample}.log"
-            script:
-                "../scripts/extend_fragments.py"
+            shell:
+                "../scripts/extend_reads.pl " 
+                "{input.bam} "
+                "{output.bam} "
+                "{input.gatc_gff} "
+                "{params.n}"
+                " {params.q} {log}"
 
         '''
         rule sort_extended_bam:
