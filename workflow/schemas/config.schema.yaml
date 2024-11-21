@@ -7,7 +7,7 @@ type: object
 properties:
   genome:
     type: string
-    enum: ["hg38", "hg19", "mm39", "dm6"]
+    enum: ["hg38", "hg19", "mm39", "dm6", "test"]
     description: Ensembl genome
   
   ensembl_genome_build:
