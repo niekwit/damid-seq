@@ -1,6 +1,6 @@
-rule plotPCA_bedgraph:
+rule plotPCA:
     input:
-        "results/deeptools/PCA.tab",
+        "results/deeptools/PCA_bam.tab",
     output:
         pca=report("results/plots/PCA.pdf", caption="../report/pca.rst", category="PCA"),
         scree=report("results/plots/scree.pdf", caption="../report/scree.rst", category="PCA"),
@@ -17,21 +17,11 @@ rule plotPCA_bedgraph:
         "../scripts/plot_PCA.R"
 
 
-use rule plotPCA_bedgraph as plotPCA_bam with:
-    input:
-        "results/deeptools/PCA_bam.tab",
-    output:
-        pca=report("results/plots/PCA_bam.pdf", caption="../report/pca.rst", category="PCA"),
-        scree=report("results/plots/scree_bam.pdf", caption="../report/scree.rst", category="PCA"),
-    log:
-        "logs/plotting/plotPCA_bam.log"
-
-
 rule plot_correlation_bedgraph:
     input:
-        "results/deeptools/scores_per_bin.npz"
+        "results/deeptools/scores_per_bin_bam.npz",
     output:
-        tab="results/deeptools/correlation.tab",
+        tab="results/deeptools/correlation_bam.tab",
         pdf=report("results/plots/sample_correlation.pdf", caption="../report/correlation.rst", category="Sample correlation"),
     params:
         extra=""
@@ -55,17 +45,7 @@ rule plot_correlation_bedgraph:
         "{params.extra} "
         "> {log} 2>&1"
 
-
-use rule plot_correlation_bedgraph as plot_correlation_bam with:
-    input:
-        "results/deeptools/scores_per_bin_bam.npz",
-    output:
-        tab="results/deeptools/correlation_bam.tab",
-        pdf=report("results/plots/sample_correlation_bam.pdf", caption="../report/correlation.rst", category="Sample correlation"),
-    log:
-        "logs/plotting/plotCorrelation_bam.log"
-    
-
+ 
 rule plot_heatmap:
     input:
         mat="results/deeptools/average_bw_matrix.gz",
@@ -199,5 +179,4 @@ rule plot_mapping_rates:
     conda:
         "../envs/R.yaml"
     script:
-        "../scripts/plot_mapping_rates.R"
-    
+        "../scripts/plot_mapping_rates.R"    
