@@ -89,7 +89,7 @@ with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
         count += 1
         
         # Write extended region to output file
-        bed_out.write(f"{chrom}\t{start}\t{end}\t{name}\t0\t{num}\n")
+        bed_out.write(f"{chrom}\t{start}\t{end}\t{name}\t.\t{num}\n")
         
 with open(snakemake.log[0], "w") as log:
     log.write(f"Total number of peaks analysed: {count + skipped_peaks}\n")
