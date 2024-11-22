@@ -1,6 +1,6 @@
-rule multiBigwigSummary_bedgraph:
+rule multiBigwigSummary:
     input:
-        expand("results/bigwig/{dir}/{bg_sample}.bw", dir=DIRS , bg_sample=BG_SAMPLES),
+        expand("results/bigwig/bam2bigwig/{dir}/{sample}.bw", dir=DIRS , sample=SAMPLES),
     output:
         "results/deeptools/scores_per_bin.npz",
     params:
@@ -23,19 +23,7 @@ rule multiBigwigSummary_bedgraph:
         "> {log} 2>&1"
 
 
-use rule multiBigwigSummary_bedgraph as multiBigwigSummary_bam with:
-    input:
-        expand("results/bigwig/bam2bigwig/{dir}/{sample}.bw", dir=DIRS , sample=SAMPLES),
-    output:
-        "results/deeptools/scores_per_bin_bam.npz",
-    params:
-        labels=lambda wildcards, input: [x.replace("results/bigwig/bam2bigwig/", "").replace(".bw","") for x in input],
-        extra=""
-    log:
-        "logs/deeptools/multiBigwigSummary_bam.log"
-
-
-rule PCA_bedgraph:
+rule PCA:
     input:
         "results/deeptools/scores_per_bin.npz",
     output:
@@ -56,15 +44,6 @@ rule PCA_bedgraph:
         "--transpose "
         "{params.extra} "
         "> {log} 2>&1"
-
-
-use rule PCA_bedgraph as PCA_bam with:
-    input:
-        "results/deeptools/scores_per_bin_bam.npz",
-    output:
-        "results/deeptools/PCA_bam.tab",
-    log:
-        "logs/deeptools/PCA_bam.log"
 
 
 rule computeMatrix:
