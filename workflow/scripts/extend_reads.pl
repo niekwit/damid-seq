@@ -6,7 +6,6 @@
 
 use strict;
 use warnings;
-use diagnostics;
 
 my @gatc_simple;
 my %gatc;
@@ -50,7 +49,6 @@ sub load_gatc_frags {
 	}
 	close GATC;
 	
-	print STDERR "  Sorting ...\n\n";
 	my %tmp;
 	foreach my $k (keys %gatc) {
 		@{$tmp{$k}} = sort { $a <=> $b } @{$gatc{$k}};
@@ -79,7 +77,7 @@ sub load_gatc_frags {
 
 
 sub extend_reads_gatc {
-    printout("*** Extending reads up to $vars{'len'} bases ***\n");
+    printout("*** Extending reads up to $vars{'len'} bases or nearest GATC***\n");
 
     printout("Reading input file: $vars{'bam'} ...\n");
     open (IN, "samtools view -h $vars{'bam'} |") || die "Unable to read $vars{'bam'}: $!\n";
@@ -203,7 +201,7 @@ sub extend_reads_gatc {
 
 sub printout {
 	my $s = shift;
-	print STDERR $s;
+	#print STDERR $s; Do not print to console, only to log
 	print LOG $s;
 }
 
