@@ -14,7 +14,7 @@ if config["plasmid_fasta"] == "none":
                     ".rev.2.bt2",
                 ),
             output:
-                bam=temp("results/bam/{dir}/{sample}.bam"),
+                bam=pipe("results/bam/{dir}/{sample}.bam"),
             params:
                 extra=config["bowtie2"]["extra"],
             threads: config["resources"]["bowtie2"]["cpu"]
@@ -92,7 +92,7 @@ if config["plasmid_fasta"] == "none":
                     ".rev.2.bt2",
                 ),
             output:
-                bam=temp("results/bam/{dir}/{sample}.bam"),
+                bam=pipe("results/bam/{dir}/{sample}.bt2.bam"),
             params:
                 extra=config["bowtie2"]["extra"]
             threads: config["resources"]["bowtie2"]["cpu"]
@@ -106,9 +106,9 @@ if config["plasmid_fasta"] == "none":
 
         rule sort_bowtie2_bam:
             input:
-                "results/bam/{dir}/{sample}.bam",
+                "results/bam/{dir}/{sample}.bt2.bam",
             output:
-                temp("results/bam/{dir}/{sample}.sorted.bam"),
+                temp("results/bam/{dir}/{sample}.bt2_sorted.bam"),
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
                 runtime=config["resources"]["deeptools"]["time"]
@@ -120,9 +120,9 @@ if config["plasmid_fasta"] == "none":
 
         rule index_bowtie2_bam:
             input:
-                "results/bam/{dir}/{sample}.sorted.bam",
+                "results/bam/{dir}/{sample}.bt2_sorted.bam",
             output:
-                temp("results/bam/{dir}/{sample}.sorted.bam.bai"),
+                temp("results/bam/{dir}/{sample}.bt2_sorted.bam.bai"),
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
                 runtime=config["resources"]["deeptools"]["time"]
@@ -134,14 +134,15 @@ if config["plasmid_fasta"] == "none":
 
         # Single-end fragments are extended to n bp
         # or to the closest GATC site
+        # Fragments are also sorted
         rule extend_fragments:
             input:
-                bam="results/bam/{dir}/{sample}.sorted.bam",
-                bai="results/bam/{dir}/{sample}.sorted.bam.bai",
+                bam="results/bam/{dir}/{sample}.bt2_sorted.bam",
+                bai="results/bam/{dir}/{sample}.bt2_sorted.bam.bai",
                 gatc_gff=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
                 fai=f"{resources.fasta}.fai",
             output:
-                bam=temp("results/bam/{dir}/{sample}.extended.bam"), 
+                bam="results/bam/{dir}/{sample}.sorted.bam", 
             params:
                 n=300,
                 q=20,
@@ -157,29 +158,16 @@ if config["plasmid_fasta"] == "none":
                 "{input.bam} "
                 "{output.bam} "
                 "{input.gatc_gff} "
-                "{params.n}"
-                " {params.q} {log}"
+                "{params.n} "
+                "{params.q} "
+                "{log}"
 
-        '''
-        rule sort_extended_bam:
-            input:
-                "results/bam/{dir}/{sample}.extended.bam",
-            output:
-                "results/bam/{dir}/{sample}.sorted.bam",
-            threads: config["resources"]["deeptools"]["cpu"]
-            resources:
-                runtime=config["resources"]["deeptools"]["time"]
-            log:
-                "logs/samtools/sort/{dir}/{sample}.log"
-            wrapper:
-                "v5.2.0/bio/samtools/sort"
-        '''
         
         rule index_bam:
             input:
-                "results/bam/{dir}/{sample}.extended.bam",
+                "results/bam/{dir}/{sample}.sorted.bam",
             output:
-                "results/bam/{dir}/{sample}.extended.bam.bai",
+                "results/bam/{dir}/{sample}.sorted.bam.bai",
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
                 runtime=config["resources"]["deeptools"]["time"]
@@ -193,8 +181,8 @@ if config["plasmid_fasta"] == "none":
         rule damidseq_pipeline: # Ignore dir wildcard in expand statement (double braces)
             input:
                 git="resources/damidseq_pipeline",
-                bam=expand("results/bam/{{dir}}/{sample}.extended.bam", sample=SAMPLES),
-                bai=expand("results/bam/{{dir}}/{sample}.extended.bam.bai", sample=SAMPLES),
+                bam=expand("results/bam/{{dir}}/{sample}.sorted.bam", sample=SAMPLES),
+                bai=expand("results/bam/{{dir}}/{sample}.sorted.bam.bai", sample=SAMPLES),
                 gatc=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
             output:
                 bg=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
@@ -202,7 +190,7 @@ if config["plasmid_fasta"] == "none":
                 idx=f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
                 binsize=config["damidseq_pipeline"]["binsize"],
                 normalization_method=config["damidseq_pipeline"]["normalization"],
-                extension=".extended.bam",
+                #extension=".sorted.bam",
                 extra=config["damidseq_pipeline"]["extra"],
             conda:
                 "../envs/damid.yaml"
@@ -214,44 +202,7 @@ if config["plasmid_fasta"] == "none":
                 "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
             script:
                 "../scripts/damidseq_pipeline.py"
-    '''
-    old
-    # dir wildcard is escaped so that multiple dirs can be run in parallel
-    rule damidseq_pipeline: # ignore dir wildcard in expand statement (double braces)
-        input:
-            git="resources/damidseq_pipeline",
-            flag=expand("results/trimmed/{{dir}}/{sample}.flag", sample=SAMPLES),
-            gatc=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
-            idx=multiext(
-                f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
-                ".1.bt2",
-                ".2.bt2",
-                ".3.bt2",
-                ".4.bt2",
-                ".rev.1.bt2",
-                ".rev.2.bt2",
-            ),
-        output:
-            bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
-            bam=temp(expand("results/bam/{{dir}}/{sample}.bam", sample=SAMPLES)),
-        params:
-            idxdir=lambda wildcards, input: input["idx"][0][:-6],
-            paired=paired_end,
-            binsize=config["damidseq_pipeline"]["binsize"],
-            trim_dir="trimmed",
-            normalization_method=config["damidseq_pipeline"]["normalization"],
-            extra=config["damidseq_pipeline"]["extra"],
-        conda:
-            "../envs/damid.yaml"
-        threads: config["resources"]["damid"]["cpu"]
-        resources:
-            runtime=config["resources"]["damid"]["time"],
-            tmpdir=config["resources"]["damid"]["tmpdir"],
-        log:
-            "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
-        script:
-            "../scripts/damidseq_pipeline.py"
-    '''
+
 else:
     if paired_end:
         rule bowtie2_remove_plasmid_reads:
