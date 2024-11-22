@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import re
+import logging
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from Bio import SeqIO
 
@@ -9,6 +10,12 @@ motif = snakemake.params["motif"]
 fasta = snakemake.input["fa"]
 outfile = snakemake.output["out"]
 threads = snakemake.threads
+
+# Setup logging
+log = snakemake.log[0]
+logging.basicConfig(format='%(levelname)s:%(message)s', 
+                    level=logging.DEBUG,
+                    handlers=[logging.FileHandler(log)])
 
 def load_fasta(fasta):
     """
@@ -27,11 +34,11 @@ def generate_track(motif, fasta, gff, threads):
     motif_len = len(motif)
     
     fasta = fasta
-    print(f"Opening {fasta}...")
+    logging.info(f"Opening {fasta}...")
     chr_seq = load_fasta(fasta)
     
     gff = outfile
-    print(f"Writing data to {gff}...")
+    logging.info(f"Writing data to {gff}...")
 
     with open(gff, "w") as track:
               
@@ -40,10 +47,10 @@ def generate_track(motif, fasta, gff, threads):
         with ProcessPoolExecutor(max_workers=threads) as executor:
             futures = []
             for chromosome in chromosomes:
-                print(f"Processing chromosome: {chromosome}")
+                logging.info(f"Processing chromosome: {chromosome}")
                 seq_str = str(chr_seq[chromosome])
                 futures.append(executor.submit(process, chromosome, seq_str, motif, motif_len))
-                print(f"{chromosome} done!")
+                logging.info(f"{chromosome} done!")
 
             for future in as_completed(futures):
                 chromosome, results = future.result()
@@ -65,6 +72,6 @@ def motif_hash(seq, chr_name, motif, motif_len):
             results.append(f"{chr_name}\t.\t.\t{base}\t{base + motif_len}\t1\t+\t.\t.\n")
     return results
 
-print(f"Mapping {motif} sites in {fasta}")
+logging.info(f"Mapping {motif} sites in {fasta}")
 generate_track(motif, fasta, outfile, threads)
-print("All done!")
+logging.info("All done!")
