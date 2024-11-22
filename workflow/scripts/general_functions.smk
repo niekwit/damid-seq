@@ -16,17 +16,13 @@ def targets():
     TARGETS = [
         "results/qc/multiqc/multiqc.html",
         "results/plots/PCA.pdf",
-        "results/plots/PCA_bam.pdf",
         "results/plots/scree.pdf",
-        "results/plots/scree_bam.pdf",
         "results/plots/sample_correlation.pdf",
-        "results/plots/sample_correlation_bam.pdf",
         "results/plots/heatmap.pdf",
         "results/plots/profile_plot.pdf",
         "results/plots/mapping_rates.pdf",
         expand("results/bigwig_rev_log2/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
         ]
-    
     if config["peak_calling_perl"]["run"]:
         TARGETS.extend([
             expand("results/plots/peaks/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
@@ -40,32 +36,19 @@ def targets():
             TARGETS.extend([
                 expand("results/plots/peaks/fdr{fdr}/enrichment_analysis/{bg_sample}/{db}.pdf", fdr=fdr, bg_sample=BG_SAMPLES, db=DBS),
                 ])
-    
-    if config["peak_calling_macs2"]["run"]:
-        if config["peak_calling_macs2"]["mode"] == "narrow":
-            TARGETS.extend([
-                expand("results/plots/macs2_narrow/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
-                expand("results/plots/macs2_narrow/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
-                expand("results/macs2_narrow/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
-                expand("results/plots/macs2_narrow/fdr{fdr}/frip.pdf", fdr=fdr),
-                expand("results/macs2_narrow/fdr{fdr}/frip.csv", fdr=fdr),
+    if config["peak_calling_macs3"]["run"]:
+        TARGETS.extend([
+                    expand("results/plots/macs3_{mode}/fdr{fdr}/feature_distributions.pdf", fdr=fdr, mode=PEAK_MODE),
+                    expand("results/plots/macs3_{mode}/fdr{fdr}/distance_to_tss.pdf", fdr=fdr, mode=PEAK_MODE),
+                    expand("results/macs3_{mode}/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES, mode=PEAK_MODE),
+                    expand("results/plots/macs3_{mode}/fdr{fdr}/frip.pdf", fdr=fdr, mode=PEAK_MODE),
+                    expand("results/macs3_{mode}/fdr{fdr}/frip.csv", fdr=fdr, mode=PEAK_MODE),
+                    expand("results/macs3_{mode}/fdr{fdr}/{dir}/{bg_sample}_cutoff_analysis.txt", mode=PEAK_MODE, fdr=fdr, bg_sample=BG_SAMPLES, dir=DIRS),
                 ])
-            if config["consensus_peaks"]["enrichment_analysis"]["run"]:
-                TARGETS.extend([
-                    expand("results/plots/macs2_narrow/fdr{fdr}/enrichment_analysis/{bg_sample}/{db}.pdf", fdr=fdr, bg_sample=BG_SAMPLES, db=DBS),
-                    ])
-        elif config["peak_calling_macs2"]["mode"] == "broad":
+        if config["consensus_peaks"]["enrichment_analysis"]["run"]:
             TARGETS.extend([
-                expand("results/plots/macs2_broad/fdr{fdr}/feature_distributions.pdf", fdr=fdr),
-                expand("results/plots/macs2_broad/fdr{fdr}/distance_to_tss.pdf", fdr=fdr),
-                expand("results/macs2_broad/fdr{fdr}/{bg_sample}.geneIDs.txt", fdr=fdr, bg_sample=BG_SAMPLES),
-                expand("results/plots/macs2_broad/fdr{fdr}/frip.pdf", fdr=fdr),
-                expand("results/macs2_broad/fdr{fdr}/frip.csv", fdr=fdr),
+                expand("results/plots/macs3_{mode}/fdr{fdr}/enrichment_analysis/{bg_sample}/{db}.pdf", fdr=fdr, bg_sample=BG_SAMPLES, db=DBS, mode=PEAK_MODE),
                 ])
-            if config["consensus_peaks"]["enrichment_analysis"]["run"]:
-                TARGETS.extend([
-                     expand("results/plots/macs2_broad/fdr{fdr}/enrichment_analysis/{bg_sample}/{db}.pdf", fdr=fdr, bg_sample=BG_SAMPLES, db=DBS),
-                    ])
     return TARGETS
 
 
@@ -379,7 +362,7 @@ def masked_genes():
     genes = config["fusion_genes"]["genes"]
 
     # If no genes are given, return no_genes
-    if genes == "":
+    if genes is None or genes.lower() == "none":
         genes = "no_genes"
     else:
         # Make sure there are no spaces
@@ -390,22 +373,24 @@ def masked_genes():
             if "hg" in resources.genome:
                 prefix = "ENSG"
                 count = 11
-            if "mm" in resources.genome:
+            elif "mm" in resources.genome:
                 prefix = "ENSMUSG"
                 count = 11
-            if "dm" in resources.genome:
+            elif "dm" in resources.genome:
                 prefix = "FBgn"
                 count = 7
-            if not re.match(f"^{prefix}[0-9]{{{count}}}$", gene):
+            elif resources.genome == "test":
+                prefix = "ENSG"
+                count = 11
+
+            if not re.search(f"^{prefix}[0-9]{{{count}}}$", gene):
                 raise ValueError(f"Gene {gene} is not an Ensemble ID")
 
-        # Replace comma with underscore
-        genes = genes.replace(",", "_")
-        
-        return genes
+    # Replace comma with underscore
+    return genes.replace(",", "_")
 
 
-def macs2_params():
+def macs3_params():
     if paired_end:
         format_ = "BAMPE"
     else:
@@ -417,55 +402,23 @@ def macs2_params():
         genome = "mm"
     elif "dm" in resources.genome:
         genome = "dm"
+    elif resources.genome == "test":
+        genome = 135086622
+    else:
+        raise ValueError(f"Genome {resources.genome} not supported...")
     
-    if config["peak_calling_macs2"]["mode"] == "broad":
-        cutoff = config["peak_calling_macs2"]["broad_cutoff"]
+    if config["peak_calling_macs3"]["mode"] == "broad":
+        cutoff = config["peak_calling_macs3"]["broad_cutoff"]
         broad = f"--broad --broad-cutoff {cutoff} "
         qvalue= ""
     else:
         broad = ""
-        qvalue = config["peak_calling_macs2"]["qvalue"]
+        qvalue = config["peak_calling_macs3"]["qvalue"]
         qvalue = f"-q {qvalue}"
     
-    extra = config["peak_calling_macs2"]["extra"]
+    extra = config["peak_calling_macs3"]["extra"]
 
     return f"-f {format_} -g {genome} {qvalue} {broad} {extra}"
-
- 
-def check_plasmid_fasta(fasta):
-    # Check if fasta file exists
-    if not os.path.isfile(fasta):
-        raise ValueError(f"File {fasta} not found...")
-    
-    # Check if fasta file has same number of lines starting with and without >
-    # Problem: most fasta files will have DNA sequence over multiple lines
-    # this function will not work for those files!!! DO NOT USE YET
-    with open(fasta, "r") as f:
-        lines = f.readlines()
-        
-        # Remove newlines from non-header lines
-        # Problem: this will remove newlines from DNA sequence (last line of sequence)
-        lines = [l.strip() for l in lines if not l.startswith(">")]
-
-        # Reintroduce newlines before each > where this character is not at the start of the line
-        ####
-        
-        header = [l for l in lines if l.startswith(">")]
-        sequence = [l for l in lines if not l.startswith(">")]
-        if len(header) != len(sequence):
-            raise ValueError(f"Number of lines starting with > does not match number of lines without > in {fasta}...")
-
-
-def plasmid_fasta_name(fasta):
-    # Get fasta file name without extension
-    return os.path.basename(fasta).split(".")[0]
-
-
-def input_extension():
-    if paired_end:
-        return []
-    else:
-        return ".fastq.gz"
 
 
 def check_consensus_peak_settings():
@@ -479,12 +432,8 @@ def check_consensus_peak_settings():
         raise ValueError(f"Number of overlapping peaks to keep consensus peaks (config > consensus_peak > keep) is greater than number of subdirectories in reads/...")
 
 
-def regex_patterns():
-    # Dictionary to store scaffold regex patterns
-    patterns = {
-        "hg38": r"^KI|^GL",
-        "hg19": r"^GL",
-        "mm39": r"^JH|^GL|^MU",
-        "dm6": r"Scaffold|^\d{{15}}",
-    }
-    return patterns[resources.genome]
+def get_fdr():
+    if PEAK_MODE == ["narrow"]:
+        return config["peak_calling_macs3"]["qvalue"]
+    else:
+        return config["peak_calling_macs3"]["broad_cutoff"]
