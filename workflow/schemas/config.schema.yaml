@@ -142,7 +142,7 @@ properties:
       extra:
         type: string
 
-  peak_calling_macs2:
+  peak_calling_macs3:
     type: object
     properties:
       run:
@@ -266,6 +266,6 @@ required:
   - damidseq_pipeline
   - deeptools
   - peak_calling_perl
-  - peak_calling_macs2
+  - peak_calling_macs3
   - consensus_peaks
   - resources
