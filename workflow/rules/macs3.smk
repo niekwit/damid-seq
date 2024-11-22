@@ -135,34 +135,26 @@ if config["peak_calling_macs3"]["run"]:
     rule count_reads_in_peaks_macs3:
         # Adapted from https://www.biostars.org/p/337872/#337890
         input:
-            bam=f"results/bam/{{dir}}/{{bg_sample}}.sorted.bam",
+            bam="results/bam/{dir}/{bg_sample}.sorted.bam",
             b="results/macs3_{mode}/fdr{fdr}/{dir}/{bg_sample}_peaks.{mode}Peak",
-            order=f"resources/{resources.genome}_chrom.sizes",
+            order=f"resources/{resources.genome}_chrom_order.txt",
         output:
             total_read_count="results/macs3_{mode}/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
             peak_read_count="results/macs3_{mode}/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count",
+        params:
+            outdir=lambda w, output: os.path.dirname(output[0]),
         threads: config["resources"]["deeptools"]["cpu"]
         resources:
             runtime=config["resources"]["deeptools"]["time"]
         log:
-            "logs/bedtools_intersect_{mode}/fdr{fdr}/{dir}/{bg_sample}.log"
+            "logs/bedtools_intersect/{mode}_fdr{fdr}_{dir}_{bg_sample}.log"
         conda:
             "../envs/peak_calling.yaml"
         shell:
-            "bedtools bamtobed "
-            "-i {input.bam} | "
-            "sort -k1,1 -k2,2n | "
-            "tee >(wc -l > {output.total_read_count}) | "
-            "bedtools intersect "
-            "-sorted "
-            "-g {input.order} "
-            "-c "
-            "-a {input.b} "
-            "-b stdin | "
-            "awk '{{i+=$NF}}END{{print i}}' > "
-            "{output.peak_read_count} "
-            "2> {log}"
-            
+            """
+            bedtools bamtobed -i {input.bam} | sort -k 1,1V -k2,2n | tee >(wc -l > {output.total_read_count}) | bedtools intersect -sorted -c -g {input.order} -a {input.b} -b stdin | awk '{{i+=$NF}}END{{print i}}' > {output.peak_read_count} 2> {log}
+            """
+
 
     rule plot_fraction_of_reads_in_peaks_macs3:
         input:
