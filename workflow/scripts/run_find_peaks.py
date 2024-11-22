@@ -14,14 +14,7 @@ Solution:
 """
 import glob
 import os
-import logging
 from snakemake.shell import shell
-
-# Setup logging
-log = snakemake.log[0]
-logging.basicConfig(format='%(levelname)s:%(message)s', 
-                    level=logging.DEBUG,
-                    handlers=[logging.FileHandler(log)])
 
 # Get current working dir
 cwd = os.getcwd()
@@ -48,13 +41,18 @@ os.chdir(outdir)
 sample = os.path.basename(bedgraph).replace("-vs-Dam-norm.gatc.bedgraph","")
 
 # Run find_peaks
-command = """perl {find_peaks} --fdr={fdr} 
-             --frac={frac} --min_count={min_count} 
-             --min_quant={min_quant} --n={n} 
-             --step={step} --unified_peaks={up} 
-             {bedgraph} > {log} 2>&1 """
-logging.debug(f"Running: {command}")
-shell(command)
+shell(
+    "perl {find_peaks} "
+    "--fdr={fdr} "
+    "--frac={frac} "
+    "--min_count={min_count} "
+    "--min_quant={min_quant} "
+    "--n={n} "
+    "--step={step} "
+    "--unified_peaks={up} "
+    "{bedgraph} "
+    "> {log} 2>&1 "
+    )
 
 # Locate GFF and data files and move to output dir (parent dir)
 gff_temp = glob.glob(f"{outdir}/peak_analysis.{sample}*/{sample}*.peaks.gff") # peak file
@@ -63,9 +61,10 @@ data_temp = glob.glob(f"{outdir}/peak_analysis.{sample}*/{sample}*-data") # data
 assert len(data_temp) == 1, "No or more than one data file found"
 
 # Rename and move files
-command = f"mv {gff_temp[0]} {gff} && mv {data_temp[0]} {data}"
-logging.debug(f"Running: {command}")
-shell(command)
+shell(
+    f"mv {gff_temp[0]} {gff} && "
+    f"mv {data_temp[0]} {data}"
+    )
 
 # Remove empty dir
 empty_dir = os.path.dirname(gff_temp[0])
@@ -73,3 +72,4 @@ os.rmdir(empty_dir)
 
 # Go back to original working dir
 os.chdir(cwd) # Is this needed?
+
