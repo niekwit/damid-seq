@@ -67,7 +67,7 @@ resources: # computing resources
     cpu: 4
     time: 60
   bowtie2:
-    cpu: 24
+    cpu: 1
     time: 90
   damid:
     cpu: 12
@@ -77,7 +77,7 @@ resources: # computing resources
     cpu: 36
     time: 90
   deeptools:
-    cpu: 8
+    cpu: 1
     time: 90
   plotting:
     cpu: 2
