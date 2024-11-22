@@ -185,8 +185,8 @@ if config["peak_calling_perl"]["run"]:
     rule count_reads_in_peaks:
         # Adapted from https://www.biostars.org/p/337872/#337890
         input:
-            bam="results/bam/{dir}/{bg_sample}.extended.bam",
-            bai="results/bam/{dir}/{bg_sample}.extended.bam.bai",
+            bam="results/bam/{dir}/{bg_sample}.sorted.bam",
+            bai="results/bam/{dir}/{bg_sample}.sorted.bam.bai",
             b="results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed",
             order=f"resources/{resources.genome}_chrom_order.txt",
         output:
