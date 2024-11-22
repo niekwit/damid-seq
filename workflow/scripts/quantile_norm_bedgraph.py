@@ -1,4 +1,11 @@
+import logging
 import pandas as pd
+
+# Setup logging
+log = snakemake.log[0]
+logging.basicConfig(format='%(levelname)s:%(message)s', 
+                    level=logging.DEBUG,
+                    handlers=[logging.FileHandler(log)])
 
 def quantile_normalize(df):
     """
@@ -16,7 +23,7 @@ def quantile_normalize(df):
 bedgraphs = snakemake.input["bg"]
 assert len(bedgraphs) > 0, "No bedgraphs found"
 bgs = "\n".join(bedgraphs)
-print(f"Applying quantile normalisation to:\n{bgs}")
+logging.info(f"Applying quantile normalisation to:\n{bgs}")
 
 data = {}
 for filename in bedgraphs:
