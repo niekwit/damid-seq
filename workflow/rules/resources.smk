@@ -137,8 +137,7 @@ rule chrom_order:
     conda:
         "../envs/damid.yaml"
     shell:
-        f"grep -vP '{regex_patterns()}'" # Remove scaffolds sequences
-        " {input} > {output}"
+        r"sort -k 1,1V {input} > {output}"
 
 
 rule make_gatc_tracks:
