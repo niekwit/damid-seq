@@ -4,6 +4,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - python=3.10
   - trim-galore=0.6.10
-  - multiqc=1.19
