@@ -9,7 +9,7 @@ dependencies:
   - ucsc-bedgraphtobigwig=445
   - wiggletools=1.2.11
   - ucsc-wigtobigwig=447
-  - pysam
+  - pysam=0.21.0
   - gffpandas=1.2.2
   - numpy=1.26.4
   - samtools=1.13
