@@ -9,7 +9,7 @@ report: "report/workflow.rst"
 VERSION = "v0.6.0"
 
 # Set minimum snakemake version
-min_version("8.12.0")
+min_version("8.13.0")
 
 # Wrapper version
 wrapper_version = "v5.2.0"
@@ -32,8 +32,7 @@ if data_type() == "matrix":
     matrix_samples()
 
 check_consensus_peak_settings()
-
-plasmid_name = plasmid_fasta_name(config["plasmid_fasta"])
+plasmid_name = os.path.basename(config["plasmid_fasta"]).split(".")[0]
 
 # Load sample information
 csv = pd.read_csv("config/samples.csv")
@@ -50,6 +49,7 @@ SAMPLES = samples() # Includes Dam control
 BG_SAMPLES = samples(bedgraph=True) # SAMPLES minus Dam control
 DAM_SAMPLES = samples(bedgraph=True, dam=True)
 DBS = config["consensus_peaks"]["enrichment_analysis"]["dbs"]
+PEAK_MODE = [config["peak_calling_macs3"]["mode"]]
 
 # Import rules
 include: "rules/fastqc.smk"
@@ -60,7 +60,7 @@ include: "rules/bedgraph_processing.smk"
 include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
 include: "rules/peak_calling_perl.smk"
-include: "rules/macs2.smk"
+include: "rules/macs3.smk"
 
 localrules: all, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, chrom_sizes
 
