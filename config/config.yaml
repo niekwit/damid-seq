@@ -4,6 +4,8 @@ plasmid_fasta: none # Path to plasmid fasta file with sequences to be removed
 fusion_genes: 
   genes: FBgn0038542,FBgn0085506 # Genes from these proteins will be masked from the fasta file
   feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
+bowtie2:
+  extra: "" # extra argument for bowtie2
 damidseq_pipeline:
   normalization: kde # kde, rpm or rawbins
   binsize: 300
@@ -43,7 +45,7 @@ peak_calling_perl:
   step: 0.01 # Stepping for quantiles
   unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
   extra: "" 
-peak_calling_macs2:
+peak_calling_macs3:
   run: False
   mode: narrow
   qvalue: 0.05 # for narrow peaks
@@ -52,7 +54,7 @@ peak_calling_macs2:
 consensus_peaks:
     max_size: 10 # Maximum size of peaks to be extended
     extend_by: 40 # Number of bp to extend peaks on either side
-    keep: 2 # Minimum number peaks that must overlap to keep
+    keep: 1 # Minimum number of peaks that must overlap to keep intersecting peak
     enrichment_analysis: 
       run: True # Perform enrichment analysis
       dbs: ["GO_Molecular_Function_2018","GO_Biological_Process_2018","KEGG_2019"]
@@ -64,6 +66,9 @@ resources: # computing resources
   fastqc:
     cpu: 4
     time: 60
+  bowtie2:
+    cpu: 24
+    time: 90
   damid:
     cpu: 24
     time: 720

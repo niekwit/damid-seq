@@ -154,7 +154,7 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
         step: 0.01 # Stepping for quantiles
         unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
         extra: "" 
-    peak_calling_macs2:
+    peak_calling_macs3:
         run: False
         mode: narrow
         qvalue: 0.05 # for narrow peaks
