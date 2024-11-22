@@ -39,15 +39,14 @@ threads = snakemake.threads
 bins = snakemake.params["binsize"]
 normalization_method = snakemake.params["normalization_method"]
 idx = os.path.join(cwd,snakemake.params["idx"])
-extension = snakemake.params["extension"]
+#extension = snakemake.params["extension"]
 extra = snakemake.params["extra"]
 log = os.path.join(cwd, snakemake.log[0])
 
 # Setup log file
 logging.basicConfig(format='%(levelname)s:%(message)s', 
                     level=logging.DEBUG,
-                    handlers=[logging.FileHandler(log),
-                              logging.StreamHandler()])
+                    handlers=[logging.FileHandler(log)])
 
 # Get sample directory
 directory = list(set([os.path.basename(os.path.dirname(x)) for x in bams]))
@@ -58,7 +57,7 @@ directory = directory[0]
 damidseq_pipeline = os.path.join(cwd,"resources/damidseq_pipeline/damidseq_pipeline")
 
 # Get dam bam
-dam_bam = [x for x in bams if x.lower().endswith(f"dam{extension}")]
+dam_bam = [x for x in bams if x.lower().endswith(f"dam.sorted.bam")]
 assert len(dam_bam) == 1, "No Dam only bam file found..."
 # TO DO: allow for multiple Dam only bam files (i.e. multiple conditions)
 
