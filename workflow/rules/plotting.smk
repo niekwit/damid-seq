@@ -1,6 +1,6 @@
 rule plotPCA:
     input:
-        "results/deeptools/PCA_bam.tab",
+        "results/deeptools/PCA.tab",
     output:
         pca=report("results/plots/PCA.pdf", caption="../report/pca.rst", category="PCA"),
         scree=report("results/plots/scree.pdf", caption="../report/scree.rst", category="PCA"),
@@ -17,11 +17,11 @@ rule plotPCA:
         "../scripts/plot_PCA.R"
 
 
-rule plot_correlation_bedgraph:
+rule plot_correlation:
     input:
-        "results/deeptools/scores_per_bin_bam.npz",
+        "results/deeptools/scores_per_bin.npz",
     output:
-        tab="results/deeptools/correlation_bam.tab",
+        tab="results/deeptools/correlation.tab",
         pdf=report("results/plots/sample_correlation.pdf", caption="../report/correlation.rst", category="Sample correlation"),
     params:
         extra=""
@@ -122,9 +122,9 @@ if config["peak_calling_perl"]["run"]:
         script:
             "../scripts/peak_annotation_plots.R"
 
-elif config["peak_calling_macs2"]["run"]:
-    if config["peak_calling_macs2"]["mode"] == "narrow":
-        fdr = config["peak_calling_macs2"]["qvalue"]
+elif config["peak_calling_macs3"]["run"]:
+    if config["peak_calling_macs3"]["mode"] == "narrow":
+        fdr = config["peak_calling_macs3"]["qvalue"]
         rule peak_annotation_plots:
             input:
                 gtf=resources.gtf,
@@ -143,8 +143,8 @@ elif config["peak_calling_macs2"]["run"]:
                 "../envs/R.yaml"
             script:
                 "../scripts/peak_annotation_plots.R"
-    elif config["peak_calling_macs2"]["mode"] == "broad":
-        fdr = config["peak_calling_macs2"]["broad_cutoff"]
+    elif config["peak_calling_macs3"]["mode"] == "broad":
+        fdr = config["peak_calling_macs3"]["broad_cutoff"]
         rule peak_annotation_plots:
             input:
                 gtf=resources.gtf,
