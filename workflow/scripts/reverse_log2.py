@@ -11,7 +11,7 @@ with open(bg_input, "r") as infile, open(bg_output, "w") as outfile:
 
     # Skip the first row
     next(reader)
-    
+
     # Iterate over the remaining rows to reverse the log2 transformation
     for row in reader:
         # Reverse the log2 transformation

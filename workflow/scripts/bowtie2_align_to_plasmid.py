@@ -20,7 +20,7 @@ if paired:
 else:
     fastq_in = f"-U {base + '.fastq.gz'}"
     fastq_out = f"--un-gz {out_base + '.fastq.gz'}"
-    
+
 # Align to plasmid index and only keep non-aligned reads in new fastq file(s)
 shell(
     "bowtie2 "
@@ -31,4 +31,4 @@ shell(
     "{fastq_out} "
     "> {bam} "
     "{log}"
-    )
+)

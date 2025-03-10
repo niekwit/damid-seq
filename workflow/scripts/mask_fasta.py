@@ -25,9 +25,12 @@ genome = snakemake.params["genome"]
 
 # Setup logging
 log = snakemake.log[0]
-logging.basicConfig(format='%(levelname)s:%(message)s', 
-                    level=logging.DEBUG,
-                    handlers=[logging.FileHandler(log)])
+logging.basicConfig(
+    format="%(levelname)s:%(message)s",
+    level=logging.DEBUG,
+    handlers=[logging.FileHandler(log)],
+)
+
 
 def write_dict2fasta(d, out):
     """
@@ -37,6 +40,7 @@ def write_dict2fasta(d, out):
         for name, seq in d.items():
             f.write(f">{name}\n{seq}\n")
 
+
 # Dictionary to store scaffold regex patterns
 patterns = {
     "hg38": r"^KI|^GL|^MT$",
@@ -44,7 +48,7 @@ patterns = {
     "mm39": r"^JH|^GL|^MU|^MT$",
     "dm6": r"Scaffold|^\d{15}$|^mitochondrion_genome$",
     "test": r"^KI|^GL",
-    }
+}
 
 # Load fasta file as dict
 chr_seq = {}
@@ -61,13 +65,15 @@ for chr in list(chr_seq.keys()):
 # Mask gene sequences with Ns
 if genes2mask == "no_genes":
     logging.info(f"No genes to mask from {fasta}...")
-    
+
     # Write unmasked fasta as masked fasta file
     write_dict2fasta(chr_seq, masked_fasta)
 else:
     for gene in genes2mask.split("_"):
-        logging.info(f"Masking {gene} sequence from {fasta} (feature {feature2mask})...")
-                
+        logging.info(
+            f"Masking {gene} sequence from {fasta} (feature {feature2mask})..."
+        )
+
         # Get genomic coordinates of selected feature of gene to mask from GTF file
         cmd = f"""sed '1,4d' {gtf} | awk '{{if ($3 == "{feature2mask}") {{print $0}} }}' | grep {gene}"""
         try:
@@ -75,24 +81,24 @@ else:
         except subprocess.CalledProcessError:
             logging.info(f"Gene {gene} not found in {gtf}...")
             sys.exit(1)
-        
+
         # Mask each feature of gene with Ns
         for line in lines:
             try:
                 chr, db, t, start, end, *args = line.split("\t")
             except ValueError:
-                continue # Skip empty line (last one)
-            
+                continue  # Skip empty line (last one)
+
             # Load chromosome sequence where gene feuture is located
             seq = chr_seq[chr]
-            
+
             # Correct start and end positions for 0-based indexing
             start = int(start) - 1
             end = int(end) - 1
-            
+
             # Mask gene feature sequence with Ns
             seq_masked = seq[:start] + "N" * (end - start) + seq[end:]
-            
+
             # Replace sequence in dict
             chr_seq[chr] = seq_masked
 

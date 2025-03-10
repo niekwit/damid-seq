@@ -29,7 +29,7 @@ shell(
     "--basename {basename} "
     "{INPUT} "
     "{log} "
-    )
+)
 
 # Rename output files
 if snakemake.params["paired"]:
@@ -37,4 +37,3 @@ if snakemake.params["paired"]:
     os.rename(os.path.join(outdir, f"{basename}_val_2.fq.gz"), snakemake.output["r2"])
 else:
     os.rename(os.path.join(outdir, f"{basename}_trimmed.fq.gz"), snakemake.output["r1"])
-

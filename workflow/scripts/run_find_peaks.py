@@ -32,13 +32,13 @@ n = snakemake.params["n"]
 step = snakemake.params["step"]
 up = snakemake.params["up"]
 outdir = f'{cwd}/{snakemake.params["outdir"]}'
-log = f'{cwd}/{snakemake.log[0]}'
+log = f"{cwd}/{snakemake.log[0]}"
 
 # Make and move to output dir
 os.makedirs(outdir, exist_ok=True)
 os.chdir(outdir)
 
-sample = os.path.basename(bedgraph).replace("-vs-Dam-norm.gatc.bedgraph","")
+sample = os.path.basename(bedgraph).replace("-vs-Dam-norm.gatc.bedgraph", "")
 
 # Run find_peaks
 shell(
@@ -52,24 +52,22 @@ shell(
     "--unified_peaks={up} "
     "{bedgraph} "
     "> {log} 2>&1 "
-    )
+)
 
 # Locate GFF and data files and move to output dir (parent dir)
-gff_temp = glob.glob(f"{outdir}/peak_analysis.{sample}*/{sample}*.peaks.gff") # peak file
+gff_temp = glob.glob(
+    f"{outdir}/peak_analysis.{sample}*/{sample}*.peaks.gff"
+)  # peak file
 assert len(gff_temp) == 1, "No or more than one gff file found"
-data_temp = glob.glob(f"{outdir}/peak_analysis.{sample}*/{sample}*-data") # data file
+data_temp = glob.glob(f"{outdir}/peak_analysis.{sample}*/{sample}*-data")  # data file
 assert len(data_temp) == 1, "No or more than one data file found"
 
 # Rename and move files
-shell(
-    f"mv {gff_temp[0]} {gff} && "
-    f"mv {data_temp[0]} {data}"
-    )
+shell(f"mv {gff_temp[0]} {gff} && " f"mv {data_temp[0]} {data}")
 
 # Remove empty dir
 empty_dir = os.path.dirname(gff_temp[0])
 os.rmdir(empty_dir)
 
 # Go back to original working dir
-os.chdir(cwd) # Is this needed?
-
+os.chdir(cwd)  # Is this needed?

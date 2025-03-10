@@ -5,7 +5,7 @@ will be extracted from the positive strand only.
 """
 import pandas as pd
 from Bio import SeqIO
-#from Bio.Seq import Seq
+
 
 def load_bed(bed):
     """
@@ -15,7 +15,7 @@ def load_bed(bed):
     # This is not the most efficient way to do this (optimise later)
     bed = pd.read_csv(bed, sep="\t", header=None)
     bed.columns = ["chr", "start", "end", "name", "strand", "score"]
-    
+
     return bed
 
 
@@ -26,7 +26,7 @@ def load_fasta(fasta):
     chr_seq = {}
     for chr_ in SeqIO.parse(fasta, "fasta"):
         chr_seq[chr_.id] = chr_.seq
-    
+
     return chr_seq
 
 
@@ -52,17 +52,16 @@ def main(bed, chr_seq):
 
         # Extract sequence
         seq = chr_seq[chr][start:end]
-        
+
         # Store sequence in dict
         peak_seq[f"{name}_{chr}_{start}_{end}"] = seq
 
     # Write to fasta file
     write_dict2fasta(peak_seq, snakemake.output["out"])
-           
+
+
 if __name__ == "__main__":
     bed = load_bed(snakemake.input["bed"])
     chr_seq = load_fasta(snakemake.input["fasta"])
-    
+
     main(bed, chr_seq)
-    
-    
