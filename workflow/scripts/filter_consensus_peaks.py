@@ -27,9 +27,9 @@ for peak in peaks:
 # Counters for logging
 extended_peaks = 0
 skipped_peaks = 0
-count = 1
 
-with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
+peak_list = []
+with open(bed, "r") as bed_in:
     while True:
         # For each line, reset extend_by value
         # (may be set to 0 if region is too large)
@@ -84,13 +84,21 @@ with open(bed, "r") as bed_in, open(ext_bed, "w") as bed_out:
         if end > chrom_sizes[chrom]:
             end = chrom_sizes[chrom]
 
-        # Generate name for extended region
-        name = f"peak_{count}"
-        count += 1
-
         # Write extended region to output file
-        bed_out.write(f"{chrom}\t{start}\t{end}\t{name}\t.\t{num}\n")
+        peak_list.append((chrom, start, end))
 
+# Remove duplicates from peak_list (maintain order)
+peak_list = list(dict.fromkeys(peak_list))
+
+# Write to bed file
+count = 1
+with open(ext_bed, "w") as bed_out:
+    for peak in peak_list:
+        chrom, start, end = peak
+        name = f"peak_{count}"
+        bed_out.write(f"{chrom}\t{start}\t{end}\t{name}\n")
+
+# Write log file
 with open(snakemake.log[0], "w") as log:
     log.write(f"Total number of peaks analysed: {count + skipped_peaks}\n")
     log.write(f"Skipped peaks: {skipped_peaks}\n")
