@@ -13,3 +13,4 @@ dependencies:
   - gffpandas=1.2.2
   - numpy=1.26.4
   - samtools=1.13
+  - pybedtools=0.10
