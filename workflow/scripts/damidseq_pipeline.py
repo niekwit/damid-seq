@@ -38,7 +38,6 @@ threads = snakemake.threads
 bins = snakemake.params["binsize"]
 normalization_method = snakemake.params["normalization_method"]
 idx = os.path.join(cwd, snakemake.params["idx"])
-# extension = snakemake.params["extension"]
 extra = snakemake.params["extra"]
 log = os.path.join(cwd, snakemake.log[0])
 
@@ -81,7 +80,7 @@ command = [
     f"--norm_method={normalization_method} "
     f"{extra} "
     f"--gatc_frag_file={gatc} "
-    f"--bowtie2_genome_dir={idx} "
+    f"--bowtie2_genome_dir={idx} " #error if not parsed
     f"{' '.join(non_dam_bams)} "
 ]
 logging.info(f"Running damidseq_pipeline with command: {' '.join(command)}")
