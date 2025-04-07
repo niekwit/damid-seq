@@ -25,6 +25,9 @@ def targets():
         expand(
             "results/bigwig_rev_log2/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES
         ),
+        expand(
+            "results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES
+        ),
     ]
     if config["peak_calling_perl"]["run"]:
         TARGETS.extend(
@@ -44,7 +47,6 @@ def targets():
                     bg_sample=BG_SAMPLES,
                 ),
                 expand("results/plots/peaks/fdr{fdr}/frip.pdf", fdr=fdr),
-                expand("results/peaks/fdr{fdr}/frip.csv", fdr=fdr),
             ]
         )
         if config["consensus_peaks"]["enrichment_analysis"]["run"]:
@@ -78,20 +80,17 @@ def targets():
                     mode=PEAK_MODE,
                 ),
                 expand(
-                    "results/plots/macs3_{mode}/fdr{fdr}/frip.pdf",
-                    fdr=fdr,
-                    mode=PEAK_MODE,
-                ),
-                expand(
-                    "results/macs3_{mode}/fdr{fdr}/frip.csv", fdr=fdr, mode=PEAK_MODE
-                ),
-                expand(
                     "results/macs3_{mode}/fdr{fdr}/{dir}/{bg_sample}_cutoff_analysis.txt",
                     mode=PEAK_MODE,
                     fdr=fdr,
                     bg_sample=BG_SAMPLES,
                     dir=DIRS,
                 ),
+                expand(
+                    "results/plots/macs3_{mode}/fdr{fdr}/frip.pdf",
+                    fdr=fdr,
+                    mode=PEAK_MODE,
+                )
             ]
         )
         if config["consensus_peaks"]["enrichment_analysis"]["run"]:
@@ -514,3 +513,13 @@ def get_fdr():
         return config["peak_calling_macs3"]["qvalue"]
     else:
         return config["peak_calling_macs3"]["broad_cutoff"]
+
+
+def check_plasmid():
+    """
+    Check if plasmid fasta file exists
+    """
+    if not os.path.isfile(config["plasmid_fasta"]):
+        raise ValueError(
+            f"Plasmid fasta file {config['plasmid_fasta']} not found..."
+        )
