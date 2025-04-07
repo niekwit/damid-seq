@@ -1,34 +1,38 @@
+"""
+Align to plasmid index and only keep non-aligned reads in new fastq file(s)
+"""
+
 from snakemake.shell import shell
 
 log = snakemake.log_fmt_shell(stdout=False, stderr=True)
 
 # Load Snakemake variables
-flag = snakemake.input["flag"]
+fastq = snakemake.input["fastq"]
 idx = snakemake.params["idxdir"]
 paired = snakemake.params["paired"]
 extra = snakemake.params["extra"]
-out_base = snakemake.params["out_base"]
 bam = snakemake.output["bam"]
+out_fastq = snakemake.output["fastq"]
 
-# Prepare input and output fastq file flags
-base = flag.replace(".flag", "")
+# Prepare input and output fastq file names
 if paired:
-    r1 = base + "_1.fastq.gz"
-    r2 = base + "_2.fastq.gz"
+    r1 = fastq[0]
+    r2 = fastq[1]
     fastq_in = f"-1 {r1} -2 {r2}"
+    out_base = out_fastq[0].replace("_1.fastq.gz", "")
     fastq_out = f"--un-conc-gz {out_base}"
 else:
-    fastq_in = f"-U {base + '.fastq.gz'}"
-    fastq_out = f"--un-gz {out_base + '.fastq.gz'}"
+    fastq_in = f"-U {fastq[0]}"
+    fastq_out = f"--un-gz {out_fastq}"
 
-# Align to plasmid index and only keep non-aligned reads in new fastq file(s)
 shell(
-    "bowtie2 "
+    "(bowtie2 "
     "-x {idx} "
     "{fastq_in} "
     "-p {snakemake.threads} "
     "{extra} "
     "{fastq_out} "
-    "> {bam} "
+    "| samtools view -F 4 --with-header " # exclude unmapped reads
+    "> {bam} )"
     "{log}"
 )
