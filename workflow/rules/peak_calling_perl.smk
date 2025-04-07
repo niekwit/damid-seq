@@ -60,7 +60,7 @@ if config["peak_calling_perl"]["run"]:
         conda:
             "../envs/peak_calling.yaml"
         wrapper:
-            "v5.2.0/bio/bedtools/sort"
+            "v5.8.3/bio/bedtools/sort"
 
 
     # Create bed file of consensus peaks between replicate conditions
@@ -185,46 +185,29 @@ if config["peak_calling_perl"]["run"]:
     rule count_reads_in_peaks:
         # Adapted from https://www.biostars.org/p/337872/#337890
         input:
-            bam="results/bam/{dir}/{bg_sample}.sorted.bam",
-            bai="results/bam/{dir}/{bg_sample}.sorted.bam.bai",
-            b="results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed",
-            order=f"resources/{resources.genome}_chrom_order.txt",
+            bams=expand("results/bam/{dir}/{bg_sample}.sorted.bam", dir=DIRS, bg_sample=BG_SAMPLES),
+            bai=expand("results/bam/{dir}/{bg_sample}.sorted.bam.bai", dir=DIRS, bg_sample=BG_SAMPLES),
+            peaks=expand("results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed", fdr=fdr, dir=DIRS, bg_sample=BG_SAMPLES),
         output:
-            total_read_count="results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
-            peak_read_count="results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count",
+            csv="results/peaks/fdr{fdr}/read_counts/reads_in_peaks.csv",
         params:
             extra="",
         threads: config["resources"]["deeptools"]["cpu"]
         resources:
             runtime=config["resources"]["deeptools"]["time"]
         log:
-            "logs/bedtools_intersect/fdr{fdr}/{dir}/{bg_sample}.log"
+            "logs/frip/perl_fdr{fdr}.log"
         conda:
-            "../envs/peak_calling.yaml"
-        shell:
-            "bedtools bamtobed "
-            "{params.extra} "
-            "-i {input.bam} | "
-            "bedtools sort -g {input.order} | "
-            "tee >(wc -l > {output.total_read_count}) | "
-            "bedtools intersect "
-            "{params.extra} "
-            "-sorted "
-            "-g {input.order} "
-            "-c "
-            "-a {input.b} "
-            "-b stdin | "
-            "awk '{{i+=$NF}}END{{print i}}' > "
-            "{output.peak_read_count} "
+            "../envs/deeptools.yaml"
+        script:
+            "../scripts/count_reads_in_peaks.py"
                 
 
     rule plot_fraction_of_reads_in_peaks:
         input:
-            total_read_count=expand("results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
-            peak_read_count=expand("results/peaks/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count", dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
+            csv="results/peaks/fdr{fdr}/read_counts/reads_in_peaks.csv",
         output:
             plot=report("results/plots/peaks/fdr{fdr}/frip.pdf", caption="../report/frip.rst", category="Fraction of reads in peaks"),
-            csv="results/peaks/fdr{fdr}/frip.csv",
         params:
             extra="",
         threads: config["resources"]["plotting"]["cpu"]
