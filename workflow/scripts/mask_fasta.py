@@ -45,6 +45,7 @@ def write_dict2fasta(d, out):
 patterns = {
     "hg38": r"^KI|^GL|^MT$",
     "hg19": r"^GL|^MT$",
+    "mm38": r"^JH|^GL|^MT$",
     "mm39": r"^JH|^GL|^MU|^MT$",
     "dm6": r"Scaffold|^\d{15}$|^mitochondrion_genome$",
     "test": r"^KI|^GL",
