@@ -103,7 +103,7 @@ rule index_fasta:
     resources: 
         runtime=config["resources"]["plotting"]["time"]
     wrapper:
-        "v5.2.0/bio/samtools/faidx"
+        "v5.8.3/bio/samtools/faidx"
 
 
 rule chrom_sizes:
@@ -180,7 +180,7 @@ rule bowtie2_build_index:
     resources:
         runtime=config["resources"]["index"]["time"],
     wrapper:
-        "v5.2.0/bio/bowtie2/build"
+        "v5.8.3/bio/bowtie2/build"
 
 
 if config["plasmid_fasta"] != "none":
@@ -205,4 +205,4 @@ if config["plasmid_fasta"] != "none":
         resources:
             runtime=config["resources"]["index"]["time"],
         wrapper:
-            "v5.2.0/bio/bowtie2/build"    
+            "v5.8.3/bio/bowtie2/build"    
