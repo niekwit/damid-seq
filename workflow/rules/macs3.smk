@@ -33,6 +33,7 @@ if config["peak_calling_macs3"]["run"]:
             "{params.args} "
             "2> {log}"
 
+
     rule consensus_peaks_macs3:
         input: 
             peaks=expand("results/macs3_{mode}/fdr{fdr}/{dir}/{{bg_sample}}_peaks.{mode}Peak", dir=DIRS, fdr=fdr, mode=PEAK_MODE),
@@ -135,34 +136,27 @@ if config["peak_calling_macs3"]["run"]:
     rule count_reads_in_peaks_macs3:
         # Adapted from https://www.biostars.org/p/337872/#337890
         input:
-            bam="results/bam/{dir}/{bg_sample}.sorted.bam",
-            b="results/macs3_{mode}/fdr{fdr}/{dir}/{bg_sample}_peaks.{mode}Peak",
-            order=f"resources/{resources.genome}_chrom_order.txt",
+            bams=expand("results/bam/{dir}/{bg_sample}.sorted.bam", dir=DIRS, bg_sample=BG_SAMPLES),
+            bai=expand("results/bam/{dir}/{bg_sample}.sorted.bam.bai", dir=DIRS, bg_sample=BG_SAMPLES),
+            peaks=expand("results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed", fdr=fdr, dir=DIRS, bg_sample=BG_SAMPLES),
         output:
-            total_read_count="results/macs3_{mode}/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count",
-            peak_read_count="results/macs3_{mode}/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count",
-        params:
-            outdir=lambda w, output: os.path.dirname(output[0]),
+            csv="results/macs3_{mode}/fdr{fdr}/read_counts/reads_in_peaks.csv",
         threads: config["resources"]["deeptools"]["cpu"]
         resources:
             runtime=config["resources"]["deeptools"]["time"]
         log:
-            "logs/bedtools_intersect/{mode}_fdr{fdr}_{dir}_{bg_sample}.log"
+            "logs/frip/{mode}_fdr{fdr}.log"
         conda:
-            "../envs/peak_calling.yaml"
-        shell:
-            """
-            bedtools bamtobed -i {input.bam} | sort -k 1,1V -k2,2n | tee >(wc -l > {output.total_read_count}) | bedtools intersect -sorted -c -g {input.order} -a {input.b} -b stdin | awk '{{i+=$NF}}END{{print i}}' > {output.peak_read_count} 2> {log}
-            """
+            "../envs/deeptools.yaml"
+        script:
+            "../scripts/count_reads_in_peaks.py"
 
 
     rule plot_fraction_of_reads_in_peaks_macs3:
         input:
-            total_read_count=expand("results/macs3_{mode}/fdr{fdr}/read_counts/{dir}/{bg_sample}.total.count", mode=PEAK_MODE, dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
-            peak_read_count=expand("results/macs3_{mode}/fdr{fdr}/read_counts/{dir}/{bg_sample}.peak.count", mode=PEAK_MODE, dir=DIRS, fdr=fdr, bg_sample=BG_SAMPLES),
+            csv="results/macs3_{mode}/fdr{fdr}/read_counts/reads_in_peaks.csv",
         output:
             plot=report("results/plots/macs3_{mode}/fdr{fdr}/frip.pdf", caption="../report/frip.rst", category="Fraction of reads in peaks"),
-            csv="results/macs3_{mode}/fdr{fdr}/frip.csv",
         params:
             extra="",
         threads: config["resources"]["plotting"]["cpu"]
