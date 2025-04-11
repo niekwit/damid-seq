@@ -144,7 +144,7 @@ rule make_gatc_tracks:
     input:
         fa=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
     output:
-        out=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
+        out=temp(f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.unsorted.gff"),
     params:
         genome=resources.genome,
         motif="GATC",
@@ -157,6 +157,22 @@ rule make_gatc_tracks:
         "logs/make_gatc_tracks/tracks.log",
     script:
         "../scripts/gatc.track.maker.py"
+
+
+rule sort_gatc_tracks:
+    input:
+        f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.unsorted.gff",
+    output:
+        f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
+    threads: 1
+    resources:
+        runtime=10,
+    conda:
+        "../envs/damid.yaml",
+    log:
+        "logs/make_gatc_tracks/sort_tracks.log",
+    shell:
+        "sort -k1,1V -k4,4n {input} > {output} 2> {log}"
 
 
 rule bowtie2_build_index:
