@@ -13,9 +13,11 @@ gtf <- snakemake@input[["gtf"]]
 db <- rtracklayer::import(gtf)
 
 # Extract relevant information
-edb <- data.frame(geneId = db$gene_id, 
-                  geneName = db$gene_name, 
-                  geneBiotype = db$gene_biotype) %>%
+edb <- data.frame(
+  geneId = db$gene_id,
+  geneName = db$gene_name,
+  geneBiotype = db$gene_biotype
+) %>%
   distinct()
 
 # Save df to file as R object

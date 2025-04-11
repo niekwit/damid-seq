@@ -18,10 +18,7 @@ bed.file <- snakemake@input[["bed"]]
 txdb <- makeTxDbFromGFF(gtf)
 
 # Annotate bed file
-peakAnno <- annotatePeak(bed.file,
-                         tssRegion = c(-3000, 3000),
-                         TxDb = txdb
-                        )
+peakAnno <- annotatePeak(bed.file, tssRegion = c(-3000, 3000), TxDb = txdb)
 
 # Tidy up annotation data
 df <- as.data.frame(peakAnno@anno@elementMetadata@listData)
@@ -33,11 +30,7 @@ df <- df %>%
   left_join(edb, by = "geneId")
 
 # Write annotation to file
-write.table(df,
-            file = txt,
-            quote = FALSE,
-            sep = "\t",
-            row.names = FALSE)
+write.table(df, file = txt, quote = FALSE, sep = "\t", row.names = FALSE)
 
 # Close redirection of output/messages
 sink(log, type = "output")

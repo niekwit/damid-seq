@@ -1,5 +1,5 @@
 # Redirect R output to log
-log <- file(snakemake@log[[1]], open="wt")
+log <- file(snakemake@log[[1]], open = "wt")
 sink(log, type = "output")
 sink(log, type = "message")
 
@@ -24,42 +24,39 @@ for (i in sheets) {
   df <- read.xlsx(xlsx, sheet = i) %>%
     mutate(log.P.value = -log10(Adjusted.P.value)) %>%
     arrange(desc(log.P.value))
-  
+
   # Convert character overlap ("n/m") to numerical ratio
   df$Ratio <- str_split(df$Overlap, "/") %>%
     map_dbl(~ as.numeric(.x[1]) / as.numeric(.x[2]))
-  
+
   # Wrap terms longer than 60 characters over multiple lines
   df$Term <- str_wrap(df$Term, 60)
-  
+
   # Relevel terms to avoid alphabetical sorting
   df$Term <- fct_rev(factor(df$Term, levels = df$Term))
-  
+
   # Plot
-  p <- ggplot(df[1:terms,], aes(x = log.P.value,
-                                y = Term)) +
-    geom_point(aes(fill = Ratio), 
-               alpha = 1,
-               size = 12,
-               shape = 21,
-               colour = "black") +
-    scale_fill_gradient(low = "white", 
-                        high = "#419179",
-                        guide = guide_colorbar(frame.colour = "black", 
-                                               ticks.colour = "black")) +
+  p <- ggplot(df[1:terms, ], aes(x = log.P.value, y = Term)) +
+    geom_point(
+      aes(fill = Ratio),
+      alpha = 1,
+      size = 12,
+      shape = 21,
+      colour = "black"
+    ) +
+    scale_fill_gradient(
+      low = "white",
+      high = "#419179",
+      guide = guide_colorbar(frame.colour = "black", ticks.colour = "black")
+    ) +
     theme_cowplot(18) +
-    theme(axis.text.x = element_text(angle = 45, 
-                                     hjust = 1)) +
-    labs(x = "-log10(Adjusted P value)", 
-         y = NULL) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(x = "-log10(Adjusted P value)", y = NULL) +
     ggtitle(i) +
     guides(fill = guide_legend(title = "Ratio\n(genes found /\ngenes in term)"))
-  
+
   # Save plot
-  ggsave(paste0(dir_name, "/", i, ".pdf"), 
-         p, 
-         width = 12, 
-         height = terms * 0.9)
+  ggsave(paste0(dir_name, "/", i, ".pdf"), p, width = 12, height = terms * 0.9)
 }
 
 # Close redirection of output/messages

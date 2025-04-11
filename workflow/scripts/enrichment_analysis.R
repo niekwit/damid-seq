@@ -1,5 +1,5 @@
 # Redirect R output to log
-log <- file(snakemake@log[[1]], open="wt")
+log <- file(snakemake@log[[1]], open = "wt")
 sink(log, type = "output")
 sink(log, type = "message")
 
@@ -31,7 +31,10 @@ dbs_check <- dbs %in% available_dbs$libraryName
 if (any(!dbs_check)) {
   print("Following databases are not available:")
   print(dbs[!dbs_check])
-  print(paste("Available databases are:", paste(available_dbs$libraryName, collapse = ", ")))
+  print(paste(
+    "Available databases are:",
+    paste(available_dbs$libraryName, collapse = ", ")
+  ))
   stop()
 } else {
   print("All requested databases are available.")
