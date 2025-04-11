@@ -1,16 +1,18 @@
 rule multiBigwigSummary:
     input:
-        expand("results/bigwig/bam2bigwig/{dir}/{sample}.bw", dir=DIRS , sample=SAMPLES),
+        expand("results/bigwig/bam2bigwig/{dir}/{sample}.bw", dir=DIRS, sample=SAMPLES),
     output:
         "results/deeptools/scores_per_bin.npz",
     params:
-        labels=lambda wildcards, input: [x.replace("results/bigwig/", "").replace(".bw","") for x in input],
-        extra=""
+        labels=lambda wildcards, input: [
+            x.replace("results/bigwig/", "").replace(".bw", "") for x in input
+        ],
+        extra="",
     threads: config["resources"]["deeptools"]["cpu"] * 4
     resources:
-        runtime=config["resources"]["deeptools"]["time"]
+        runtime=config["resources"]["deeptools"]["time"],
     log:
-        "logs/deeptools/multiBigwigSummary.log"
+        "logs/deeptools/multiBigwigSummary.log",
     conda:
         "../envs/deeptools.yaml"
     shell:
@@ -29,12 +31,12 @@ rule PCA:
     output:
         "results/deeptools/PCA.tab",
     params:
-        extra=""
+        extra="",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
-        runtime=config["resources"]["deeptools"]["time"]
+        runtime=config["resources"]["deeptools"]["time"],
     log:
-        "logs/deeptools/PCA.log"
+        "logs/deeptools/PCA.log",
     conda:
         "../envs/deeptools.yaml"
     shell:
@@ -54,11 +56,11 @@ rule computeMatrix:
         mat="results/deeptools/average_bw_matrix.gz",
     params:
         args=computematrix_args(),
-    threads: config["resources"]["deeptools"]["cpu"] * 5 # Otherwise it will take very long
+    threads: config["resources"]["deeptools"]["cpu"] * 5  # Otherwise it will take very long
     resources:
-        runtime=config["resources"]["deeptools"]["time"]
+        runtime=config["resources"]["deeptools"]["time"],
     log:
-        "logs/deeptools/computeMatrix.log"
+        "logs/deeptools/computeMatrix.log",
     conda:
         "../envs/deeptools.yaml"
     shell:

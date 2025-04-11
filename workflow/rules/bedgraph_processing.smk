@@ -1,55 +1,66 @@
 # Quantile normalise all samples together
 if config["quantile_normalisation"]["apply"]:
     logger.info("Applying quantile normalisation...")
+
     rule quantile_normalisation:
         input:
-            bg=expand("results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+            bg=expand(
+                "results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
+                dir=DIRS,
+                bg_sample=BG_SAMPLES,
+            ),
         output:
-            bg=expand("results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph", dir=DIRS, bg_sample=BG_SAMPLES)
+            bg=expand(
+                "results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph",
+                dir=DIRS,
+                bg_sample=BG_SAMPLES,
+            ),
         params:
-            extra=""
+            extra="",
         threads: config["resources"]["deeptools"]["cpu"]
         resources:
-            runtime=config["resources"]["deeptools"]["time"]
+            runtime=config["resources"]["deeptools"]["time"],
         log:
-            expand("logs/quantile_normalisation/{dir}/{bg_sample}.log", dir=DIRS, bg_sample=BG_SAMPLES)
+            expand(
+                "logs/quantile_normalisation/{dir}/{bg_sample}.log",
+                dir=DIRS,
+                bg_sample=BG_SAMPLES,
+            ),
         conda:
             "../envs/damid.yaml"
         script:
             "../scripts/quantile_norm_bedgraph.py"
 
-
     rule reverse_log2:
         input:
-            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph"
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph",
         output:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
         threads: 1
         resources:
-            runtime=30
+            runtime=30,
         log:
-            "logs/rev_log2/{dir}/{bg_sample}.log"
+            "logs/rev_log2/{dir}/{bg_sample}.log",
         conda:
             "../envs/deeptools.yaml"
         script:
             "../scripts/reverse_log2.py"
 
-
     rule bedgraph2bigwig:
         input:
             cs=f"resources/{resources.genome}_chrom.sizes",
-            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph"
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph",
         output:
             bw="results/bigwig/{dir}/{bg_sample}.bw",
         params:
-            extra=""
+            extra="",
         threads: config["resources"]["fastqc"]["cpu"]
-        resources: 
+        resources:
             runtime=config["resources"]["fastqc"]["time"],
-        conda: 
+        conda:
             "../envs/deeptools.yaml"
         log:
-            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log"
+            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log",
         shell:
             "bedGraphToBigWig "
             "{params.extra} "
@@ -59,6 +70,7 @@ if config["quantile_normalisation"]["apply"]:
 
 else:
     logger.info("Skipping quantile normalisation...")
+
     rule bedgraph2bigwig:
         input:
             cs=f"resources/{resources.genome}_chrom.sizes",
@@ -66,15 +78,15 @@ else:
         output:
             bw="results/bigwig/{dir}/{bg_sample}.bw",
         params:
-            extra=""
+            extra="",
         threads: config["resources"]["fastqc"]["cpu"]
-        resources: 
+        resources:
             runtime=config["resources"]["fastqc"]["time"],
-        conda: 
+        conda:
             "../envs/deeptools.yaml"
         log:
-            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log"
-        shell: # This has a Snakemake wrapper
+            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log",
+        shell:  # This has a Snakemake wrapper
             "bedGraphToBigWig "
             "{params.extra} "
             "{input.bg} "
@@ -83,20 +95,20 @@ else:
 
     rule reverse_log2:
         input:
-            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph"
+            bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
         output:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
         threads: 1
         resources:
-            runtime=30
+            runtime=30,
         log:
-            "logs/rev_log2/{dir}/{bg_sample}.log"
+            "logs/rev_log2/{dir}/{bg_sample}.log",
         conda:
             "../envs/deeptools.yaml"
         script:
             "../scripts/reverse_log2.py"
 
-# MAKE SIMPLER AVERAGE METHOD? --> python script that averages begraphs and then convert to bigwig
+
 rule average_wig:
     input:
         expand("results/bigwig/{dir}/{bg_sample}.bw", dir=DIRS, bg_sample=BG_SAMPLES),
@@ -106,9 +118,9 @@ rule average_wig:
         extra="",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
-        runtime=config["resources"]["deeptools"]["time"]
+        runtime=config["resources"]["deeptools"]["time"],
     log:
-        "logs/wiggletools/wig_average_{bg_sample}.log"
+        "logs/wiggletools/wig_average_{bg_sample}.log",
     conda:
         "../envs/deeptools.yaml"
     script:
@@ -125,9 +137,9 @@ rule wig2bigwig:
         extra="",
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
-        runtime=config["resources"]["deeptools"]["time"]
+        runtime=config["resources"]["deeptools"]["time"],
     log:
-        "logs/wigToBigWig/{bg_sample}.log"
+        "logs/wigToBigWig/{bg_sample}.log",
     conda:
         "../envs/deeptools.yaml"
     shell:
@@ -141,16 +153,20 @@ use rule bedgraph2bigwig as bedgraph2bigwig_rev_log2 with:
     output:
         bw="results/bigwig_rev_log2/{dir}/{bg_sample}.bw",
     log:
-        "logs/bedgraph2bigwig_rev_log2/{dir}/bw_{bg_sample}.log"
+        "logs/bedgraph2bigwig_rev_log2/{dir}/bw_{bg_sample}.log",
 
 
 use rule average_wig as average_wig_rev_log2 with:
     input:
-        expand("results/bigwig_rev_log2/{dir}/{bg_sample}.bw", dir=DIRS, bg_sample=BG_SAMPLES),
+        expand(
+            "results/bigwig_rev_log2/{dir}/{bg_sample}.bw",
+            dir=DIRS,
+            bg_sample=BG_SAMPLES,
+        ),
     output:
         wig=temp("results/bigwig_rev_log2/average_bw/{bg_sample}.wig"),
     log:
-        "logs/wiggletools_rev_log2/wig_average_{bg_sample}.log"
+        "logs/wiggletools_rev_log2/wig_average_{bg_sample}.log",
 
 
 use rule wig2bigwig as wig2bigwig_rev_log2 with:
@@ -160,4 +176,4 @@ use rule wig2bigwig as wig2bigwig_rev_log2 with:
     output:
         "results/bigwig_rev_log2/average_bw/{bg_sample}.bw",
     log:
-        "logs/wigToBigWig_rev_log2/{bg_sample}.log"
+        "logs/wigToBigWig_rev_log2/{bg_sample}.log",

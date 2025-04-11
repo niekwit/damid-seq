@@ -1,9 +1,12 @@
 if config["plasmid_fasta"] == "none":
     if paired_end:
+
         rule bowtie2_align_pe:
             input:
-                sample=["results/trimmed/{dir}/{sample}_1.fastq.gz",
-                        "results/trimmed/{dir}/{sample}_2.fastq.gz"],
+                sample=[
+                    "results/trimmed/{dir}/{sample}_1.fastq.gz",
+                    "results/trimmed/{dir}/{sample}_2.fastq.gz",
+                ],
                 idx=multiext(
                     f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
                     ".1.bt2",
@@ -19,12 +22,11 @@ if config["plasmid_fasta"] == "none":
                 extra=config["bowtie2"]["extra"],
             threads: config["resources"]["bowtie2"]["cpu"]
             resources:
-                runtime=config["resources"]["bowtie2"]["time"]
+                runtime=config["resources"]["bowtie2"]["time"],
             log:
-                "logs/bowtie2_align/{dir}/{sample}.log"
+                "logs/bowtie2_align/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/bowtie2/align"
-
 
         rule sort_bowtie2_bam:
             input:
@@ -33,13 +35,12 @@ if config["plasmid_fasta"] == "none":
                 "results/bam/{dir}/{sample}.sorted.bam",
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/sort/{dir}/{sample}.log"
+                "logs/samtools/sort/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/sort"
 
-        
         rule index_bowtie2_bam:
             input:
                 "results/bam/{dir}/{sample}.sorted.bam",
@@ -47,14 +48,14 @@ if config["plasmid_fasta"] == "none":
                 "results/bam/{dir}/{sample}.sorted.bam.bai",
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/index/{dir}/{sample}.log"
+                "logs/samtools/index/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/index"
 
-
     else:
+
         rule bowtie2_align_se:
             input:
                 sample=["results/trimmed/{dir}/{sample}.fastq.gz"],
@@ -70,15 +71,14 @@ if config["plasmid_fasta"] == "none":
             output:
                 bam=pipe("results/bam/{dir}/{sample}.bt2.bam"),
             params:
-                extra=config["bowtie2"]["extra"]
+                extra=config["bowtie2"]["extra"],
             threads: config["resources"]["bowtie2"]["cpu"]
             resources:
-                runtime=config["resources"]["bowtie2"]["time"]
+                runtime=config["resources"]["bowtie2"]["time"],
             log:
-                "logs/bowtie2_align/{dir}/{sample}.log"
+                "logs/bowtie2_align/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/bowtie2/align"
-
 
         rule sort_bowtie2_bam:
             input:
@@ -87,12 +87,11 @@ if config["plasmid_fasta"] == "none":
                 temp("results/bam/{dir}/{sample}.bt2_sorted.bam"),
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/index/{dir}/{sample}.log"
+                "logs/samtools/index/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/sort"
-
 
         rule index_bowtie2_bam:
             input:
@@ -101,12 +100,11 @@ if config["plasmid_fasta"] == "none":
                 temp("results/bam/{dir}/{sample}.bt2_sorted.bam.bai"),
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/index/{dir}/{sample}.log"
+                "logs/samtools/index/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/index"
-
 
         # Single-end fragments are extended to n bp
         # or to the closest GATC site
@@ -118,7 +116,7 @@ if config["plasmid_fasta"] == "none":
                 gatc_gff=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
                 fai=f"{resources.fasta}.fai",
             output:
-                bam="results/bam/{dir}/{sample}.sorted.bam", 
+                bam="results/bam/{dir}/{sample}.sorted.bam",
             params:
                 n=300,
                 q=20,
@@ -126,11 +124,11 @@ if config["plasmid_fasta"] == "none":
                 "../envs/deeptools.yaml"
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/extend_reads/{dir}/{sample}.log"
+                "logs/extend_reads/{dir}/{sample}.log",
             shell:
-                "perl ../scripts/extend_reads.pl " 
+                "perl ../scripts/extend_reads.pl "
                 "{input.bam} "
                 "{output.bam} "
                 "{input.gatc_gff} "
@@ -138,7 +136,6 @@ if config["plasmid_fasta"] == "none":
                 "{params.q} "
                 "{log}"
 
-        
         rule index_bam:
             input:
                 "results/bam/{dir}/{sample}.sorted.bam",
@@ -146,20 +143,25 @@ if config["plasmid_fasta"] == "none":
                 "results/bam/{dir}/{sample}.sorted.bam.bai",
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/index/{dir}/{sample}.log"
+                "logs/samtools/index/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/index"
-        
 
 else:
-    logger.info(f"Removing reads aligning to {config["plasmid_fasta"]} from trimmed reads...")
+    logger.info(
+        f"Removing reads aligning to {config["plasmid_fasta"]} from trimmed reads..."
+    )
     check_plasmid()
     if paired_end:
+
         rule bowtie2_remove_plasmid_reads:
             input:
-                fastq=["results/trimmed/{dir}/{sample}_1.fastq.gz", "results/trimmed/{dir}/{sample}_2.fastq.gz"]
+                fastq=[
+                    "results/trimmed/{dir}/{sample}_1.fastq.gz",
+                    "results/trimmed/{dir}/{sample}_2.fastq.gz",
+                ],
                 idx=multiext(
                     f"resources/bowtie2_index/{plasmid_name}/index",
                     ".1.bt2",
@@ -170,27 +172,34 @@ else:
                     ".rev.2.bt2",
                 ),
             output:
-                fastq=["results/trimmed_no_plasmid/{dir}/{sample}_1.fastq.gz", "results/trimmed_no_plasmid/{dir}/{sample}_2.fastq.gz"],
+                fastq=[
+                    "results/trimmed_no_plasmid/{dir}/{sample}_1.fastq.gz",
+                    "results/trimmed_no_plasmid/{dir}/{sample}_2.fastq.gz",
+                ],
                 bam="results/bam/plasmid_reads/{dir}/{sample}.bam",
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
-                out_base= lambda wildcards, output: output["r1_fastq"].replace("_1.fastq.gz", "_%.fastq.gz"),
+                out_base=lambda wildcards, output: output["r1_fastq"].replace(
+                    "_1.fastq.gz", "_%.fastq.gz"
+                ),
                 extra=config["bowtie2"]["extra"],
             conda:
                 "../envs/damid.yaml"
             threads: config["resources"]["damid"]["cpu"]
             resources:
-                runtime=config["resources"]["damid"]["time"]
+                runtime=config["resources"]["damid"]["time"],
             log:
-                "logs/bowtie2_align_to_plasmid/{dir}/{sample}.log"
+                "logs/bowtie2_align_to_plasmid/{dir}/{sample}.log",
             script:
                 "../scripts/bowtie2_align_to_plasmid.py"
 
-        
         rule bowtie2_align:
             input:
-                sample=["results/trimmed_no_plasmid/{dir}/{sample}_1.fastq.gz", "results/trimmed_no_plasmid/{dir}/{sample}_2.fastq.gz"],
+                sample=[
+                    "results/trimmed_no_plasmid/{dir}/{sample}_1.fastq.gz",
+                    "results/trimmed_no_plasmid/{dir}/{sample}_2.fastq.gz",
+                ],
                 idx=multiext(
                     f"resources/bowtie2_index/{resources.genome}_{resources.build}_{maskedgenes}.masked/index",
                     ".1.bt2",
@@ -206,14 +215,14 @@ else:
                 extra=config["bowtie2"]["extra"],
             threads: config["resources"]["bowtie2"]["cpu"]
             resources:
-                runtime=config["resources"]["bowtie2"]["time"]
+                runtime=config["resources"]["bowtie2"]["time"],
             log:
-                "logs/bowtie2_align/{dir}/{sample}.log"
+                "logs/bowtie2_align/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/bowtie2/align"
-        
-        
+
     else:
+
         rule bowtie2_remove_plasmid_reads:
             input:
                 fastq=["results/trimmed/{dir}/{sample}.fastq.gz"],
@@ -232,18 +241,19 @@ else:
             params:
                 idxdir=lambda wildcards, input: input["idx"][0][:-6],
                 paired=paired_end,
-                out_base= lambda wildcards, output: output["fastq"].replace(".fastq.gz", ""),
+                out_base=lambda wildcards, output: output["fastq"].replace(
+                    ".fastq.gz", ""
+                ),
                 extra=config["bowtie2"]["extra"],
             conda:
                 "../envs/damid.yaml"
             threads: config["resources"]["damid"]["cpu"]
             resources:
-                runtime=config["resources"]["damid"]["time"]
+                runtime=config["resources"]["damid"]["time"],
             log:
-                "logs/bowtie2_align_to_plasmid/{dir}/{sample}.log"
+                "logs/bowtie2_align_to_plasmid/{dir}/{sample}.log",
             script:
                 "../scripts/bowtie2_align_to_plasmid.py"
-
 
         rule bowtie2_align_se:
             input:
@@ -263,12 +273,11 @@ else:
                 extra=config["bowtie2"]["extra"],
             threads: config["resources"]["bowtie2"]["cpu"]
             resources:
-                runtime=config["resources"]["bowtie2"]["time"]
+                runtime=config["resources"]["bowtie2"]["time"],
             log:
-                "logs/bowtie2_align/{dir}/{sample}.log"
+                "logs/bowtie2_align/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/bowtie2/align"
-
 
         rule sort_bowtie2_bam:
             input:
@@ -277,12 +286,11 @@ else:
                 temp("results/bam/{dir}/{sample}.bt2_sorted.bam"),
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/index/{dir}/{sample}.log"
+                "logs/samtools/index/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/sort"
-
 
         rule index_bowtie2_bam:
             input:
@@ -291,12 +299,11 @@ else:
                 temp("results/bam/{dir}/{sample}.bt2_sorted.bam.bai"),
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/index/{dir}/{sample}.log"
+                "logs/samtools/index/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/index"
-
 
         # Single-end fragments are extended to n bp
         # or to the closest GATC site
@@ -308,7 +315,7 @@ else:
                 gatc_gff=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
                 fai=f"{resources.fasta}.fai",
             output:
-                bam="results/bam/{dir}/{sample}.sorted.bam", 
+                bam="results/bam/{dir}/{sample}.sorted.bam",
             params:
                 n=300,
                 q=20,
@@ -316,11 +323,11 @@ else:
                 "../envs/deeptools.yaml"
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/extend_reads/{dir}/{sample}.log"
+                "logs/extend_reads/{dir}/{sample}.log",
             shell:
-                "perl ../scripts/extend_reads.pl " 
+                "perl ../scripts/extend_reads.pl "
                 "{input.bam} "
                 "{output.bam} "
                 "{input.gatc_gff} "
@@ -328,7 +335,6 @@ else:
                 "{params.q} "
                 "{log}"
 
-        
         rule index_bam:
             input:
                 "results/bam/{dir}/{sample}.sorted.bam",
@@ -336,15 +342,15 @@ else:
                 "results/bam/{dir}/{sample}.sorted.bam.bai",
             threads: config["resources"]["deeptools"]["cpu"]
             resources:
-                runtime=config["resources"]["deeptools"]["time"]
+                runtime=config["resources"]["deeptools"]["time"],
             log:
-                "logs/samtools/index/{dir}/{sample}.log"
+                "logs/samtools/index/{dir}/{sample}.log",
             wrapper:
                 "v5.8.3/bio/samtools/index"
 
 
 # dir wildcard is escaped so that multiple dirs can be run in parallel
-rule damidseq_pipeline: # Ignore dir wildcard in expand statement (double braces)
+rule damidseq_pipeline:  # Ignore dir wildcard in expand statement (double braces)
     input:
         git="resources/damidseq_pipeline",
         bam=expand("results/bam/{{dir}}/{sample}.sorted.bam", sample=SAMPLES),
@@ -360,7 +366,10 @@ rule damidseq_pipeline: # Ignore dir wildcard in expand statement (double braces
             ".rev.2.bt2",
         ),
     output:
-        bf=expand("results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph", bg_sample=BG_SAMPLES),
+        bf=expand(
+            "results/bedgraph/{{dir}}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
+            bg_sample=BG_SAMPLES,
+        ),
     params:
         idx=lambda wildcards, input: input["idx"][0][:-6],
         binsize=config["damidseq_pipeline"]["binsize"],
@@ -373,7 +382,7 @@ rule damidseq_pipeline: # Ignore dir wildcard in expand statement (double braces
         runtime=config["resources"]["damid"]["time"],
         tmpdir=config["resources"]["damid"]["tmpdir"],
     log:
-        "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log"
+        "logs/damidseq_pipeline/{dir}/damidseq_pipeline.log",
     script:
         "../scripts/damidseq_pipeline.py"
 
@@ -383,18 +392,18 @@ rule bam2bigwig:
         bam="results/bam/{dir}/{sample}.sorted.bam",
         bai="results/bam/{dir}/{sample}.sorted.bam.bai",
     output:
-        "results/bigwig/bam2bigwig/{dir}/{sample}.bw"
+        "results/bigwig/bam2bigwig/{dir}/{sample}.bw",
     params:
         bs=config["deeptools"]["bamCoverage"]["binSize"],
         n=config["deeptools"]["bamCoverage"]["normalizeUsing"],
-        extra=config["deeptools"]["bamCoverage"]["extra"]
+        extra=config["deeptools"]["bamCoverage"]["extra"],
     conda:
         "../envs/deeptools.yaml"
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
-        runtime=config["resources"]["deeptools"]["time"]
+        runtime=config["resources"]["deeptools"]["time"],
     log:
-        "logs/bam2bigwig/{dir}/{sample}.log"
+        "logs/bam2bigwig/{dir}/{sample}.log",
     shell:
         "bamCoverage "
         "-b {input.bam} "
