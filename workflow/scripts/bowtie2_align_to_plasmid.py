@@ -19,7 +19,7 @@ if paired:
     r1 = fastq[0]
     r2 = fastq[1]
     fastq_in = f"-1 {r1} -2 {r2}"
-    out_base = out_fastq[0].replace("_1.fastq.gz", "")
+    out_base = snakemake.params["out_base"]
     fastq_out = f"--un-conc-gz {out_base}"
 else:
     fastq_in = f"-U {fastq[0]}"
@@ -32,7 +32,7 @@ shell(
     "-p {snakemake.threads} "
     "{extra} "
     "{fastq_out} "
-    "| samtools view -F 4 --with-header " # exclude unmapped reads
+    "| samtools view -F 4 --with-header "  # exclude unmapped reads
     "> {bam} )"
     "{log}"
 )

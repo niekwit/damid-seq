@@ -80,7 +80,7 @@ command = [
     f"--norm_method={normalization_method} "
     f"{extra} "
     f"--gatc_frag_file={gatc} "
-    f"--bowtie2_genome_dir={idx} " #error if not parsed
+    f"--bowtie2_genome_dir={idx} "  # error if not parsed
     f"{' '.join(non_dam_bams)} "
 ]
 logging.info(f"Running damidseq_pipeline with command: {' '.join(command)}")
