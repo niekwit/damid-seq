@@ -77,6 +77,7 @@ os.makedirs("logs/snakemake", exist_ok=True)
 onsuccess: 
     shell("cp -v {log} {snake_log}")
     logger.info("Analysis finished successfully!")
+    logger.info(f"Please check the logs in logs/damidseq_pipeline/ for potential warnings about the normalisation method")
 onerror:
     shell("cp -v {log} {snake_log}")
     logger.info(f"Analysis failed...\nCheck {snake_log} for details")
