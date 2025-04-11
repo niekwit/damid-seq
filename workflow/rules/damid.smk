@@ -128,7 +128,7 @@ if config["plasmid_fasta"] == "none":
             log:
                 "logs/extend_reads/{dir}/{sample}.log",
             shell:
-                "perl ../scripts/extend_reads.pl "
+                f"perl {os.path.join(os.getcwd(), 'workflow/scripts/extend_reads.pl')} "
                 "{input.bam} "
                 "{output.bam} "
                 "{input.gatc_gff} "
@@ -327,7 +327,7 @@ else:
             log:
                 "logs/extend_reads/{dir}/{sample}.log",
             shell:
-                "perl ../scripts/extend_reads.pl "
+                f"perl {os.path.join(os.getcwd(), 'workflow/scripts/extend_reads.pl')} "
                 "{input.bam} "
                 "{output.bam} "
                 "{input.gatc_gff} "
