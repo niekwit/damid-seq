@@ -1,9 +1,13 @@
 include: "scripts/general_functions.smk"
+
+
 from scripts.resources import Resources
 from snakemake.utils import min_version, validate
 from snakemake.shell import shell
 
+
 report: "report/workflow.rst"
+
 
 # Workflow version
 VERSION = "v0.6.0"
@@ -13,15 +17,18 @@ min_version("8.25.5")
 
 # Wrapper version
 wrapper_version = "v5.8.3"
-
 logger.info(f"Workflow version: {VERSION}")
 logger.info(f"Wrapper version: {wrapper_version}")
+
 
 # Define Docker container for Apptainer usage
 containerized: f"docker://niekwit/damid-seq:{VERSION}"
 
+
 # Load and validate config file
 configfile: "config/config.yaml"
+
+
 validate(config, "schemas/config.schema.yaml")
 
 # Get paired-end status and bam extension
@@ -45,11 +52,12 @@ maskedgenes = masked_genes()
 
 # Wildcard values
 DIRS = dirs()
-SAMPLES = samples() # Includes Dam control
-BG_SAMPLES = samples(bedgraph=True) # SAMPLES minus Dam control
+SAMPLES = samples()  # Includes Dam control
+BG_SAMPLES = samples(bedgraph=True)  # SAMPLES minus Dam control
 DAM_SAMPLES = samples(bedgraph=True, dam=True)
 DBS = config["consensus_peaks"]["enrichment_analysis"]["dbs"]
 PEAK_MODE = [config["peak_calling_macs3"]["mode"]]
+
 
 # Import rules
 include: "rules/fastqc.smk"
@@ -62,22 +70,36 @@ include: "rules/plotting.smk"
 include: "rules/peak_calling_perl.smk"
 include: "rules/macs3.smk"
 
-localrules: all, get_fasta, get_gtf, install_damidseq_pipeline_software, install_find_peak_software, chrom_sizes
+
+localrules:
+    all,
+    get_fasta,
+    get_gtf,
+    install_damidseq_pipeline_software,
+    install_find_peak_software,
+    chrom_sizes,
+
 
 # Target rule
 rule all:
-    input: 
-        targets()
+    input:
+        targets(),
+
 
 # Save snakemake terminal output to log file
 time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 snake_log = f"logs/snakemake/{time}_snakemake.log"
 os.makedirs("logs/snakemake", exist_ok=True)
 
-onsuccess: 
+
+onsuccess:
     shell("cp -v {log} {snake_log}")
     logger.info("Analysis finished successfully!")
-    logger.info(f"Please check the logs in logs/damidseq_pipeline/ for potential warnings about the normalisation method")
+    logger.info(
+        f"Please check the logs in logs/damidseq_pipeline/ for potential warnings about the normalisation method"
+    )
+
+
 onerror:
     shell("cp -v {log} {snake_log}")
     logger.info(f"Analysis failed...\nCheck {snake_log} for details")
