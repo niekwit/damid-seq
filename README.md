@@ -1,4 +1,4 @@
-# DamIDProfiler
+# DamMapper
 
 [![Snakemake](https://img.shields.io/badge/snakemake-≥8.12.0-brightgreen.svg)](https://snakemake.github.io)
 [![Tests](https://github.com/niekwit/damid-seq/actions/workflows/main.yml/badge.svg)](https://github.com/niekwit/damid-seq/actions/workflows/main.yml)
@@ -9,12 +9,12 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 
 ## Aim
 
-`DamIDProfiler` is a containerized Snakemake pipeline for reproducible and scalable analysis of single/paired-end DamID short read Illumina data.
+`DamMapper` is a containerized Snakemake pipeline for reproducible and scalable analysis of single/paired-end DamID short read Illumina data.
 
 
 ## Documentation
 
-Documentation of how to use `DamIDProfiler` can be found at https://damid-seq.readthedocs.io/en/latest/.
+Documentation of how to use `DamMapper` can be found at https://damid-seq.readthedocs.io/en/latest/.
 
 ### Overview of documentation
 
