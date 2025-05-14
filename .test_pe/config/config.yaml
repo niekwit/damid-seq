@@ -45,7 +45,7 @@ peak_calling_perl:
   step: 0.01 # Stepping for quantiles
   unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
   extra: ""
-peak_calling_macs2:
+peak_calling_macs3:
   run: True
   mode: broad
   qvalue: 0.05
