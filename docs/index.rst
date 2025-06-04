@@ -9,10 +9,10 @@
     :alt: GitHub stars
 
 
-damid-seq
+DamMapper
 =========
 
-`damid-seq` is a containerized Snakemake pipeline for reproducible analysis of single/paired-end DamID-seq short read Illumina data.
+`DamMapper` is a containerized Snakemake pipeline for reproducible analysis of single/paired-end DamID-seq short read Illumina data.
 
 
 **Contents**

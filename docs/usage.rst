@@ -48,7 +48,7 @@ In some cases the number of non-Dam and Dam samples might not match. In this cas
     ├── Piwi_2.fastq.gz
     └── Piwi_3.fastq.gz
 
-When `damid-seq` is run is this case, it will create directories in reads/ for each Dam-only sample matching all non-Dam samples. Symlinks will be created in these directories to the original files in reads/:
+When `DamMapper` is run is this case, it will create directories in reads/ for each Dam-only sample matching all non-Dam samples. Symlinks will be created in these directories to the original files in reads/:
 
 .. code-block:: console
 

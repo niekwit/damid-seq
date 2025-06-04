@@ -1,7 +1,7 @@
 Conda/Mamba
 -----------
 
-For reproducible analysis, `damid-seq` uses Conda environments in the Snakemake workflow.
+For reproducible analysis, `DamMapper` uses Conda environments in the Snakemake workflow.
 
 Please follow the instructions `here <https://snakemake.readthedocs.io/en/stable/getting_started/installation.html>`_ for a detailed guide to install Conda/Mamba.
 
@@ -39,7 +39,7 @@ It is highly recommended to run the workflow using the ``--use-conda --use-appta
 Snakefetch
 ----------
 
-The easiest way to obtain the `damid-seq` workflow code is to use `snakefetch <https://pypi.org/project/snakefetch/>`_.
+The easiest way to obtain the `DamMapper` workflow code is to use `snakefetch <https://pypi.org/project/snakefetch/>`_.
 
 To install snakefetch, run:
 
