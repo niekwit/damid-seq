@@ -6,10 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'damid-seq'
+project = 'DamMapper'
 copyright = '2024, Niek Wit'
 author = 'Niek Wit'
-version = '0.5.0'
+version = 'v0.6.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
