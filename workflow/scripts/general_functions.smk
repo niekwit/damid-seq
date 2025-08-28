@@ -1,12 +1,66 @@
-import re
+import os, re, sys, glob
 import numpy as np
-import os
-import glob
-import sys
 import pandas as pd
 import datetime
 from pathlib import Path
+import socket, platform
 from snakemake.logging import logger
+
+
+wrapper_version = "v5.8.3"
+# Workflow version
+VERSION = "v0.6.0"
+
+## This header can help with debugging, extend later with more info
+# https://texteditor.com/multiline-text-art/
+# https://github.com/moiexpositoalonsolab/grenepipe/blob/53912b0749f90c7c29ecde2855657318e1269020/workflow/rules/initialize.smk
+
+# Get nicely wrapped command line
+indent = 21
+cmdline = sys.argv[0]
+for i in range(1, len(sys.argv)):
+    if sys.argv[i].startswith("-"):
+        cmdline += "\n" + (" " * indent) + sys.argv[i]
+    else:
+        cmdline += " " + sys.argv[i]
+
+logger.info("============================================")
+logger.info("")
+logger.info(r"  ┏━━━┓━━━━━━━━━┏━┓┏━┓━━━━━━━━━━━━━━━━━━━━")
+logger.info(r"  ┗┓┏┓┃━━━━━━━━━┃┃┗┛┃┃━━━━━━━━━━━━━━━━━━━━")
+logger.info(r"  ━┃┃┃┃┏━━┓━┏┓┏┓┃┏┓┏┓┃┏━━┓━┏━━┓┏━━┓┏━━┓┏━┓")
+logger.info(r"  ━┃┃┃┃┗━┓┃━┃┗┛┃┃┃┃┃┃┃┗━┓┃━┃┏┓┃┃┏┓┃┃┏┓┃┃┏┛")
+logger.info(r"  ┏┛┗┛┃┃┗┛┗┓┃┃┃┃┃┃┃┃┃┃┃┗┛┗┓┃┗┛┃┃┗┛┃┃┃━┫┃┃━")
+logger.info(r"  ┗━━━┛┗━━━┛┗┻┻┛┗┛┗┛┗┛┗━━━┛┃┏━┛┃┏━┛┗━━┛┗┛━")
+logger.info(r"  ━━━━━━━━━━━━━━━━━━━━━━━━━┃┃━━┃┃━━━━━━━━━")
+logger.info(r"  ━━━━━━━━━━━━━━━━━━━━━━━━━┗┛━━┗┛━━━━━━━━━")
+logger.info("")
+logger.info("  Date:              " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+logger.info("  Python:            " + str(sys.version.split(" ")[0]))
+logger.info("  Snakemake:         " + snakemake.__version__)
+logger.info("  DamMapper:         " + VERSION)
+logger.info("  Wrapper:           " + wrapper_version)
+logger.info("  Command:           " + cmdline)
+logger.info("")
+
+# Print contents of profile if parsed from command line
+# i.e. if --profile flag used
+if "--profile" in sys.argv:
+    profile = sys.argv[sys.argv.index("--profile") + 1]
+    file_ = os.path.join(profile, "config.yaml")
+    logger.info("  Using profile:     " + file_)
+    counter = 0
+    with open(file_, "r") as file:
+        for line in file:
+            if counter == 0:
+                logger.info("  Profile contents:  " + line.strip())
+                counter += 1
+            else:
+                logger.info(" " * indent + line.strip())
+                counter += 1
+
+logger.info("============================================")
+logger.info("")
 
 
 def targets():
@@ -25,9 +79,7 @@ def targets():
         expand(
             "results/bigwig_rev_log2/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES
         ),
-        expand(
-            "results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES
-        ),
+        expand("results/bigwig/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES),
     ]
     if config["peak_calling_perl"]["run"]:
         TARGETS.extend(
@@ -90,7 +142,7 @@ def targets():
                     "results/plots/macs3_{mode}/fdr{fdr}/frip.pdf",
                     fdr=fdr,
                     mode=PEAK_MODE,
-                )
+                ),
             ]
         )
         if config["consensus_peaks"]["enrichment_analysis"]["run"]:
@@ -145,7 +197,7 @@ def matrix_samples():
             """
             log = []
             for i, l in enumerate(list_):
-                dir_ = f"reads/repl_{i + 1}"
+                dir_ = f"reads/repl_{i+1}"
                 os.makedirs(dir_, exist_ok=True)
 
                 # Keep log of what goes where
@@ -260,7 +312,7 @@ def matrix_samples():
             """
             log = []
             for i, l in enumerate(list_):
-                dir_ = f"reads/repl_{i + 1}"
+                dir_ = f"reads/repl_{i+1}"
                 os.makedirs(dir_, exist_ok=True)
 
                 # Keep log of what goes where
@@ -520,6 +572,4 @@ def check_plasmid():
     Check if plasmid fasta file exists
     """
     if not os.path.isfile(config["plasmid_fasta"]):
-        raise ValueError(
-            f"Plasmid fasta file {config['plasmid_fasta']} not found..."
-        )
+        raise ValueError(f"Plasmid fasta file {config['plasmid_fasta']} not found...")
