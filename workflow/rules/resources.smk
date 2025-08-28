@@ -50,7 +50,7 @@ use rule install_damidseq_pipeline_software as install_find_peak_software with:
         directory("resources/find_peaks"),
     params:
         url="https://github.com/owenjm/find_peaks.git",
-        version="",
+        version="--revision=2259915d08c7d5ab0151d7b15e2292603d7a05c7 --depth=1",
     log:
         "logs/resources/install_find_peaks_software.log",
 
