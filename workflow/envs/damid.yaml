@@ -13,4 +13,4 @@ dependencies:
   - igvtools=2.16.2
   - pandas=2.2.0
   - pyarrow=14.0.2 #pandas dependency, somehow not in pandas recipe
-  - conda-forge::git=2.51.0
+  - conda-forge::git=2.49
