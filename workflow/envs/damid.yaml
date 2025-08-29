@@ -9,7 +9,7 @@ dependencies:
   - bowtie2=2.5.3
   - perl=5.32.1
   - perl-inline-c=0.81
-  - r-base=4.3.2
+  - r-base
   - igvtools=2.16.2
   - pandas=2.2.0
   - pyarrow=14.0.2 #pandas dependency, somehow not in pandas recipe
