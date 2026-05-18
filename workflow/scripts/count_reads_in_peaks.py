@@ -7,13 +7,8 @@ import os
 bams = snakemake.input["bams"]
 peaks = snakemake.input["peaks"]
 
-# Create data frame to store name, total counts,
-# counts in peaks, and fraction of reads in peaks
-df = pd.DataFrame(
-    columns=["name", "total_reads", "reads_in_peaks", "fraction_in_peaks"]
-)
+rows = []
 
-# Load peaks into bedtools object
 for i, bam in enumerate(bams):
     # Get total reads in bam file
     with pysam.AlignmentFile(bam, "rb") as bamfile:
@@ -34,23 +29,16 @@ for i, bam in enumerate(bams):
     name = os.path.join(os.path.basename(os.path.dirname(bam)), os.path.basename(bam))
     name = name.replace(".sorted.bam", "")
 
-    # Append to data frame
-    df = pd.concat(
-        [
-            df,
-            pd.DataFrame(
-                [
-                    {
-                        "name": name,
-                        "total_reads": num_alignments,
-                        "reads_in_peaks": num_intersecting,
-                        "fraction_in_peaks": fraction_in_peaks,
-                    }
-                ]
-            ),
-        ],
-        ignore_index=True,
+    rows.append(
+        {
+            "name": name,
+            "total_reads": num_alignments,
+            "reads_in_peaks": num_intersecting,
+            "fraction_in_peaks": fraction_in_peaks,
+        }
     )
+
+df = pd.DataFrame(rows, columns=["name", "total_reads", "reads_in_peaks", "fraction_in_peaks"])
 
 # Save to file
 df.to_csv(snakemake.output["csv"], index=False)
