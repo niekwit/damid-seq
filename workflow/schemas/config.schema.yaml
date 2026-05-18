@@ -9,12 +9,22 @@ properties:
     type: string
     enum: ["hg38", "hg19", "mm38", "mm39", "dm6", "test"]
     description: Ensembl genome
-  
+
   ensembl_genome_build:
     type: integer
     minimum: 1
     description: Ensembl genome build
- 
+
+  plasmid_fasta:
+    type: string
+    description: Path to plasmid fasta file with sequences to be removed
+
+  bowtie2:
+    type: object
+    properties:
+      extra:
+        type: string
+
   fusion_genes:
     type: object
     properties:
@@ -60,7 +70,7 @@ properties:
             enum: ["RPKM", "CPM", "BPM", "RPGC", "None"]
           extra:
             type: string
-      
+
       matrix:
         type: object
         properties:
@@ -91,7 +101,7 @@ properties:
             type: boolean
           extra:
             type: string
-      
+
       plotHeatmap:
         type: object
         properties:
@@ -109,7 +119,7 @@ properties:
             maximum: 1
           extra:
             type: string
-  
+
   peak_calling_perl:
     type: object
     properties:
@@ -154,10 +164,12 @@ properties:
         type: number
         minimum: 0
         maximum: 1
-      broad-cutoff:
+      broad_cutoff:
         type: number
         minimum: 0
         maximum: 1
+      extra:
+        type: string
 
   consensus_peaks:
     type: object
@@ -167,7 +179,7 @@ properties:
         minimum: 1
       extend_by:
         type: integer
-        minimum: 1
+        minimum: 0
       keep:
         type: integer
         minimum: 1
@@ -210,6 +222,18 @@ properties:
         required:
           - cpu
           - time
+      bowtie2:
+        type: object
+        properties:
+          cpu:
+            type: integer
+            minimum: 1
+          time:
+            type: integer
+            minimum: 1
+        required:
+          - cpu
+          - time
       damid:
         type: object
         properties:
@@ -219,6 +243,8 @@ properties:
           time:
             type: integer
             minimum: 1
+          tmpdir:
+            type: string
         required:
           - cpu
           - time
