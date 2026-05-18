@@ -35,7 +35,9 @@ logger.info(r"  ┗━━━┛┗━━━┛┗┻┻┛┗┛┗┛┗┛┗�
 logger.info(r"  ━━━━━━━━━━━━━━━━━━━━━━━━━┃┃━━┃┃━━━━━━━━━")
 logger.info(r"  ━━━━━━━━━━━━━━━━━━━━━━━━━┗┛━━┗┛━━━━━━━━━")
 logger.info("")
-logger.info("  Date:              " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+logger.info(
+    "  Date:              " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+)
 logger.info("  Python:            " + str(sys.version.split(" ")[0]))
 logger.info("  Snakemake:         " + snakemake.__version__)
 logger.info("  DamMapper:         " + VERSION)
