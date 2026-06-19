@@ -413,3 +413,41 @@ rule bam2bigwig:
         "--normalizeUsing {params.n} "
         "{params.extra} "
         "> {log} 2>&1 "
+
+
+rule damidbind:
+    input:
+        bg=expand(
+            "results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
+            bg_sample=BG_SAMPLES,
+            dir=DIRS,
+        ),
+        gff=expand(
+            "results/peaks/fdr{fdr}/{dir}/{bg_sample}.peaks.gff",
+            bg_sample=BG_SAMPLES,
+            dir=DIRS,
+            fdr=fdr,
+        ),
+    output:
+        diff_diagn_plot="results/damidbind/diagnostic_plots_diff.pdf",
+        venn="results/damidbind/venn.pdf",
+        volcano="results/damidbind/volcano.pdf",
+        csv="results/damidbind/peaks.csv",
+    params:
+        outdir_bg=lambda wildcards, output: os.path.join(
+            os.path.dirname(output.csv), "bedgraph"
+        ),
+        outdir_peaks=lambda wildcards, output: os.path.join(
+            os.path.dirname(output.csv), "peaks"
+        ),
+        genome=config["genome"],
+        fdr=0.05,
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
+    log:
+        "logs/damidbind/damidbind.log",
+    conda:
+        "../envs/damidbind.yaml"
+    script:
+        "../scripts/damidbind.R"
