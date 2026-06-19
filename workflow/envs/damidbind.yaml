@@ -1,0 +1,28 @@
+name: damid
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - r-base=4.5
+  - conda-forge::r-biocmanager=1.30.27
+  - conda-forge::r-remotes
+  - conda-forge::git
+  - r-tidyverse
+  - r-ggrepel
+  - r-patchwork
+  - r-ggnewscale
+  - r-shiny
+  - r-dt
+  - r-dbscan
+  - r-fs
+  - r-svglite
+  - zlib
+  - bioconductor-biocparallel
+  - bioconductor-ensembldb
+  - bioconductor-rtracklayer
+  - bioconductor-limma
+  - bioconductor-noiseq
+  - bioconductor-clusterprofiler
+  - bioconductor-complexheatmap
+  - bioconductor-igvshiny
