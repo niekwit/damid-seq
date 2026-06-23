@@ -234,4 +234,4 @@ RUN conda env create --prefix /conda-envs/39f740686257be1f673b0c82e1187e65 --fil
 RUN conda run --prefix /conda-envs/1d7a05129cb6c6508dec11c2dad5af41 \
     Rscript -e 'BiocManager::install("BioVenn", update=FALSE, ask=FALSE); stopifnot(requireNamespace("BioVenn", quietly=TRUE))'
 RUN conda run --prefix /conda-envs/1d7a05129cb6c6508dec11c2dad5af41 \
-    Rscript -e 'remotes::install_github("marshall-lab/damidBind", upgrade="never"); stopifnot(requireNamespace("damidBind", quietly=TRUE))'
+    Rscript -e 'remotes::install_github("marshall-lab/damidBind", ref="v1.1.1", upgrade="never"); stopifnot(requireNamespace("damidBind", quietly=TRUE))'
