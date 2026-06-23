@@ -17,7 +17,7 @@ if config["plasmid_fasta"] == "none":
                     ".rev.2.bt2",
                 ),
             output:
-                bam=pipe("results/bam/{dir}/{sample}.bam"),
+                bam="results/bam/{dir}/{sample}.bam",
             params:
                 extra=config["bowtie2"]["extra"],
             threads: config["resources"]["bowtie2"]["cpu"]
@@ -69,7 +69,7 @@ if config["plasmid_fasta"] == "none":
                     ".rev.2.bt2",
                 ),
             output:
-                bam=pipe("results/bam/{dir}/{sample}.bt2.bam"),
+                bam="results/bam/{dir}/{sample}.bt2.bam",
             params:
                 extra=config["bowtie2"]["extra"],
             threads: config["resources"]["bowtie2"]["cpu"]
