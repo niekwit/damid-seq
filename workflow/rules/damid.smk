@@ -441,7 +441,9 @@ rule damidbind:
             os.path.dirname(output.csv), "peaks"
         ),
         genome=config["genome"],
-        fdr=0.05,
+        norm_method=config["differential_peaks"]["normalization"],
+        fdr=config["differential_peaks"]["fdr"],
+        filter_occupancy=config["differential_peaks"]["filter_occupancy"],
     threads: config["resources"]["deeptools"]["cpu"]
     resources:
         runtime=config["resources"]["deeptools"]["time"],

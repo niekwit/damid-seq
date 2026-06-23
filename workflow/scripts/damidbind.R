@@ -11,9 +11,10 @@ bedgraphs <- snakemake@input[["bg"]]
 outdir_bg <- snakemake@params[["outdir_bg"]]
 peaks_gff <- snakemake@input[["gff"]]
 outdir_peaks <- snakemake@params[["outdir_peaks"]]
-qnormalise <- snakemake@config[["quantile_normalisation"]][["apply"]]
+norm_method <- snakemake@params[["norm_method"]]
 genome <- snakemake@params[["genome"]]
 fdr <- snakemake@params[["fdr"]]
+filter_occupancy <- snakemake@params[["filter_occupancy"]]
 organism <- case_when(
   str_detect(genome, "hg") ~ "homo sapiens",
   str_detect(genome, "mm") ~ "mus musculus",
@@ -28,6 +29,7 @@ diff_diagn_plot <- snakemake@output[["diff_diagn_plot"]]
 dir.create(outdir_bg, recursive = TRUE, showWarnings = FALSE)
 dir.create(outdir_peaks, recursive = TRUE, showWarnings = FALSE)
 
+print("Creating simlinks to original data in directory struture for damidBind")
 for (bg in bedgraphs) {
   dir_name <- basename(dirname(bg))
   new_name <- sub(
@@ -35,7 +37,8 @@ for (bg in bedgraphs) {
     paste0("\\1_", dir_name, "\\2"),
     basename(bg)
   )
-  file.symlink(normalizePath(bg), file.path(outdir_bg, new_name))
+  dest <- file.path(outdir_bg, new_name)
+  if (!file.exists(dest)) file.symlink(normalizePath(bg), dest)
 }
 
 for (gff in peaks_gff) {
@@ -45,14 +48,16 @@ for (gff in peaks_gff) {
     paste0("_", dir_name, ".peaks.gff"),
     basename(gff)
   )
-  file.symlink(normalizePath(gff), file.path(outdir_peaks, new_name))
+  dest <- file.path(outdir_peaks, new_name)
+  if (!file.exists(dest)) file.symlink(normalizePath(gff), dest)
 }
 
 # Load data
+print("Loading peak data and bedGraphs")
 data <- load_data_peaks(
   binding_profiles_path = outdir_bg,
   peaks_path = outdir_peaks,
-  quantile_norm = qnormalise,
+  norm_method = norm_method,
   plot_diagnostics = FALSE,
   organism = organism
 )
@@ -60,7 +65,7 @@ data <- load_data_peaks(
 # Prepare conditions for differential binding analysis
 conditions <- c()
 for (bg in bedgraphs) {
-  condition <- sub("^(.*?)(-vs-Dam.*)", "\\1", basename(bg))
+  condition <- sub("-vs-Dam.*", "", basename(bg))
   conditions <- c(conditions, condition)
 }
 conditions <- unique(conditions)
@@ -69,12 +74,28 @@ conditions <- unique(conditions)
 names(conditions) <- conditions
 
 # Find differentially bound peaks
+print("Finding differentially bound peaks")
 pdf(diff_diagn_plot)
-results <- differential_binding(
-  data,
-  cond = conditions,
-  plot_diagnostics = TRUE,
-  fdr = fdr
+results <- tryCatch(
+  differential_binding(
+    data,
+    cond = conditions,
+    plot_diagnostics = TRUE,
+    fdr = fdr,
+    filter_occupancy = filter_occupancy
+  ),
+  error = function(e) {
+    if (grepl("subscript out of bounds", conditionMessage(e))) {
+      stop(
+        "differential_binding() failed: too few loci passed the ",
+        "occupancy filter. Try setting 'filter_occupancy' to an ",
+        "integer lower than the number of replicates (e.g. 1) in ",
+        "config.yaml under differential_peaks.",
+        call. = FALSE
+      )
+    }
+    stop(e)
+  }
 )
 dev.off()
 
@@ -89,6 +110,7 @@ plot_volcano(results, label_config = list(clean_names = TRUE))
 dev.off()
 
 # Save regions to CSV
+print("Saving differentially bound peaks to CSV")
 df <- analysisTable(results) %>%
   rownames_to_column("peak_id") %>%
   # split peak_id into chrom, start, end

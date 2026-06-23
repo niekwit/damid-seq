@@ -60,6 +60,10 @@ consensus_peaks:
     dbs:
       ["GO_Molecular_Function_2018", "GO_Biological_Process_2018", "KEGG_2019"]
     terms: 10 # Number of terms to plot
+differential_peaks:
+  normalization: quantile # quantile, rpm, scale, none
+  fdr: 0.05 # FDR threshold for differential peak calling
+  filter_occupancy: true # Minimum number of samples a locus must have occupancy > 0 in (true=min replicates, false=no filter, integer=exact number)
 resources: # computing resources
   trim:
     cpu: 8
