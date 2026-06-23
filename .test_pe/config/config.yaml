@@ -36,7 +36,7 @@ deeptools:
     alpha: 1.0
     extra: ""
 peak_calling_perl:
-  run: False
+  run: True
   iterations: 5 # N argument
   fdr: 0.01
   fraction: 0 # Fraction of random fragments to consider per iteration
