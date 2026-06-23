@@ -70,24 +70,24 @@ differential_peaks:
   filter_occupancy: 1 # Minimum number of samples a locus must have occupancy > 0 in (true=min replicates, false=no filter, integer=exact number)
 resources: # computing resources
   trim:
-    cpu: 8
+    cpu: 1
     time: 60
   fastqc:
-    cpu: 4
+    cpu: 1
     time: 60
   damid:
-    cpu: 18
+    cpu: 1
     time: 720
     tmpdir: "/mnt/4TB_SSD/analyses/DamID/test3"
   index:
-    cpu: 36
+    cpu: 1
     time: 60
   deeptools:
-    cpu: 8
+    cpu: 1
     time: 90
   plotting:
-    cpu: 2
+    cpu: 1
     time: 20
   bowtie2:
-    cpu: 24
+    cpu: 1
     time: 90
