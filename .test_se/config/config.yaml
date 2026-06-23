@@ -72,7 +72,7 @@ resources: # computing resources
     cpu: 1
     time: 60
   bowtie2:
-    cpu: 1
+    cpu: 2
     time: 90
   damid:
     cpu: 1

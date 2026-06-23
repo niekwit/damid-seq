@@ -75,19 +75,19 @@ resources: # computing resources
   fastqc:
     cpu: 1
     time: 60
+  bowtie2:
+    cpu: 2
+    time: 90
   damid:
     cpu: 1
-    time: 720
-    tmpdir: "/mnt/4TB_SSD/analyses/DamID/test3"
+    time: 90
+    tmpdir: /tmp
   index:
     cpu: 1
-    time: 60
+    time: 90
   deeptools:
     cpu: 1
     time: 90
   plotting:
     cpu: 1
     time: 20
-  bowtie2:
-    cpu: 1
-    time: 90
