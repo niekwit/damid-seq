@@ -72,6 +72,8 @@ jobs:
 
       - name: Test workflow PE
         uses: snakemake/snakemake-github-action@v2
+        env:
+          GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
         with:
           directory: .test_pe
           snakefile: workflow/Snakefile
