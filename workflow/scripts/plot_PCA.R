@@ -22,7 +22,7 @@ if (nrow(data) > 10) {
 }
 
 # Unique sample conditions
-colnames(data) <- gsub(".ext300", "", colnames(data))
+colnames(data) <- gsub("bam2bigwig.", "", colnames(data))
 samples <- colnames(data)[2:(ncol(data) - 1)]
 samples <- unique(str_split(samples, "\\.", n = 2, simplify = TRUE)[, 2])
 

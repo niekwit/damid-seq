@@ -11,6 +11,11 @@ If you use this workflow in a paper, don't forget to give credits to the authors
 
 `DamMapper` is a containerized Snakemake pipeline for reproducible and scalable analysis of single/paired-end DamID short read Illumina data.
 
+## Citation
+
+If you use `DamMapper` in your pubblication, please cite it as follows:
+
+Wit, N., Bertlin, J., Hynes-Allen, A. et al. Mapping SET1B chromatin interactions with DamID using DamMapper, a comprehensive Snakemake workflow. BMC Genomics 26, 914 (2025). https://doi.org/10.1186/s12864-025-12075-x
 
 ## Documentation
 

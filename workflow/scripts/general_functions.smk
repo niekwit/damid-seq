@@ -9,7 +9,7 @@ from snakemake.logging import logger
 
 wrapper_version = "v5.8.3"
 # Workflow version
-VERSION = "v0.6.0"
+VERSION = "v0.7.0"
 
 ## This header can help with debugging, extend later with more info
 # https://texteditor.com/multiline-text-art/

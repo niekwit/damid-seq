@@ -171,10 +171,11 @@ if config["peak_calling_macs3"]["run"]:
                 bg_sample=BG_SAMPLES,
             ),
             peaks=expand(
-                "results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed",
+                "results/macs3_{mode}/fdr{fdr}/{dir}/{bg_sample}_peaks.{mode}Peak",
                 fdr=fdr,
                 dir=DIRS,
                 bg_sample=BG_SAMPLES,
+                mode=PEAK_MODE,
             ),
         output:
             csv="results/macs3_{mode}/fdr{fdr}/read_counts/reads_in_peaks.csv",
