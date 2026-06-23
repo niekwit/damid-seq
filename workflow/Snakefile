@@ -55,6 +55,7 @@ DBS = config["consensus_peaks"]["enrichment_analysis"]["dbs"]
 PEAK_MODE = [config["peak_calling_macs3"]["mode"]]
 run_damidbind = run_damidbind(BG_SAMPLES)
 
+
 # Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
