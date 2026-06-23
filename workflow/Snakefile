@@ -1,7 +1,7 @@
 include: "scripts/general_functions.smk"
 
 
-from scripts.resources import Resources
+from scripts.resources import Resources as GenomeResources
 from snakemake.utils import min_version, validate
 from snakemake.shell import shell
 
@@ -41,7 +41,7 @@ plasmid_name = os.path.basename(config["plasmid_fasta"]).split(".")[0]
 csv = pd.read_csv("config/samples.csv")
 
 # Load genome resources to be used in rules
-resources = Resources(config["genome"], config["ensembl_genome_build"])
+resources = GenomeResources(config["genome"], config["ensembl_genome_build"])
 
 # Get fusion protein (to be masked in fasta file)
 maskedgenes = masked_genes()
