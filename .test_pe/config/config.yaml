@@ -38,9 +38,9 @@ deeptools:
 peak_calling_perl:
   run: True
   iterations: 5 # N argument
-  fdr: 0.01
+  fdr: 0.2
   fraction: 0 # Fraction of random fragments to consider per iteration
-  min_count: 2 # Minimum number of reads to consider a peak
+  min_count: 1 # Minimum number of reads to consider a peak
   min_quantile: 0.95 # Minimum quantile for considering peaks
   step: 0.01 # Stepping for quantiles
   unified_peaks: max # Method for calling peak overlaps. 'min': call minimum overlapping peak area. 'max': call maximum overlap as peak
@@ -54,7 +54,7 @@ peak_calling_macs3:
 consensus_peaks:
   max_size: 100 # Maximum size of peaks to be extended
   extend_by: 100 # Number of bp to extend peaks on either side
-  keep: 3 # Minimum number peaks that must overlap to keep
+  keep: 1 # Minimum number peaks that must overlap to keep
   enrichment_analysis:
     run: False # Perform enrichment analysis
     dbs:
