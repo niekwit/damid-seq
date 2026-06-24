@@ -15,13 +15,13 @@ sample = snakemake.wildcards["bg_sample"]
 chrom_sizes = {}
 with open(cs) as f:
     for line in f:
-        (key, value) = line.split()
+        key, value = line.split()
         chrom_sizes[key] = int(value)
 
 # Load individual peaks into data frames
 ind_peaks = []
 for peak in peaks:
-    df = pd.read_csv(peak, sep="\t", header=None, low_memory=False)
+    df = pd.read_csv(peak, sep="\t", header=None, low_memory=False, dtype={0: str})
     ind_peaks.append(df)
 
 # Counters for logging
@@ -60,6 +60,12 @@ with open(bed, "r") as bed_in:
             if not df.empty:
                 starts.append(df[1].min())
                 ends.append(df[2].max())
+
+        # If no overlapping regions are found, skip to next line
+        if not starts:
+            skipped_peaks += 1
+            continue
+
         start = min(starts)
         end = max(ends)
 
@@ -97,6 +103,7 @@ with open(ext_bed, "w") as bed_out:
         chrom, start, end = peak
         name = f"peak_{count}"
         bed_out.write(f"{chrom}\t{start}\t{end}\t{name}\n")
+        count += 1
 
 # Write log file
 with open(snakemake.log[0], "w") as log:

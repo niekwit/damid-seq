@@ -1,6 +1,6 @@
 FROM condaforge/miniforge3:latest
 LABEL io.github.snakemake.containerized="true"
-LABEL io.github.snakemake.conda_env_hash="e771fe497492369e86ca96417687e592a8d3cf8e85f271b8b0f6ac354878b6fe"
+LABEL io.github.snakemake.conda_env_hash="e722d8cd63f7154ea81451e3ec41c8f9031ffeec051a73b894aed808c5cd1d1c"
 
 # Step 2: Retrieve conda environments
 
@@ -82,7 +82,7 @@ RUN mkdir -p /conda-envs/85a51d707f59b4dd6fc7102fa747fe0b
 ADD https://github.com/snakemake/snakemake-wrappers/raw/v5.8.3/bio/samtools/index/environment.yaml /conda-envs/85a51d707f59b4dd6fc7102fa747fe0b/environment.yaml
 
 # Conda environment:
-#   source: https://github.com/snakemake/snakemake-wrappers/raw/v5.8.3/bio/trim_galore/se/environment.yaml
+#   source: https://github.com/snakemake/snakemake-wrappers/raw/v5.8.3/bio/trim_galore/pe/environment.yaml
 #   prefix: /conda-envs/975a4a78cc02737b050b54b2645b9ecc
 #   channels:
 #     - conda-forge
@@ -91,7 +91,7 @@ ADD https://github.com/snakemake/snakemake-wrappers/raw/v5.8.3/bio/samtools/inde
 #   dependencies:
 #     - trim-galore =0.6.10
 RUN mkdir -p /conda-envs/975a4a78cc02737b050b54b2645b9ecc
-ADD https://github.com/snakemake/snakemake-wrappers/raw/v5.8.3/bio/trim_galore/se/environment.yaml /conda-envs/975a4a78cc02737b050b54b2645b9ecc/environment.yaml
+ADD https://github.com/snakemake/snakemake-wrappers/raw/v5.8.3/bio/trim_galore/pe/environment.yaml /conda-envs/975a4a78cc02737b050b54b2645b9ecc/environment.yaml
 
 # Conda environment:
 #   source: workflow/envs/R.yaml
@@ -120,7 +120,7 @@ COPY workflow/envs/R.yaml /conda-envs/4554a2c6669fb2054cdfbe43af1d6154/environme
 
 # Conda environment:
 #   source: workflow/envs/damid.yaml
-#   prefix: /conda-envs/8be8f640c07c4deea9fa343ffacd4e92
+#   prefix: /conda-envs/c854e1abba4fde3c301db8ac7c7288bc
 #   name: damid
 #   channels:
 #     - conda-forge
@@ -132,13 +132,46 @@ COPY workflow/envs/R.yaml /conda-envs/4554a2c6669fb2054cdfbe43af1d6154/environme
 #     - bowtie2=2.5.3
 #     - perl=5.32.1
 #     - perl-inline-c=0.81
-#     - r-base=4.3.2
+#     - r-base
 #     - igvtools=2.16.2
 #     - pandas=2.2.0
 #     - pyarrow=14.0.2 #pandas dependency, somehow not in pandas recipe
-#     - r-biocmanager=1.30
-RUN mkdir -p /conda-envs/8be8f640c07c4deea9fa343ffacd4e92
-COPY workflow/envs/damid.yaml /conda-envs/8be8f640c07c4deea9fa343ffacd4e92/environment.yaml
+RUN mkdir -p /conda-envs/c854e1abba4fde3c301db8ac7c7288bc
+COPY workflow/envs/damid.yaml /conda-envs/c854e1abba4fde3c301db8ac7c7288bc/environment.yaml
+
+# Conda environment:
+#   source: workflow/envs/damidbind.yaml
+#   prefix: /conda-envs/1d7a05129cb6c6508dec11c2dad5af41
+#   name: damid
+#   channels:
+#     - conda-forge
+#     - bioconda
+#     - defaults
+#   dependencies:
+#     - r-base=4.5
+#     - conda-forge::r-biocmanager=1.30.27
+#     - conda-forge::r-remotes
+#     - conda-forge::git
+#     - r-tidyverse
+#     - r-ggrepel
+#     - r-patchwork
+#     - r-ggnewscale
+#     - r-shiny
+#     - r-dt
+#     - r-dbscan
+#     - r-fs
+#     - r-svglite
+#     - zlib
+#     - bioconductor-biocparallel
+#     - bioconductor-ensembldb
+#     - bioconductor-rtracklayer
+#     - bioconductor-limma
+#     - bioconductor-noiseq
+#     - bioconductor-clusterprofiler
+#     - bioconductor-complexheatmap
+#     - bioconductor-igvshiny
+RUN mkdir -p /conda-envs/1d7a05129cb6c6508dec11c2dad5af41
+COPY workflow/envs/damidbind.yaml /conda-envs/1d7a05129cb6c6508dec11c2dad5af41/environment.yaml
 
 # Conda environment:
 #   source: workflow/envs/deeptools.yaml
@@ -190,8 +223,15 @@ RUN conda env create --prefix /conda-envs/39f740686257be1f673b0c82e1187e65 --fil
     conda env create --prefix /conda-envs/85a51d707f59b4dd6fc7102fa747fe0b --file /conda-envs/85a51d707f59b4dd6fc7102fa747fe0b/environment.yaml && \
     conda env create --prefix /conda-envs/975a4a78cc02737b050b54b2645b9ecc --file /conda-envs/975a4a78cc02737b050b54b2645b9ecc/environment.yaml && \
     conda env create --prefix /conda-envs/4554a2c6669fb2054cdfbe43af1d6154 --file /conda-envs/4554a2c6669fb2054cdfbe43af1d6154/environment.yaml && \
-    conda env create --prefix /conda-envs/8be8f640c07c4deea9fa343ffacd4e92 --file /conda-envs/8be8f640c07c4deea9fa343ffacd4e92/environment.yaml && \
+    conda env create --prefix /conda-envs/c854e1abba4fde3c301db8ac7c7288bc --file /conda-envs/c854e1abba4fde3c301db8ac7c7288bc/environment.yaml && \
+    conda env create --prefix /conda-envs/1d7a05129cb6c6508dec11c2dad5af41 --file /conda-envs/1d7a05129cb6c6508dec11c2dad5af41/environment.yaml && \
     conda env create --prefix /conda-envs/c3084de3e22349db5230cf89ef9e8162 --file /conda-envs/c3084de3e22349db5230cf89ef9e8162/environment.yaml && \
     conda env create --prefix /conda-envs/bda24173dea9eee42d0a3ee88a8a19fe --file /conda-envs/bda24173dea9eee42d0a3ee88a8a19fe/environment.yaml && \
     conda clean --all -y
-RUN conda run --prefix /conda-envs/8be8f640c07c4deea9fa343ffacd4e92 Rscript -e 'BiocManager::install("damidBind", ask=FALSE)'
+
+# Step 4: Install R packages not available on conda into the damidbind environment
+
+RUN conda run --prefix /conda-envs/1d7a05129cb6c6508dec11c2dad5af41 \
+    Rscript -e 'BiocManager::install("BioVenn", update=FALSE, ask=FALSE); stopifnot(requireNamespace("BioVenn", quietly=TRUE))'
+RUN conda run --prefix /conda-envs/1d7a05129cb6c6508dec11c2dad5af41 \
+    Rscript -e 'remotes::install_github("marshall-lab/damidBind", ref="v1.1.1", upgrade="never"); stopifnot(requireNamespace("damidBind", quietly=TRUE))'

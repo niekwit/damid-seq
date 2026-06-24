@@ -159,6 +159,15 @@ def targets():
                     ),
                 ]
             )
+    if run_damidbind:
+        TARGETS.extend(
+            [
+                "results/damidbind/diagnostic_plots_diff.pdf",
+                "results/damidbind/venn.pdf",
+                "results/damidbind/volcano.pdf",
+                "results/damidbind/peaks.csv",
+            ]
+        )
     return TARGETS
 
 
@@ -575,3 +584,19 @@ def check_plasmid():
     """
     if not os.path.isfile(config["plasmid_fasta"]):
         raise ValueError(f"Plasmid fasta file {config['plasmid_fasta']} not found...")
+
+
+def run_damidbind(BG_SAMPLES):
+    """
+    Check if more than one non-Dam condition is present.
+    If so, run damidBind to calculate differential binding between these.
+    """
+
+    if len(BG_SAMPLES) > 1:
+        logger.info(
+            "More than one non-Dam sample detected, running damidBind to calculate differential binding between these..."
+        )
+        return True
+    else:
+        logger.info("Only one non-Dam sample detected, skipping damidBind analysis...")
+        return False

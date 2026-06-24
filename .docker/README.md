@@ -8,11 +8,10 @@ These images are shared via [Docker Hub](https://hub.docker.com/repository/docke
 
 ```shell
 snakemake --containerize > Dockerfile
-DAMID_PREFIX=$(grep -A2 'source: workflow/envs/damid.yaml' Dockerfile | grep 'prefix:' | awk '{print $NF}')
-cat >> Dockerfile << EOF
-RUN conda run --prefix ${DAMID_PREFIX} Rscript -e 'BiocManager::install("damidBind", ask=FALSE)'
-EOF
-docker build -t niekwit/damid-seq:v0.7.0 .
+docker build -t niekwit/damid-seq:0.7.0 .
 docker login
-docker push niekwit/damid-seq:v0.7.0
+docker push niekwit/damid-seq:0.7.0
 ```
+
+> [!NOTE]
+> After running `snakemake --containerize > Dockerfile`, a section is added to the Dockerfile that installs R packages not available on Conda into the damidbind environment.

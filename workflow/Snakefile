@@ -1,12 +1,16 @@
 include: "scripts/general_functions.smk"
 
 
-from scripts.resources import Resources
+from scripts.resources import Resources as GenomeResources
 from snakemake.utils import min_version, validate
 from snakemake.shell import shell
 
 
 report: "report/workflow.rst"
+
+
+# Workflow version
+VERSION = "v0.7.0"
 
 
 # Set minimum snakemake version
@@ -37,7 +41,7 @@ plasmid_name = os.path.basename(config["plasmid_fasta"]).split(".")[0]
 csv = pd.read_csv("config/samples.csv")
 
 # Load genome resources to be used in rules
-resources = Resources(config["genome"], config["ensembl_genome_build"])
+resources = GenomeResources(config["genome"], config["ensembl_genome_build"])
 
 # Get fusion protein (to be masked in fasta file)
 maskedgenes = masked_genes()
@@ -49,18 +53,19 @@ BG_SAMPLES = samples(bedgraph=True)  # SAMPLES minus Dam control
 DAM_SAMPLES = samples(bedgraph=True, dam=True)
 DBS = config["consensus_peaks"]["enrichment_analysis"]["dbs"]
 PEAK_MODE = [config["peak_calling_macs3"]["mode"]]
+run_damidbind = run_damidbind(BG_SAMPLES)
 
 
 # Import rules
 include: "rules/fastqc.smk"
 include: "rules/trimming.smk"
 include: "rules/resources.smk"
-include: "rules/damid.smk"
 include: "rules/bedgraph_processing.smk"
 include: "rules/deeptools.smk"
 include: "rules/plotting.smk"
 include: "rules/peak_calling_perl.smk"
 include: "rules/macs3.smk"
+include: "rules/damid.smk"
 
 
 localrules:
