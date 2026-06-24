@@ -13,7 +13,7 @@ To install Snakemake create the following environment with Mamba:
 
 .. code-block:: console
 
-    $ mamba create -n snakemake snakemake=8.13
+    $ mamba create -n snakemake snakemake=8.25.5
 
 Activate the environment as follows:
 

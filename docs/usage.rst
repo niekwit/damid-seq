@@ -112,9 +112,11 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
     genome: dm6
     ensembl_genome_build: 110
     plasmid_fasta: none # Path to plasmid fasta file with sequences to be removed
-    fusion_genes: 
-        genes: FBgn0004872 # Ensembl gene IDs for genes to be masked from the fasta file
+    fusion_genes:
+        genes: FBgn0038542,FBgn0085506 # Ensembl gene IDs for genes to be masked from the fasta file (comma-separated)
         feature_to_mask: "exon" # Gene feature to mask from the fasta file (exon or gene)
+    bowtie2:
+        extra: "" # extra argument for bowtie2
     damidseq_pipeline:
         normalization: kde # kde, rpm or rawbins
         binsize: 300
@@ -127,23 +129,23 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
             binSize: 10
             normalizeUsing: RPKM
             extra: ""
-    matrix: # Settings for computeMatrix
-        mode: scale-regions # scale-regions or reference-point
-        referencePoint: TSS # TSS, TES, center (only for reference-point mode)
-        regionBodyLength: 6000
-        upstream: 3000
-        downstream: 3000
-        binSize: 100
-        averageTypeBins: mean
-        regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
-        no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
-        extra: "" # Any additional parameters for computeMatrix
-    plotHeatmap:
-        interpolationMethod: auto
-        plotType: lines # lines, fill, se, std
-        colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
-        alpha: 1.0
-        extra: "" 
+        matrix: # Settings for computeMatrix
+            mode: scale-regions # scale-regions or reference-point
+            referencePoint: TSS # TSS, TES, center (only for reference-point mode)
+            regionBodyLength: 6000
+            upstream: 3000
+            downstream: 3000
+            binSize: 100
+            averageTypeBins: mean
+            regionsFileName: "" # BED or GTF file(s) with regions of interest (optional, whole genome if not specified)
+            no_whole_genome: False # If True, will omit whole genome as region and only use regionsFileName(s)
+            extra: "" # Any additional parameters for computeMatrix
+        plotHeatmap:
+            interpolationMethod: auto
+            plotType: lines # lines, fill, se, std
+            colorMap: viridis # https://matplotlib.org/2.0.2/users/colormaps.html
+            alpha: 1.0
+            extra: ""
     peak_calling_perl:
         run: True
         iterations: 5 # N argument
@@ -163,11 +165,15 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
     consensus_peaks:
         max_size: 10 # Maximum size of peaks to be extended
         extend_by: 40 # Number of bp to extend peaks on either side
-        keep: 2 # Minimum number peaks that must overlap to keep
-        enrichment_analysis: 
-        run: True # Perform enrichment analysis
-        dbs: ["GO_Molecular_Function_2018","GO_Biological_Process_2018","KEGG_2019"]
-        terms: 10 # Number of terms to plot
+        keep: 1 # Minimum number peaks that must overlap to keep
+        enrichment_analysis:
+            run: True # Perform enrichment analysis
+            dbs: ["GO_Molecular_Function_2018","GO_Biological_Process_2018","KEGG_2019"]
+            terms: 10 # Number of terms to plot
+    differential_peaks:
+        normalization: quantile # quantile, rpm, scale, none
+        fdr: 0.05 # FDR threshold for differential peak calling
+        filter_occupancy: true # Minimum number of samples a locus must have occupancy > 0 in (true=min replicates, false=no filter, integer=exact number)
     resources: # computing resources
         trim:
             cpu: 8
@@ -175,6 +181,9 @@ The config/ directory contains `samples.csv` with sample meta data as follows:
         fastqc:
             cpu: 4
             time: 60
+        bowtie2:
+            cpu: 24
+            time: 90
         damid:
             cpu: 24
             time: 720
@@ -200,7 +209,7 @@ To prevent this, two approaches are available:
     
     To disable this function set the value of config.yaml["fusion_genes"] to "".
 
-2. If a plasmid is used that for example also uses an endogenous promoter besides the Dam fusion proteins, one can set a path to a fasta file containg all the plasmid sequences in config.yaml[""]. Trimmed reads are first aligned to these sequences, and the resulting non-aligning reads will then be processed as normal.
+2. If a plasmid is used that for example also uses an endogenous promoter besides the Dam fusion proteins, one can set a path to a fasta file containg all the plasmid sequences in config.yaml["plasmid_fasta"]. Trimmed reads are first aligned to these sequences, and the resulting non-aligning reads will then be processed as normal.
 
 It is recommended to store this file in a directory called resources within the analysis folder (this folder will also contain all other non-experimental files such as fasta and gtf files).
 

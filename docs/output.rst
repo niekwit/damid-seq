@@ -64,12 +64,9 @@ When run with the test data provided in the GitHub repository (.test/reads), the
     │       └── Piwi.bw
     ├── deeptools
     │   ├── average_bw_matrix.gz
-    │   ├── correlation_bam.tab
     │   ├── correlation.tab
     │   ├── heatmap_matrix.gz
-    │   ├── PCA_bam.tab
     │   ├── PCA.tab
-    │   ├── scores_per_bin_bam.npz
     │   └── scores_per_bin.npz
     ├── peaks
     │   └── fdr0.01
@@ -109,7 +106,6 @@ When run with the test data provided in the GitHub repository (.test/reads), the
     ├── plots
     │   ├── heatmap.pdf
     │   ├── mapping_rates.pdf
-    │   ├── PCA_bam.pdf
     │   ├── PCA.pdf
     │   ├── peaks
     │   │   └── fdr0.01
@@ -122,9 +118,7 @@ When run with the test data provided in the GitHub repository (.test/reads), the
     │   │       ├── feature_distributions.pdf
     │   │       └── frip.pdf
     │   ├── profile_plot.pdf
-    │   ├── sample_correlation_bam.pdf
     │   ├── sample_correlation.pdf
-    │   ├── scree_bam.pdf
     │   └── scree.pdf
     ├── qc
     │   ├── fastqc
@@ -156,19 +150,13 @@ When run with the test data provided in the GitHub repository (.test/reads), the
     └── trimmed
         ├── exp1
         │   ├── Dam.fastq.gz_trimming_report.txt
-        │   ├── Dam.flag
-        │   ├── Piwi.fastq.gz_trimming_report.txt
-        │   └── Piwi.flag
+        │   └── Piwi.fastq.gz_trimming_report.txt
         ├── exp2
         │   ├── Dam.fastq.gz_trimming_report.txt
-        │   ├── Dam.flag
-        │   ├── Piwi.fastq.gz_trimming_report.txt
-        │   └── Piwi.flag
+        │   └── Piwi.fastq.gz_trimming_report.txt
         └── exp3
             ├── Dam.fastq.gz_trimming_report.txt
-            ├── Dam.flag
-            ├── Piwi.fastq.gz_trimming_report.txt
-            └── Piwi.flag
+            └── Piwi.fastq.gz_trimming_report.txt
 
 50 directories, 118 files
 
@@ -202,9 +190,9 @@ The Bowtie2 alignment rates are summarised in results/plots/mapping_rates.pdf.
 PCA plot of BAM files
 =====================
 
-A PCA plot of the BAM files is generated to check the consistency of biological replicates. The plot is saved in results/plots/PCA_bam.pdf. 
+A PCA plot of the BAM files is generated to check the consistency of biological replicates. The plot is saved in results/plots/PCA.pdf.
 
-A scree plot is also generated to show the variance explained by each principal component (results/plots/scree_bam.pdf).
+A scree plot is also generated to show the variance explained by each principal component (results/plots/scree.pdf).
 
 .. figure:: images/PCA_bam.png
    :align: center
@@ -219,7 +207,7 @@ A scree plot is also generated to show the variance explained by each principal 
 Sample correlation heatmap
 ==========================
 
-A correlation (Spearman) heatmap of the BAM files is generated to also check the consistency of biological replicates. The plot is saved in results/plots/sample_correlation_bam.pdf.
+A correlation (Spearman) heatmap of the BAM files is generated to also check the consistency of biological replicates. The plot is saved in results/plots/sample_correlation.pdf.
 
 .. figure:: images/sample_correlation_bam.png
    :align: center
@@ -282,4 +270,49 @@ A plot showing the distribution of the peaks across different genomic features i
 .. figure:: images/feature_distributions.png
    :align: center
    :width: 1000
+
+
+Differential binding analysis
+------------------------------
+
+When the experiment contains **more than one non-Dam sample** (e.g. HIF1A and HIF2A), `DamMapper` automatically runs `damidBind <https://github.com/marshall-lab/damidBind>`_ to identify genomic loci that are differentially bound between conditions. All pairwise comparisons between non-Dam samples are performed.
+
+.. note::
+
+    damidBind requires the Perl peak-calling step to be enabled (``peak_calling_perl: run: True``) because it uses the resulting GFF peak files alongside the normalized bedgraph profiles.
+
+The analysis is controlled by the following settings in ``config.yaml``:
+
+.. code-block:: yaml
+
+    differential_peaks:
+        normalization: quantile # quantile, rpm, scale, none
+        fdr: 0.05              # FDR threshold for calling differential peaks
+        filter_occupancy: true # Minimum number of samples a locus must have occupancy > 0 in
+                               # (true = min replicates, false = no filter, integer = exact number)
+
+Output files are written to ``results/damidbind/{comparison}/``, where ``{comparison}`` follows the pattern ``{sample}_vs_{ref_sample}`` (e.g. ``HIF1A_vs_HIF2A``):
+
+.. code-block:: console
+
+    results/damidbind/
+    └── HIF1A_vs_HIF2A
+        ├── bedgraph/               # symlinks to normalised bedgraph input files
+        ├── peaks/                  # symlinks to peak GFF input files
+        ├── diagnostic_plots_diff.pdf
+        ├── peaks.csv
+        ├── venn.pdf
+        └── volcano.pdf
+
+``diagnostic_plots_diff.pdf``
+    Diagnostic plots produced by ``damidBind::differential_binding()``, showing the distribution of binding scores and model fit across loci.
+
+``venn.pdf``
+    Venn diagram showing the overlap between peaks that are gained, lost, or shared between the two compared conditions.
+
+``volcano.pdf``
+    Volcano plot of all tested loci, with differentially bound peaks highlighted. Gene labels are cleaned automatically.
+
+``peaks.csv``
+    Table of all tested loci with columns for genomic coordinates (``chrom``, ``start``, ``end``) and the full ``damidBind`` statistics (log2 fold-change, p-value, FDR, etc.).
 
