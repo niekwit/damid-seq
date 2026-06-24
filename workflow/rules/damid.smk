@@ -429,10 +429,10 @@ rule damidbind:
             fdr=fdr,
         ),
     output:
-        diff_diagn_plot="results/damidbind/diagnostic_plots_diff.pdf",
-        venn="results/damidbind/venn.pdf",
-        volcano="results/damidbind/volcano.pdf",
-        csv="results/damidbind/peaks.csv",
+        diff_diagn_plot="results/damidbind/{comparison}/diagnostic_plots_diff.pdf",
+        venn="results/damidbind/{comparison}/venn.pdf",
+        volcano="results/damidbind/{comparison}/volcano.pdf",
+        csv="results/damidbind/{comparison}/peaks.csv",
     params:
         outdir_bg=lambda wildcards, output: os.path.join(
             os.path.dirname(output.csv), "bedgraph"
@@ -448,7 +448,7 @@ rule damidbind:
     resources:
         runtime=config["resources"]["deeptools"]["time"],
     log:
-        "logs/damidbind/damidbind.log",
+        "logs/damidbind/{comparison}/damidbind.log",
     conda:
         "../envs/damidbind.yaml"
     script:

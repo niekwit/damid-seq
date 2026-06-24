@@ -78,6 +78,7 @@ def targets():
         "results/plots/heatmap.pdf",
         "results/plots/profile_plot.pdf",
         "results/plots/mapping_rates.pdf",
+        "results/plots/mapping_rates.csv",
         expand(
             "results/bigwig_rev_log2/average_bw/{bg_sample}.bw", bg_sample=BG_SAMPLES
         ),
@@ -162,10 +163,19 @@ def targets():
     if run_damidbind:
         TARGETS.extend(
             [
-                "results/damidbind/diagnostic_plots_diff.pdf",
-                "results/damidbind/venn.pdf",
-                "results/damidbind/volcano.pdf",
-                "results/damidbind/peaks.csv",
+                expand(
+                    "results/damidbind/{comparison}/diagnostic_plots_diff.pdf",
+                    comparison=COMPARISONS,
+                ),
+                expand(
+                    "results/damidbind/{comparison}/venn.pdf", comparison=COMPARISONS
+                ),
+                expand(
+                    "results/damidbind/{comparison}/volcano.pdf", comparison=COMPARISONS
+                ),
+                expand(
+                    "results/damidbind/{comparison}/peaks.csv", comparison=COMPARISONS
+                ),
             ]
         )
     return TARGETS
@@ -600,3 +610,19 @@ def run_damidbind(BG_SAMPLES):
     else:
         logger.info("Only one non-Dam sample detected, skipping damidBind analysis...")
         return False
+
+
+def comparisons(csv, config):
+    """
+    Returns list of comparisons to be made for damidBind
+    """
+    conditions = csv["sample"].tolist()
+    ref_conditions = config["differential_peaks"]["ref_sample"]
+    comparisons = []
+
+    # Create all pairwise comparisons between conditions and ref_conditions
+    for ref in ref_conditions:
+        for cond in conditions:
+            if cond != ref:
+                comparisons.append(f"{cond}_vs_{ref}")
+    return comparisons
