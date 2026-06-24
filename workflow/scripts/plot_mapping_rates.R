@@ -30,14 +30,14 @@ for (i in seq_along(log.files)) {
   rate <- as.numeric(str_replace(rate, "% overall alignment rate", ""))
 
   # Extract mapping rates
-  mapping.rates <- data.frame(sample = sample, overall_mapping_rate = rate)
+  mapping.rates <- data.frame(sample = sample, mapping_rate = rate)
 
   # Add to data frame with all data
   mapping.rates.all <- rbind(mapping.rates.all, mapping.rates)
 }
 
 # Plot data and save
-p <- ggplot(mapping.rates.all, aes(x = sample, y = overall_mapping_rate)) +
+p <- ggplot(mapping.rates.all, aes(x = sample, y = mapping_rate)) +
   geom_bar(
     stat = "identity",
     position = "dodge",
@@ -52,6 +52,9 @@ p <- ggplot(mapping.rates.all, aes(x = sample, y = overall_mapping_rate)) +
 
 # Save to file
 ggsave(snakemake@output[["pdf"]], p)
+
+# Save mappins rates to CSV
+write.csv(mapping.rates.all, snakemake@output[["csv"]], row.names = FALSE)
 
 # Close redirection of output/messages
 sink(slog, type = "output")
