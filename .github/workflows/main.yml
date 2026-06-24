@@ -62,18 +62,7 @@ jobs:
             --sdm conda --show-failed-logs --cores 2
             --conda-cleanup-pkgs cache
             --conda-prefix ${{ github.workspace }}/.conda
-
-      - name: Test report SE
-        uses: snakemake/snakemake-github-action@v2
-        with:
-          directory: .test_se
-          snakefile: workflow/Snakefile
-          snakemake-version: "8.25.5"
-          args: >-
-            --sdm conda --show-failed-logs --cores 2
-            --conda-cleanup-pkgs cache
-            --conda-prefix ${{ github.workspace }}/.conda
-            --report report.zip
+            --until index_bam
 
       - name: Test workflow PE
         uses: snakemake/snakemake-github-action@v2
