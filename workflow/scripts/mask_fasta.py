@@ -90,7 +90,9 @@ else:
             except ValueError:
                 continue  # Skip empty line (last one)
 
-            # Load chromosome sequence where gene feuture is located
+            # Load chromosome sequence where gene feature is located
+            if chr not in chr_seq:
+                continue  # scaffold/mito was already removed
             seq = chr_seq[chr]
 
             # Correct start and end positions for 0-based indexing
