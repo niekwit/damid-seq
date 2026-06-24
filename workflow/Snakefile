@@ -97,27 +97,24 @@ onsuccess:
     logger.info(
         f"Please check the logs in logs/damidseq_pipeline/ for potential warnings about the normalisation method"
     )
-
     try:
         from ngs_tracker import register_run
 
         register_run(config)
     except ImportError:
         pass
-
     except Exception as exc:
         logger.warning(f"NGS Tracker registration skipped: {exc}")
+
 
 onerror:
     shell("cp -v {log} {snake_log}")
     logger.info(f"Analysis failed...\nCheck {snake_log} for details")
-
     try:
         from ngs_tracker import register_run
 
         register_run(config, status="failed", log_file=log)
     except ImportError:
         pass
-
     except Exception as exc:
         logger.warning(f"NGS Tracker registration skipped: {exc}")
