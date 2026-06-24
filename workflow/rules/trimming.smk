@@ -11,13 +11,13 @@ if paired_end:
             fasta_rev="results/trimmed/{dir}/{sample}_2.fastq.gz",
             report_fwd="results/trimmed/{dir}/{sample}_1.fastq.gz_trimming_report.txt",
             report_rev="results/trimmed/{dir}/{sample}_2.fastq.gz_trimming_report.txt",
-        params:
-            extra="--illumina -q 20",
+        log:
+            "logs/trim_galore/{dir}/{sample}.log",
         threads: config["resources"]["trim"]["cpu"]
         resources:
             runtime=config["resources"]["trim"]["time"],
-        log:
-            "logs/trim_galore/{dir}/{sample}.log",
+        params:
+            extra="--illumina -q 20",
         wrapper:
             "v5.8.3/bio/trim_galore/pe"
 
@@ -29,12 +29,12 @@ else:
         output:
             fasta="results/trimmed/{dir}/{sample}.fastq.gz",
             report="results/trimmed/{dir}/{sample}.fastq.gz_trimming_report.txt",
-        params:
-            extra="--illumina -q 20",
+        log:
+            "logs/trim_galore/{dir}/{sample}.log",
         threads: config["resources"]["trim"]["cpu"]
         resources:
             runtime=config["resources"]["trim"]["time"],
-        log:
-            "logs/trim_galore/{dir}/{sample}.log",
+        params:
+            extra="--illumina -q 20",
         wrapper:
             "v5.8.3/bio/trim_galore/se"

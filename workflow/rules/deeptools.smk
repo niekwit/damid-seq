@@ -3,18 +3,18 @@ rule multiBigwigSummary:
         expand("results/bigwig/bam2bigwig/{dir}/{sample}.bw", dir=DIRS, sample=SAMPLES),
     output:
         "results/deeptools/scores_per_bin.npz",
+    log:
+        "logs/deeptools/multiBigwigSummary.log",
+    conda:
+        "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"] * 4
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
     params:
         labels=lambda wildcards, input: [
             x.replace("results/bigwig/", "").replace(".bw", "") for x in input
         ],
         extra="",
-    threads: config["resources"]["deeptools"]["cpu"] * 4
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
-    log:
-        "logs/deeptools/multiBigwigSummary.log",
-    conda:
-        "../envs/deeptools.yaml"
     shell:
         "multiBigwigSummary bins "
         "--bwfiles {input} "
@@ -30,15 +30,15 @@ rule PCA:
         "results/deeptools/scores_per_bin.npz",
     output:
         "results/deeptools/PCA.tab",
-    params:
-        extra="",
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
     log:
         "logs/deeptools/PCA.log",
     conda:
         "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
+    params:
+        extra="",
     shell:
         "plotPCA "
         "--corData {input} "
@@ -54,15 +54,15 @@ rule computeMatrix:
         gtf=resources.gtf,
     output:
         mat="results/deeptools/average_bw_matrix.gz",
-    params:
-        args=computematrix_args(),
-    threads: config["resources"]["deeptools"]["cpu"] * 5  # Otherwise it will take very long
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
     log:
         "logs/deeptools/computeMatrix.log",
     conda:
         "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"] * 5  # Otherwise it will take very long
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
+    params:
+        args=computematrix_args(),
     shell:
         "computeMatrix "
         "{params.args} "

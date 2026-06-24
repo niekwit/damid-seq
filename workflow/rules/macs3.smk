@@ -12,19 +12,19 @@ if config["peak_calling_macs3"]["run"]:
                 "_peaks.{mode}Peak",
                 "_cutoff_analysis.txt",
             ),
+        log:
+            "logs/macs3_{mode}/fdr{fdr}/{dir}/{bg_sample}.log",
+        conda:
+            "../envs/peak_calling.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
         params:
             name=lambda w, input: os.path.basename(input["treatment"]).replace(
                 ".sorted.bam", ""
             ),
             outdir=lambda w, output: os.path.dirname(output[0]),
             args=macs3_params(),  # Contains format, genome, cutoffs, mode and extra
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
-        log:
-            "logs/macs3_{mode}/fdr{fdr}/{dir}/{bg_sample}.log",
-        conda:
-            "../envs/peak_calling.yaml"
         shell:
             "macs3 callpeak "
             "--treatment {input.treatment} "
@@ -46,15 +46,15 @@ if config["peak_calling_macs3"]["run"]:
             ),
         output:
             "results/macs3_{mode}/fdr{fdr}/consensus_peaks/{bg_sample}.intersect.bed",
-        params:
-            extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             "logs/consensus_peaks_macs3/{mode}/fdr{fdr}/{bg_sample}.log",
         conda:
             "../envs/peak_calling.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
+        params:
+            extra="",
         shell:
             "bedtools multiinter {params.extra} -i {input.peaks} > {output}"
 
@@ -70,17 +70,17 @@ if config["peak_calling_macs3"]["run"]:
             cs=f"resources/{resources.genome}_chrom.sizes",
         output:
             ext_bed="results/macs3_{mode}/fdr{fdr}/consensus_peaks/{bg_sample}.intersect.filtered.bed",
-        params:
-            k=config["consensus_peaks"]["keep"],
-            max_size=config["consensus_peaks"]["max_size"],
-            e=config["consensus_peaks"]["extend_by"],
-        threads: 1
-        resources:
-            runtime=15,
         log:
             "logs/filter_consensus_peaks/macs3_{mode}/fdr{fdr}/{bg_sample}.log",
         conda:
             "../envs/peak_calling.yaml"
+        threads: 1
+        resources:
+            runtime=15,
+        params:
+            k=config["consensus_peaks"]["keep"],
+            max_size=config["consensus_peaks"]["max_size"],
+            e=config["consensus_peaks"]["extend_by"],
         script:
             "../scripts/filter_consensus_peaks.py"
 
@@ -104,15 +104,15 @@ if config["peak_calling_macs3"]["run"]:
                 caption="../report/distance_to_tss.rst",
                 category="Peak annotation",
             ),
-        params:
-            extra="",
-        threads: config["resources"]["plotting"]["cpu"]
-        resources:
-            runtime=config["resources"]["plotting"]["time"],
         log:
             "logs/plotting/macs3_{mode}_peak_annotation_plots/fdr{fdr}.log",
         conda:
             "../envs/R.yaml"
+        threads: config["resources"]["plotting"]["cpu"]
+        resources:
+            runtime=config["resources"]["plotting"]["time"],
+        params:
+            extra="",
         script:
             "../scripts/peak_annotation_plots.R"
 
@@ -127,15 +127,15 @@ if config["peak_calling_macs3"]["run"]:
                 caption="../report/annotated_peaks.rst",
                 category="Annotated peaks",
             ),
-        params:
-            extra="",
         log:
             "logs/annotate_peaks_macs3_{mode}/fdr{fdr}/{bg_sample}.log",
+        conda:
+            "../envs/R.yaml"
         threads: config["resources"]["deeptools"]["cpu"]
         resources:
             runtime=config["resources"]["deeptools"]["time"],
-        conda:
-            "../envs/R.yaml"
+        params:
+            extra="",
         script:
             "../scripts/annotate_peaks.R"
 
@@ -144,13 +144,13 @@ if config["peak_calling_macs3"]["run"]:
             txt="results/macs3_{mode}/fdr{fdr}/{bg_sample}.annotated.txt",
         output:
             ids="results/macs3_{mode}/fdr{fdr}/{bg_sample}.geneIDs.txt",
-        threads: 1
-        resources:
-            runtime=5,
         log:
             "logs/geneIDs_peaks_macs3_{mode}_fdr{fdr}/{bg_sample}.log",
         conda:
             "../envs/deeptools.yaml"
+        threads: 1
+        resources:
+            runtime=5,
         shell:
             "sed '1d' {input.txt} | "
             "awk '{{print $(NF-4),$(NF-1)}}' | "
@@ -179,13 +179,13 @@ if config["peak_calling_macs3"]["run"]:
             ),
         output:
             csv="results/macs3_{mode}/fdr{fdr}/read_counts/reads_in_peaks.csv",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             "logs/frip/{mode}_fdr{fdr}.log",
         conda:
             "../envs/deeptools.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
         script:
             "../scripts/count_reads_in_peaks.py"
 
@@ -198,15 +198,15 @@ if config["peak_calling_macs3"]["run"]:
                 caption="../report/frip.rst",
                 category="Fraction of reads in peaks",
             ),
-        params:
-            extra="",
-        threads: config["resources"]["plotting"]["cpu"]
-        resources:
-            runtime=config["resources"]["plotting"]["time"],
         log:
             "logs/plot_frip/{mode}/fdr{fdr}.log",
         conda:
             "../envs/R.yaml"
+        threads: config["resources"]["plotting"]["cpu"]
+        resources:
+            runtime=config["resources"]["plotting"]["time"],
+        params:
+            extra="",
         script:
             "../scripts/plot_frip.R"
 
@@ -217,17 +217,17 @@ if config["peak_calling_macs3"]["run"]:
                 txt="results/macs3_{mode}/fdr{fdr}/{bg_sample}.geneIDs.txt",
             output:
                 xlsx="results/macs3_{mode}/fdr{fdr}/enrichment_analysis/{bg_sample}.xlsx",
-            params:
-                extra="",
-                genome=resources.genome,
-                dbs=config["consensus_peaks"]["enrichment_analysis"]["dbs"],
-            threads: config["resources"]["deeptools"]["cpu"]
-            resources:
-                runtime=config["resources"]["deeptools"]["time"],
             log:
                 "logs/enrichment_analysis/macs3_{mode}/fdr{fdr}/{bg_sample}.log",
             conda:
                 "../envs/R.yaml"
+            threads: config["resources"]["deeptools"]["cpu"]
+            resources:
+                runtime=config["resources"]["deeptools"]["time"],
+            params:
+                extra="",
+                genome=resources.genome,
+                dbs=config["consensus_peaks"]["enrichment_analysis"]["dbs"],
             script:
                 "../scripts/enrichment_analysis.R"
 
@@ -243,15 +243,15 @@ if config["peak_calling_macs3"]["run"]:
                     caption="../report/enrichment_analysis.rst",
                     category="Pathway enrichment analysis",
                 ),
-            params:
-                terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
-                dirname=lambda w, output: os.path.dirname(output[0]),
-            threads: config["resources"]["plotting"]["cpu"]
-            resources:
-                runtime=config["resources"]["plotting"]["time"],
             log:
                 "logs/plot_enrichment/macs3_{mode}/fdr{fdr}/{bg_sample}.log",
             conda:
                 "../envs/R.yaml"
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"],
+            params:
+                terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
+                dirname=lambda w, output: os.path.dirname(output[0]),
             script:
                 "../scripts/plot_enrichment.R"

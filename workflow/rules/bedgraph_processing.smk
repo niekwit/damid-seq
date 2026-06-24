@@ -15,11 +15,6 @@ if config["quantile_normalisation"]["apply"]:
                 dir=DIRS,
                 bg_sample=BG_SAMPLES,
             ),
-        params:
-            extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             expand(
                 "logs/quantile_normalisation/{dir}/{bg_sample}.log",
@@ -28,6 +23,11 @@ if config["quantile_normalisation"]["apply"]:
             ),
         conda:
             "../envs/damid.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
+        params:
+            extra="",
         script:
             "../scripts/quantile_norm_bedgraph.py"
 
@@ -36,13 +36,13 @@ if config["quantile_normalisation"]["apply"]:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph",
         output:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
-        threads: 1
-        resources:
-            runtime=30,
         log:
             "logs/rev_log2/{dir}/{bg_sample}.log",
         conda:
             "../envs/deeptools.yaml"
+        threads: 1
+        resources:
+            runtime=30,
         script:
             "../scripts/reverse_log2.py"
 
@@ -52,15 +52,15 @@ if config["quantile_normalisation"]["apply"]:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.quantile-norm.gatc.bedgraph",
         output:
             bw="results/bigwig/{dir}/{bg_sample}.bw",
-        params:
-            extra="",
+        log:
+            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log",
+        conda:
+            "../envs/deeptools.yaml"
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
-        conda:
-            "../envs/deeptools.yaml"
-        log:
-            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log",
+        params:
+            extra="",
         shell:
             "bedGraphToBigWig "
             "{params.extra} "
@@ -77,15 +77,15 @@ else:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
         output:
             bw="results/bigwig/{dir}/{bg_sample}.bw",
-        params:
-            extra="",
+        log:
+            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log",
+        conda:
+            "../envs/deeptools.yaml"
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
-        conda:
-            "../envs/deeptools.yaml"
-        log:
-            "logs/bedgraph2bigwig/{dir}/bw_{bg_sample}.log",
+        params:
+            extra="",
         shell:  # This has a Snakemake wrapper
             "bedGraphToBigWig "
             "{params.extra} "
@@ -98,13 +98,13 @@ else:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam-norm.gatc.bedgraph",
         output:
             bg="results/bedgraph/{dir}/{bg_sample}-vs-Dam.rev_log2.bedgraph",
-        threads: 1
-        resources:
-            runtime=30,
         log:
             "logs/rev_log2/{dir}/{bg_sample}.log",
         conda:
             "../envs/deeptools.yaml"
+        threads: 1
+        resources:
+            runtime=30,
         script:
             "../scripts/reverse_log2.py"
 
@@ -114,15 +114,15 @@ rule average_wig:
         expand("results/bigwig/{dir}/{bg_sample}.bw", dir=DIRS, bg_sample=BG_SAMPLES),
     output:
         wig=temp("results/bigwig/average_bw/{bg_sample}.wig"),
-    params:
-        extra="",
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
     log:
         "logs/wiggletools/wig_average_{bg_sample}.log",
     conda:
         "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
+    params:
+        extra="",
     script:
         "../scripts/average_wig.py"
 
@@ -133,15 +133,15 @@ rule wig2bigwig:
         cs=f"resources/{resources.genome}_chrom.sizes",
     output:
         "results/bigwig/average_bw/{bg_sample}.bw",
-    params:
-        extra="",
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
     log:
         "logs/wigToBigWig/{bg_sample}.log",
     conda:
         "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
+    params:
+        extra="",
     shell:
         "wigToBigWig {input.wig} {input.cs} {output}"
 

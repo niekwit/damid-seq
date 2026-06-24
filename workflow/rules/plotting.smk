@@ -6,15 +6,15 @@ rule plotPCA:
         scree=report(
             "results/plots/scree.pdf", caption="../report/scree.rst", category="PCA"
         ),
-    params:
-        extra="",
-    threads: config["resources"]["plotting"]["cpu"]
-    resources:
-        runtime=config["resources"]["plotting"]["time"],
     log:
         "logs/plotting/plotPCA.log",
     conda:
         "../envs/R.yaml"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources:
+        runtime=config["resources"]["plotting"]["time"],
+    params:
+        extra="",
     script:
         "../scripts/plot_PCA.R"
 
@@ -29,15 +29,15 @@ rule plot_correlation:
             caption="../report/correlation.rst",
             category="Sample correlation",
         ),
-    params:
-        extra="",
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
     log:
         "logs/plotting/plotCorrelation.log",
     conda:
         "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
+    params:
+        extra="",
     shell:
         "plotCorrelation "
         "--corData {input} "
@@ -62,19 +62,19 @@ rule plot_heatmap:
             category="Heatmap",
         ),
         mat="results/deeptools/heatmap_matrix.gz",
+    log:
+        "logs/deeptools/plotHeatmap.log",
+    conda:
+        "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
     params:
         im=config["deeptools"]["plotHeatmap"]["interpolationMethod"],
         pt=config["deeptools"]["plotHeatmap"]["plotType"],
         cm=config["deeptools"]["plotHeatmap"]["colorMap"],
         a=config["deeptools"]["plotHeatmap"]["alpha"],
         extra=config["deeptools"]["plotHeatmap"]["extra"],
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
-    log:
-        "logs/deeptools/plotHeatmap.log",
-    conda:
-        "../envs/deeptools.yaml"
     shell:
         "plotHeatmap "
         "--matrixFile {input.mat} "
@@ -95,16 +95,16 @@ rule plot_profile:
             caption="../report/profile_plot.rst",
             category="Profile plot",
         ),
-    params:
-        rl=computematrix_args(region_labels=True),
-        extra="",
-    threads: config["resources"]["deeptools"]["cpu"]
-    resources:
-        runtime=config["resources"]["deeptools"]["time"],
     log:
         "logs/deeptools/plotProfile.log",
     conda:
         "../envs/deeptools.yaml"
+    threads: config["resources"]["deeptools"]["cpu"]
+    resources:
+        runtime=config["resources"]["deeptools"]["time"],
+    params:
+        rl=computematrix_args(region_labels=True),
+        extra="",
     shell:
         "plotProfile "
         "--matrixFile {input.mat} "
@@ -138,15 +138,15 @@ if config["peak_calling_perl"]["run"]:
                 caption="../report/distance_to_tss.rst",
                 category="Peak annotation",
             ),
-        params:
-            extra="",
-        threads: config["resources"]["plotting"]["cpu"]
-        resources:
-            runtime=config["resources"]["plotting"]["time"],
         log:
             "logs/plotting/peak_annotation_plots_fdr{fdr}.log",
         conda:
             "../envs/R.yaml"
+        threads: config["resources"]["plotting"]["cpu"]
+        resources:
+            runtime=config["resources"]["plotting"]["time"],
+        params:
+            extra="",
         script:
             "../scripts/peak_annotation_plots.R"
 
@@ -173,15 +173,15 @@ elif config["peak_calling_macs3"]["run"]:
                     caption="../report/distance_to_tss.rst",
                     category="Peak annotation",
                 ),
-            params:
-                extra="",
-            threads: config["resources"]["plotting"]["cpu"]
-            resources:
-                runtime=config["resources"]["plotting"]["time"],
             log:
                 "logs/plotting/peak_annotation_plots_fdr{fdr}_macs2_narrow.log",
             conda:
                 "../envs/R.yaml"
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"],
+            params:
+                extra="",
             script:
                 "../scripts/peak_annotation_plots.R"
 
@@ -207,15 +207,15 @@ elif config["peak_calling_macs3"]["run"]:
                     caption="../report/distance_to_tss.rst",
                     category="Peak annotation",
                 ),
-            params:
-                extra="",
-            threads: config["resources"]["plotting"]["cpu"]
-            resources:
-                runtime=config["resources"]["plotting"]["time"],
             log:
                 "logs/plotting/peak_annotation_plots_fdr{fdr}_macs2_broad.log",
             conda:
                 "../envs/R.yaml"
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"],
+            params:
+                extra="",
             script:
                 "../scripts/peak_annotation_plots.R"
 
@@ -230,14 +230,14 @@ rule plot_mapping_rates:
             category="Mapping rates",
         ),
         csv="results/plots/mapping_rates.csv",
-    params:
-        extra="",
-    threads: config["resources"]["plotting"]["cpu"]
-    resources:
-        runtime=config["resources"]["plotting"]["time"],
     log:
         "logs/plotting/plot_mapping_rates.log",
     conda:
         "../envs/R.yaml"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources:
+        runtime=config["resources"]["plotting"]["time"],
+    params:
+        extra="",
     script:
         "../scripts/plot_mapping_rates.R"

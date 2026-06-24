@@ -8,6 +8,13 @@ if config["peak_calling_perl"]["run"]:
         output:
             gff="results/peaks/fdr{fdr}/{dir}/{bg_sample}.peaks.gff",
             data="results/peaks/fdr{fdr}/{dir}/{bg_sample}.data",
+        log:
+            "logs/find_peaks/fdr{fdr}/{dir}/{bg_sample}.log",
+        conda:
+            "../envs/peak_calling.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
         params:
             outdir=lambda w, output: os.path.dirname(output["gff"]),
             n=config["peak_calling_perl"]["iterations"],
@@ -17,13 +24,6 @@ if config["peak_calling_perl"]["run"]:
             mq=config["peak_calling_perl"]["min_quantile"],
             step=config["peak_calling_perl"]["step"],
             up=config["peak_calling_perl"]["unified_peaks"],
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
-        conda:
-            "../envs/peak_calling.yaml"
-        log:
-            "logs/find_peaks/fdr{fdr}/{dir}/{bg_sample}.log",
         script:
             "../scripts/run_find_peaks.py"
 
@@ -32,15 +32,15 @@ if config["peak_calling_perl"]["run"]:
             "results/peaks/fdr{fdr}/{dir}/{bg_sample}.peaks.gff",
         output:
             "results/peaks/fdr{fdr}/{dir}/{bg_sample}.bed",
-        params:
-            extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             "logs/gff2bed/{dir}_{bg_sample}_fdr{fdr}.log",
         conda:
             "../envs/peak_calling.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
+        params:
+            extra="",
         shell:
             "gff2bed < {input} > {output}"
 
@@ -50,15 +50,15 @@ if config["peak_calling_perl"]["run"]:
             genome=f"resources/{resources.genome}_chrom_order.txt",
         output:
             "results/peaks/fdr{fdr}/{dir}/{bg_sample}.sorted.bed",
-        params:
-            extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             "logs/sort_peak_bed/{dir}_{bg_sample}_fdr{fdr}.log",
         conda:
             "../envs/peak_calling.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
+        params:
+            extra="",
         wrapper:
             "v5.8.3/bio/bedtools/sort"
 
@@ -72,15 +72,15 @@ if config["peak_calling_perl"]["run"]:
             ),
         output:
             "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.overlap.bed",
-        params:
-            extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             "logs/consensus_peaks/fdr{fdr}/{bg_sample}.log",
         conda:
             "../envs/peak_calling.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
+        params:
+            extra="",
         shell:
             "bedtools multiinter {params.extra} -i {input.beds} > {output}"
 
@@ -95,18 +95,18 @@ if config["peak_calling_perl"]["run"]:
             cs=f"resources/{resources.genome}_chrom.sizes",
         output:
             "results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.filtered.bed",
+        log:
+            "logs/filter_bed_file_fdr{fdr}/{bg_sample}.log",
+        conda:
+            "../envs/peak_calling.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
         params:
             k=config["consensus_peaks"]["keep"],
             max_size=config["consensus_peaks"]["max_size"],
             e=config["consensus_peaks"]["extend_by"],
             extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
-        log:
-            "logs/filter_bed_file_fdr{fdr}/{bg_sample}.log",
-        conda:
-            "../envs/peak_calling.yaml"
         script:
             "../scripts/filter_consensus_peaks.py"
 
@@ -121,15 +121,15 @@ if config["peak_calling_perl"]["run"]:
                 caption="../report/annotated_peaks.rst",
                 category="Annotated peaks",
             ),
-        params:
-            extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             "logs/annotate_peaks/fdr{fdr}/{bg_sample}.log",
         conda:
             "../envs/R.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
+        params:
+            extra="",
         script:
             "../scripts/annotate_peaks.R"
 
@@ -138,13 +138,13 @@ if config["peak_calling_perl"]["run"]:
             txt="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.annotated.txt",
         output:
             ids="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.geneIDs.txt",
-        threads: 1
-        resources:
-            runtime=5,
         log:
             "logs/peaks_fdr{fdr}_geneIDs/{bg_sample}.log",
         conda:
             "../envs/deeptools.yaml"
+        threads: 1
+        resources:
+            runtime=5,
         shell:
             "sed '1d' {input.txt} | "
             "awk '{{print $(NF-4),$(NF-1)}}' |"
@@ -158,17 +158,17 @@ if config["peak_calling_perl"]["run"]:
                 txt="results/peaks/fdr{fdr}/consensus_peaks/{bg_sample}.geneIDs.txt",
             output:
                 xlsx="results/peaks/fdr{fdr}/consensus_peaks/enrichment_analysis/{bg_sample}.xlsx",
-            params:
-                extra="",
-                genome=resources.genome,
-                dbs=config["consensus_peaks"]["enrichment_analysis"]["dbs"],
-            threads: config["resources"]["deeptools"]["cpu"]
-            resources:
-                runtime=config["resources"]["deeptools"]["time"],
             log:
                 "logs/enrichment_analysis/peaks/fdr{fdr}/{bg_sample}.log",
             conda:
                 "../envs/R.yaml"
+            threads: config["resources"]["deeptools"]["cpu"]
+            resources:
+                runtime=config["resources"]["deeptools"]["time"],
+            params:
+                extra="",
+                genome=resources.genome,
+                dbs=config["consensus_peaks"]["enrichment_analysis"]["dbs"],
             script:
                 "../scripts/enrichment_analysis.R"
 
@@ -184,16 +184,16 @@ if config["peak_calling_perl"]["run"]:
                     caption="../report/enrichment_analysis.rst",
                     category="Pathway enrichment analysis",
                 ),
-            params:
-                terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
-                dirname=lambda w, output: os.path.dirname(output[0]),
-            threads: config["resources"]["plotting"]["cpu"]
-            resources:
-                runtime=config["resources"]["plotting"]["time"],
             log:
                 "logs/plot_enrichment/peaks/fdr{fdr}/{bg_sample}.log",
             conda:
                 "../envs/R.yaml"
+            threads: config["resources"]["plotting"]["cpu"]
+            resources:
+                runtime=config["resources"]["plotting"]["time"],
+            params:
+                terms=config["consensus_peaks"]["enrichment_analysis"]["terms"],
+                dirname=lambda w, output: os.path.dirname(output[0]),
             script:
                 "../scripts/plot_enrichment.R"
 
@@ -218,15 +218,15 @@ if config["peak_calling_perl"]["run"]:
             ),
         output:
             csv="results/peaks/fdr{fdr}/read_counts/reads_in_peaks.csv",
-        params:
-            extra="",
-        threads: config["resources"]["deeptools"]["cpu"]
-        resources:
-            runtime=config["resources"]["deeptools"]["time"],
         log:
             "logs/frip/perl_fdr{fdr}.log",
         conda:
             "../envs/deeptools.yaml"
+        threads: config["resources"]["deeptools"]["cpu"]
+        resources:
+            runtime=config["resources"]["deeptools"]["time"],
+        params:
+            extra="",
         script:
             "../scripts/count_reads_in_peaks.py"
 
@@ -239,14 +239,14 @@ if config["peak_calling_perl"]["run"]:
                 caption="../report/frip.rst",
                 category="Fraction of reads in peaks",
             ),
-        params:
-            extra="",
-        threads: config["resources"]["plotting"]["cpu"]
-        resources:
-            runtime=config["resources"]["plotting"]["time"],
         log:
             "logs/plot_frip/fdr{fdr}.log",
         conda:
             "../envs/R.yaml"
+        threads: config["resources"]["plotting"]["cpu"]
+        resources:
+            runtime=config["resources"]["plotting"]["time"],
+        params:
+            extra="",
         script:
             "../scripts/plot_frip.R"

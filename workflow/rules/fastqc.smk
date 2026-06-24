@@ -6,14 +6,14 @@ if paired_end:
         output:
             html="results/qc/fastqc/{dir}/post_trim/{sample}_R{end}_001.html",
             zip="results/qc/fastqc/{dir}/post_trim/{sample}_R{end}_001_fastqc.zip",
-        params:
-            extra="--quiet",
         log:
             "logs/fastqc/post_trim/{dir}/{sample}_R{end}_001.log",
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb=2048,
+        params:
+            extra="--quiet",
         wrapper:
             "v5.8.3/bio/fastqc"
 
@@ -23,14 +23,14 @@ if paired_end:
         output:
             html="results/qc/fastqc/{dir}/pre_trim/{sample}_R{end}_001.html",
             zip="results/qc/fastqc/{dir}/pre_trim/{sample}_R{end}_001_fastqc.zip",
-        params:
-            extra="--quiet",
         log:
             "logs/fastqc/pre_trim/{dir}/{sample}_R{end}_001.log",
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb=2048,
+        params:
+            extra="--quiet",
         wrapper:
             "v5.8.3/bio/fastqc"
 
@@ -45,14 +45,14 @@ if paired_end:
             ),
         output:
             r="results/qc/multiqc/multiqc.html",
-        params:
-            extra="--dirs --dirs-depth 2",  # Optional: extra parameters for multiqc
+        log:
+            "logs/multiqc/multiqc.log",
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb=2048,
-        log:
-            "logs/multiqc/multiqc.log",
+        params:
+            extra="--dirs --dirs-depth 2",  # Optional: extra parameters for multiqc
         wrapper:
             "v5.8.3/bio/multiqc"
 
@@ -64,14 +64,14 @@ else:
         output:
             html="results/qc/fastqc/{dir}/post_trim/{sample}.html",
             zip="results/qc/fastqc/{dir}/post_trim/{sample}_fastqc.zip",
-        params:
-            extra="--quiet",
         log:
             "logs/fastqc/{dir}/{sample}.log",
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb=2048,
+        params:
+            extra="--quiet",
         wrapper:
             "v5.8.3/bio/fastqc"
 
@@ -81,14 +81,14 @@ else:
         output:
             html="results/qc/fastqc/{dir}/pre_trim/{sample}.html",
             zip="results/qc/fastqc/{dir}/pre_trim/{sample}_fastqc.zip",
-        params:
-            extra="--quiet",
         log:
             "logs/fastqc/{dir}/{sample}.log",
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb=2048,
+        params:
+            extra="--quiet",
         wrapper:
             "v5.8.3/bio/fastqc"
 
@@ -102,13 +102,13 @@ else:
             ),
         output:
             "results/qc/multiqc/multiqc.html",
-        params:
-            extra="--dirs --dirs-depth 2",  # Optional: extra parameters for multiqc
+        log:
+            "logs/multiqc/multiqc.log",
         threads: config["resources"]["fastqc"]["cpu"]
         resources:
             runtime=config["resources"]["fastqc"]["time"],
             mem_mb=2048,
-        log:
-            "logs/multiqc/multiqc.log",
+        params:
+            extra="--dirs --dirs-depth 2",  # Optional: extra parameters for multiqc
         wrapper:
             "v5.8.3/bio/multiqc"

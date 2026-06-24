@@ -1,16 +1,16 @@
 rule get_fasta:
     output:
         resources.fasta,
-    retries: 3
-    params:
-        url=resources.fasta_url,
     log:
         "logs/resources/get_fasta.log",
+    retries: 3
+    conda:
+        "../envs/damid.yaml"
     threads: config["resources"]["plotting"]["cpu"]
     resources:
         runtime=config["resources"]["plotting"]["time"],
-    conda:
-        "../envs/damid.yaml"
+    params:
+        url=resources.fasta_url,
     script:
         "../scripts/get_resource.sh"
 
@@ -18,47 +18,44 @@ rule get_fasta:
 use rule get_fasta as get_gtf with:
     output:
         resources.gtf,
-    params:
-        url=resources.gtf_url,
     log:
         "logs/resources/get_gtf.log",
+    params:
+        url=resources.gtf_url,
 
 
 rule install_damidseq_pipeline_software:
     output:
         directory("resources/damidseq_pipeline"),
-    params:
-        url="https://github.com/owenjm/damidseq_pipeline.git",
-        version="-b v1.5.3",
-    retries: 3
     log:
         "logs/resources/install_find_peaks_software.log",
+    retries: 3
+    conda:
+        "../envs/damid.yaml"
     threads: 1
     resources:
         runtime=5,
-    conda:
-        "../envs/damid.yaml"
+    params:
+        url="https://github.com/owenjm/damidseq_pipeline.git",
+        version="-b v1.5.3",
     shell:
-        "git clone "
-        "{params.url} "
-        "{params.version} "
-        "{output} > {log} 2>&1"
+        "git clone " "{params.url} " "{params.version} " "{output} > {log} 2>&1"
 
 
 rule install_find_peak_software:
     output:
         directory("resources/find_peaks"),
-    params:
-        url="https://github.com/owenjm/find_peaks.git",
-        commit="2259915d08c7d5ab0151d7b15e2292603d7a05c7",
-    retries: 3
     log:
         "logs/resources/install_find_peaks_software.log",
+    retries: 3
+    conda:
+        "../envs/damid.yaml"
     threads: 1
     resources:
         runtime=5,
-    conda:
-        "../envs/damid.yaml"
+    params:
+        url="https://github.com/owenjm/find_peaks.git",
+        commit="2259915d08c7d5ab0151d7b15e2292603d7a05c7",
     shell:
         "git clone {params.url} {output} && "
         "git -C {output} checkout {params.commit} > {log} 2>&1"
@@ -71,11 +68,11 @@ rule create_annotation_file:
         rdata=f"resources/{resources.genome}_{resources.build}_annotation.Rdata",
     log:
         "logs/resources/create_annotation_file.log",
+    conda:
+        "../envs/R.yaml"
     threads: config["resources"]["trim"]["cpu"]
     resources:
         runtime=config["resources"]["trim"]["time"],
-    conda:
-        "../envs/R.yaml"
     script:
         "../scripts/create_annotation_file.R"
 
@@ -86,17 +83,17 @@ rule mask_fasta:
         gtf=resources.gtf,
     output:
         out=f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.fa",
+    log:
+        "logs/resources/masked_fasta.log",
+    conda:
+        "../envs/peak_calling.yaml"
+    threads: config["resources"]["plotting"]["cpu"]
+    resources:
+        runtime=config["resources"]["plotting"]["time"],
     params:
         g2m=maskedgenes,
         genome=resources.genome,
         f2m=config["fusion_genes"]["feature_to_mask"],
-    log:
-        "logs/resources/masked_fasta.log",
-    threads: config["resources"]["plotting"]["cpu"]
-    resources:
-        runtime=config["resources"]["plotting"]["time"],
-    conda:
-        "../envs/peak_calling.yaml"
     script:
         "../scripts/mask_fasta.py"
 
@@ -123,14 +120,13 @@ rule chrom_sizes:
         f"resources/{resources.genome}_chrom.sizes",
     log:
         "logs/resources/chrom_sizes.log",
+    conda:
+        "../envs/damid.yaml"
     threads: config["resources"]["plotting"]["cpu"]
     resources:
         runtime=config["resources"]["plotting"]["time"],
-    conda:
-        "../envs/damid.yaml"
     shell:
-        "awk '{{print $1,$2}}' {input.fai} | "
-        r"sed 's/\s/\t/'  > {output}"
+        "awk '{{print $1,$2}}' {input.fai} | " r"sed 's/\s/\t/'  > {output}"
 
 
 rule chrom_order:
@@ -140,11 +136,11 @@ rule chrom_order:
         f"resources/{resources.genome}_chrom_order.txt",
     log:
         "logs/resources/chrom_order.log",
+    conda:
+        "../envs/damid.yaml"
     threads: 1
     resources:
         runtime=5,
-    conda:
-        "../envs/damid.yaml"
     shell:
         r"sort -k 1,1V {input} > {output}"
 
@@ -156,16 +152,16 @@ rule make_gatc_tracks:
         out=temp(
             f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.unsorted.gff"
         ),
-    params:
-        genome=resources.genome,
-        motif="GATC",
+    log:
+        "logs/make_gatc_tracks/tracks.log",
+    conda:
+        "../envs/peak_calling.yaml"
     threads: config["resources"]["damid"]["cpu"]
     resources:
         runtime=45,
-    conda:
-        "../envs/peak_calling.yaml"
-    log:
-        "logs/make_gatc_tracks/tracks.log",
+    params:
+        genome=resources.genome,
+        motif="GATC",
     script:
         "../scripts/gatc.track.maker.py"
 
@@ -175,13 +171,13 @@ rule sort_gatc_tracks:
         f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.unsorted.gff",
     output:
         f"resources/{resources.genome}_{resources.build}_{maskedgenes}.masked.GATC.gff",
+    log:
+        "logs/make_gatc_tracks/sort_tracks.log",
+    conda:
+        "../envs/damid.yaml"
     threads: 1
     resources:
         runtime=10,
-    conda:
-        "../envs/damid.yaml"
-    log:
-        "logs/make_gatc_tracks/sort_tracks.log",
     shell:
         "sort -k1,1V -k4,4n {input} > {output} 2> {log}"
 
@@ -201,11 +197,11 @@ rule bowtie2_build_index:
         ),
     log:
         f"logs/bowtie2_build_index/{resources.genome}_{resources.build}.log",
-    params:
-        extra="",  # optional parameters
     threads: config["resources"]["index"]["cpu"]
     resources:
         runtime=config["resources"]["index"]["time"],
+    params:
+        extra="",  # optional parameters
     wrapper:
         "v5.8.3/bio/bowtie2/build"
 
@@ -227,10 +223,10 @@ if config["plasmid_fasta"] != "none":
             ),
         log:
             f"logs/bowtie2_build_index/{plasmid_name}.log",
-        params:
-            extra="",  # optional parameters
         threads: config["resources"]["index"]["cpu"]
         resources:
             runtime=config["resources"]["index"]["time"],
+        params:
+            extra="",  # optional parameters
         wrapper:
             "v5.8.3/bio/bowtie2/build"
