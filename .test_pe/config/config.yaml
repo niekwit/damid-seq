@@ -65,6 +65,7 @@ consensus_peaks:
       ]
     terms: 10 # Number of terms to plot
 differential_peaks:
+  ref_sample: ["HIF1A"]
   normalization: quantile # quantile, rpm, scale, none
   fdr: 0.2 # FDR threshold for differential peak calling
   filter_occupancy: 1 # Minimum number of samples a locus must have occupancy > 0 in (true=min replicates, false=no filter, integer=exact number)
