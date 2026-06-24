@@ -229,6 +229,7 @@ rule plot_mapping_rates:
             caption="../report/mapping_rates.rst",
             category="Mapping rates",
         ),
+        csv="results/plots/mapping_rates.csv",
     params:
         extra="",
     threads: config["resources"]["plotting"]["cpu"]
